@@ -1,31 +1,116 @@
 .App {
   text-align: center;
+  color: #333333;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.app-login-container {
+  width: 300px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.app-login-container label,
+.app-login-container input {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.app-login-container button {
+  background: #1e90ff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.app-login-container button:hover {
+  background: #1565c0;
+}
+
+.app-login-container .google-auth {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.app-login-container .google-auth img {
+  margin-right: 10px;
+}
+
+.app-login-container .forgot-link {
+  text-align: right;
+  color: #1e90ff;
+  text-decoration: underline;
+}
+
+.app-button-red {
+  background: linear-gradient(to right, #ff0000, #df889b);
+  color: black;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px 5px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.app-button-blue {
+  background: linear-gradient(to right, #1e90ff, #87ceeb);
+  color: black;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px 5px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.app-button-green {
+  background: linear-gradient(to right, #008000, #00ff00);
+  color: black;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px 5px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.app-button-yellow {
+  background: linear-gradient(to right, #ffff00, #ffeb3b);
+  color: black;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px 5px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.app-button-orange {
+  background: linear-gradient(to right, #ffa500, #ff7043);
+  color: black;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px 5px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s;
 }
 
 @keyframes App-logo-spin {

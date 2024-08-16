@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+:root {
+  /* Tema claro */
+  --light-green: #f5f7f6;
+  --medium-green: #e1ebdd;
+  --dark-green: #20512f;
+  --text-color: #545454;
+  --text-color-hover: #fff;
+  --button-green: #20512f;
+  --button-hover-green: #4b8a5a;
+  --border-color: #ddd;
+  --sidebar-width: 13rem;
+  --sidebar-collapsed-width: 4rem;
+  --background-color: white;
+  --top-bar-background: var(--medium-green);
+}
+
+[data-theme='dark'] {
+  /* Tema oscuro */
+  --light-green: #1e1e1e;
+  --medium-green: #233125;
+  --dark-green: #d2d2d2;
+  --text-color: #f5f5f5;
+  --text-color-hover: #233125;;
+  --button-green: #4b8a5a;
+  --button-hover-green: #5aa469;
+  --border-color: #444;
+  --background-color: #97aa97;
+  --top-bar-background: #333;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--light-green);
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-wrapper {
+  display: flex;
+  background-color: var(--medium-green);
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--medium-green);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid var(--border-color);
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--dark-green);
+}
+
+.logo p {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--dark-green);
+  text-align: center;
+  
+}
+
+.sidebar.collapsed .logo p {
+  display: none;
+}
+
+.user-profile {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.user-info h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--dark-green);
+  text-align: center;
+}
+
+.user-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  text-align: center;
+  font-weight: bold;
+}
+
+.sidebar.collapsed .user-info {
+  display: none;
+}
+
+.menu {
+  margin-top: 2rem;
+}
+
+.menu h4 {
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  transition: background 0.3s;
+}
+
+.menu-item.active,
+.menu-item:hover {
+  background-color: var(--dark-green);
+  color: var(--text-color-hover);
+  padding-left: 30px;
+}
+
+.menu-item span {
+  display: inline-block;
+}
+
+.sidebar.collapsed .menu-item span:last-child {
+  display: none;
+}
+
+.community h4 {
+  margin-top: 2rem;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.main-content {
+  flex-grow: 1;
+  background-color: var(--background-color);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.top-bar h1 {
+  color: var(--text-color);
+  margin: 0;
+}
+
+.top-bar .top-bar-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.top-bar .top-bar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--button-green);
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.top-bar .top-bar-button:hover {
+  background-color: var(--button-hover-green);
+}
+
+.filter-btn {
+  padding: 10px 20px;
+  background-color: var(--button-green);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.filter-btn:hover {
+  background-color: var(--button-hover-green);
+}
+
