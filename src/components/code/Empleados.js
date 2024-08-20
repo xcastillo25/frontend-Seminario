@@ -559,7 +559,7 @@ const Empleados = () => {
                                         <div className="password-container">
                                             <input
                                                 className="modal-input"
-                                                type={showPassword ? "text" : "password"} // Cambia el tipo de input según el estado
+                                                type={showPassword ? "text" : "password"}
                                                 placeholder="Contraseña"
                                                 name="password"
                                                 value={usuario.password}
