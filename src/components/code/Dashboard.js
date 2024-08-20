@@ -6,13 +6,15 @@ import Empleados from './Empleados';
 import Configuracion from './Configuracion';
 import Roles from './Roles';
 import Clientes from './Clientes';
+import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
   const [activeMenuItem, setActiveMenuItem] = useState('Overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [theme, setTheme] = useState('light');
   const [topBarTitle, setTopBarTitle] = useState('Dashboard');
-  const [topBarIcon, setTopBarIcon] = useState('dashboard'); // Icono inicial
+  const [topBarIcon, setTopBarIcon] = useState('dashboard');
+  const { user } = useAuth();
 
   const [plataformaVisible, setPlataformaVisible] = useState('plataformaActividades');
   const [asideVisible, setAsideVisible] = useState(true);
@@ -64,8 +66,8 @@ const Dashboard = () => {
         </div>
         <div className="user-profile">
           <div className="user-info">
-            <h4>Hola Alexis Castillo</h4>
-            <p>Rol: Administrador</p>
+          <h4>Hola {user.usuario.nombre}</h4>
+          <p>Rol: {user.usuario.rol}</p>
           </div>
         </div>
         <nav className="menu">
