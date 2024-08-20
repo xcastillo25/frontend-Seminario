@@ -25,6 +25,8 @@ const Empleados = () => {
     const [usuarioToDelete, setUsuarioToDelete] = useState(null);
     const [showUsuarioDeleteModal, setShowUsuarioDeleteModal] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
         fetchEmpleados();
@@ -517,6 +519,7 @@ const Empleados = () => {
                     </div>
                 </div>
             )}
+            
             {showUsuarioModal && (
                 <div className="usuario-modal">
                     <div className="modal-content">
@@ -546,45 +549,50 @@ const Empleados = () => {
                                             <option value="">Selecciona un rol</option>
                                             {roles.map((rol) => (
                                                 <option key={rol.idrol} value={rol.idrol}>
-                                                    {rol.rol} {/* Asegúrate de que `rol.rol` es el campo correcto */}
+                                                    {rol.rol} 
                                                 </option>
                                             ))}
                                         </select>
                                     </div>
                                     <div className="row">
                                         <label className="modal-label">Contraseña:</label>
-                                        <input
-                                            className="modal-input"
-                                            type="password"
-                                            placeholder="Contraseña"
-                                            name="password"
-                                            value={usuario.password}
-                                            onChange={handleUsuarioInputChange}
-                                        />
+                                        <div className="password-container">
+                                            <input
+                                                className="modal-input"
+                                                type={showPassword ? "text" : "password"} // Cambia el tipo de input según el estado
+                                                placeholder="Contraseña"
+                                                name="password"
+                                                value={usuario.password}
+                                                onChange={handleUsuarioInputChange}
+                                            />
+                                            <span 
+                                                className="password-toggle-icon" 
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                            </span>
+                                        </div>
                                     </div>
                                     <div className="row">
                                         <label className="modal-label">Confirmar Contraseña:</label>
-                                        <input
-                                            className="modal-input"
-                                            type="password"
-                                            placeholder="Confirmar Contraseña"
-                                            name="confirmPassword"
-                                            value={usuario.confirmPassword}
-                                            onChange={handleUsuarioInputChange}
-                                        />
+                                        <div className="password-container">
+                                            <input
+                                                className="modal-input"
+                                                type={showConfirmPassword ? "text" : "password"} // Cambia el tipo de input según el estado
+                                                placeholder="Confirmar Contraseña"
+                                                name="confirmPassword"
+                                                value={usuario.confirmPassword}
+                                                onChange={handleUsuarioInputChange}
+                                            />
+                                            <span 
+                                                className="password-toggle-icon" 
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            >
+                                                <i className={`fas ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="row">
-                                        <label className="modal-label">Estado:</label>
-                                        <select
-                                            className="modal-input"
-                                            name="activo"
-                                            value={usuario.activo ? 'activo' : 'inactivo'}
-                                            onChange={(e) => setUsuario({ ...usuario, activo: e.target.value === 'activo' })}
-                                        >
-                                            <option value="activo">Activo</option>
-                                            <option value="inactivo">Inactivo</option>
-                                        </select>
-                                    </div>
+
                                 </div>
                                 <div className="modal-buttons">
                                     {!isUpdating && (
@@ -593,10 +601,28 @@ const Empleados = () => {
                                         </button>
                                     )}
                                     {isUpdating && (
-                                        <button onClick={handleUsuarioUpdate} className="usuario-update-button" disabled={loadingSave}>
-                                            {loadingSave ? 'Actualizando...' : 'Actualizar'}
-                                        </button>
+                                        <>
+                                            <button onClick={handleUsuarioUpdate} className="usuario-confirm-button" disabled={loadingSave}>
+                                                {loadingSave ? 'Actualizando...' : 'Actualizar'}
+                                            </button>
+                                            <button
+                                                className="usuario-confirm-button" 
+                                                onClick={() => toggleUsuarioActive(usuario.idusuario)}
+                                                disabled={loadingToggle} // Activar siempre que se esté actualizando
+                                            >
+                                                {loadingToggle ? (usuario.activo ? 'Desactivando...' : 'Activando...') : (usuario.activo ? 'Desactivar' : 'Activar')}
+                                            </button>
+                                        </>
                                     )}
+                                    <button
+                                        className="usuario-confirm-button"
+                                        onClick={() => {
+                                            clearUsuarioForm();
+                                            setIsUpdating(false);
+                                        }}
+                                    >
+                                        Nuevo
+                                    </button>
                                     <button onClick={() => setShowUsuarioModal(false)} className="usuario-cancel-button">Cancelar</button>
                                 </div>
                             </div>
@@ -608,7 +634,7 @@ const Empleados = () => {
                                             <th>Usuario</th>
                                             <th>Rol</th>
                                             <th>Estado</th>
-                                            <th>Acciones</th>
+                                            <th>Reset Contraseña</th>
                                             <th>Eliminar</th>
                                         </tr>
                                     </thead>
@@ -624,8 +650,8 @@ const Empleados = () => {
                                                         </span>
                                                     </td>
                                                     <td>
-                                                        <button className="toggle-estado-button" onClick={(e) => { e.stopPropagation(); toggleUsuarioActive(user.idusuario); }}>
-                                                            {user.activo ? 'Desactivar' : 'Activar'}
+                                                        <button className="reset-password-button" onClick={(e) => { e.stopPropagation(); handleResetPassword(user.idusuario); }}>
+                                                            Resetear
                                                         </button>
                                                     </td>
                                                     <td>
