@@ -19,11 +19,9 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<Navigate to="/session" replace />} />
-            {/* <Route path="/home" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
-            <Route path="/home" element={<Dashboard />} />
-            {/* <Route path="/adminhome" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} /> */}
+            <Route path="/home" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            {/* <Route path="/home" element={<Dashboard />} /> */}
             <Route path="/session" element={<Login />} />
-            {/* <Route path="/adminsession" element={<AdminLogin />} /> */}
           </Routes>
         </div>
       </Router>

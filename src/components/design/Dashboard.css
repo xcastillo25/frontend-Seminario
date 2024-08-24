@@ -14,6 +14,13 @@
   --sidebar-collapsed-width: 4rem;
   --background-color: white;
   --top-bar-background: var(--medium-green);
+  --color-label: black;
+  --input-border: #20512f;
+  --table-header: #20512f;
+  --table-header-text: white;
+  --table-cell-pair: #e1ebdd;
+  --table-cell-odd: #c0d4b8;
+  --table-cell-hover: gray;
 }
 
 [data-theme='dark'] {
@@ -28,6 +35,12 @@
   --border-color: #444;
   --background-color: #97aa97;
   --top-bar-background: #333;
+  --color-label: white;
+  --input-border: rgb(33, 32, 32);
+  --table-header: white;
+  --table-header-text: black;
+  --table-cell-pair: #376d44;
+  --table-cell-odd: #20512f;
 }
 
 body {
@@ -175,7 +188,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
   padding: 10px 20px;
   border-bottom: 1px solid var(--border-color);
 }
@@ -203,6 +215,12 @@ body {
   transition: background-color 0.3s ease;
 }
 
+.top-bar h1 .top-bar-icon {
+  font-size: 2.5rem;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
 .top-bar .top-bar-button:hover {
   background-color: var(--button-hover-green);
 }
@@ -219,5 +237,9 @@ body {
 
 .filter-btn:hover {
   background-color: var(--button-hover-green);
+}
+
+.middle{
+
 }
 
