@@ -6,6 +6,8 @@ import Empleados from './Empleados';
 import Configuracion from './Configuracion';
 import Roles from './Roles';
 import Clientes from './Clientes';
+import Pagos from './Pagos'
+import Usuarios from './Usuarios';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -53,7 +55,11 @@ const Dashboard = () => {
         mostrarPlataforma('plataformaRoles');
     } else if(menuItem === 'Clientes'){
       mostrarPlataforma('plataformaClientes');
-  }
+    } else if (menuItem === 'Pagos'){
+      mostrarPlataforma('plataformaPagos');
+    } else if (menuItem === 'Usuarios'){
+      mostrarPlataforma('plataformaUsuarios')
+    }
     
   };
 
@@ -128,6 +134,7 @@ const Dashboard = () => {
             <span className="material-icons">payment</span>
             <span>Pagos</span>
           </a>
+          
         </nav>
         <div className="community">
           <h4>Reportes</h4>
@@ -183,6 +190,8 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaConfiguracion' && <Configuracion setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaRoles' && <Roles setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaClientes' && <Clientes setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaPagos' && <Pagos setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaUsuarios' && <Usuarios setPlataformaVisible={setPlataformaVisible}/>}
         </section> 
       </main>
     </div>
