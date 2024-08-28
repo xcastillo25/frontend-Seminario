@@ -6,6 +6,7 @@ import Empleados from './Empleados';
 import Configuracion from './Configuracion';
 import Roles from './Roles';
 import Clientes from './Clientes';
+import Servicios from './Servicios';  
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -53,7 +54,9 @@ const Dashboard = () => {
         mostrarPlataforma('plataformaRoles');
     } else if(menuItem === 'Clientes'){
       mostrarPlataforma('plataformaClientes');
-  }
+    } else if (menuItem === 'Servicios'){
+      mostrarPlataforma('plataformaServicios')
+    }
     
   };
 
@@ -183,6 +186,7 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaConfiguracion' && <Configuracion setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaRoles' && <Roles setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaClientes' && <Clientes setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaServicios' && <Servicios setPlataformaVisible={setPlataformaVisible}/>}
         </section> 
       </main>
     </div>
