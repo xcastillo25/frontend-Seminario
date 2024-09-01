@@ -1,18 +1,73 @@
-import React, { useState } from 'react';
-import '../design/Pagos.css'; // Asegúrate de crear este archivo
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import '../design/Pagos.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { API_URL } from '../../config/config';
 
 const Pagos = () => {
-    const [selectedCliente, setSelectedCliente] = useState({
-        nombre: '',
-        año: new Date().getFullYear(),
-        meses: [],
-        cuota: 100,  // Ejemplo de cuota fija
-        total: 0,
-        monto_exceso: 0,
-    });
+    const [lotes, setLotes] = useState([]);
+    const [clientes, setClientes] = useState([]);
+    const [filteredClientes, setFilteredClientes] = useState([]);
+    const [selectedLote, setSelectedLote] = useState(null);
+    const [selectedCliente, setSelectedCliente] = useState({});
+    const [editing, setEditing] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterColumn, setFilterColumn] = useState('nombre');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [showModal, setShowModal] = useState(false);
+    const [clienteToDelete, setClienteToDelete] = useState(null);
+    const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingToggle, setLoadingToggle] = useState(false);
+
+    useEffect(() => {
+        fetchClientes();
+        fetchLotes();
+    }, []);
+
+    useEffect(() => {
+        const filterClientes = () => {
+            let filtered = clientes;
+
+            if (searchTerm) {
+                filtered = clientes.filter(cliente => 
+                    cliente[filterColumn]?.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            setFilteredClientes(filtered);
+        };
+
+        filterClientes();
+    }, [searchTerm, filterColumn, clientes]);
+
+    const fetchClientes = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/clientes`);
+            setClientes(response.data.clientes);
+            setFilteredClientes(response.data.clientes); // Inicializa con todos los clientes
+        } catch (error) {
+            handleError(error, 'Error al cargar clientes');
+        }
+    };
+
+    const fetchLotes = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/lote`);
+            setLotes(response.data.clientes);
+        } catch (error) {
+            handleError(error, 'Error al cargar lotes');
+        }
+    };
+
+    const handleError = (error, defaultMessage) => {
+        const errorMessage = error.response && error.response.data && error.response.data.message
+            ? error.response.data.message
+            : defaultMessage;
+        toast.error(errorMessage);
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -22,38 +77,12 @@ const Pagos = () => {
         });
     };
 
-    const handleMonthChange = (e) => {
-        const { value, checked } = e.target;
-        let updatedMeses = selectedCliente.meses || [];
-
-        if (checked) {
-            updatedMeses.push(value);
-        } else {
-            updatedMeses = updatedMeses.filter(mes => mes !== value);
-        }
-
-        setSelectedCliente({
-            ...selectedCliente,
-            meses: updatedMeses,
-        });
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
     };
 
-    const handleSelectAllMonths = (e) => {
-        if (e.target.checked) {
-            const allMonths = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-            setSelectedCliente(prevState => ({
-                ...prevState,
-                meses: allMonths,
-                total: prevState.cuota * 11, // 12 meses por el precio de 11
-            }));
-            toast.success('Has seleccionado pagar todo el año con un mes gratis.');
-        } else {
-            setSelectedCliente(prevState => ({
-                ...prevState,
-                meses: [],
-                total: 0,
-            }));
-        }
+    const handleFilterChange = (e) => {
+        setFilterColumn(e.target.value);
     };
 
     const calcularTotal = () => {
@@ -77,20 +106,36 @@ const Pagos = () => {
                 <h1 className="pagos-title">Gestión de Pagos</h1>
                 <div className="pagos-busqueda">
                     <label>Buscar por:</label>
-                    <select>
-                        <option value="">Criterio de búsqueda</option>
-                        <option>Nombre</option>
-                        <option>Apellidos</option>
-                        <option>CUI</option>
-                        <option>NIT</option>
-                        <option>Teléfono</option>
+                    <select value={filterColumn} onChange={handleFilterChange}>
+                        <option value="nombre">Nombre</option>
+                        <option value="apellidos">Apellidos</option>
+                        <option value="cui">CUI</option>
+                        <option value="nit">NIT</option>
+                        <option value="telefono">Teléfono</option>
                     </select>
                     <input 
                         type="text"
                         placeholder="Buscar cliente"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
                     />
+                    <label>Cliente:</label>
+                    <select 
+                        className="pagos-cliente" 
+                        name="cliente" 
+                        value={selectedCliente ? selectedCliente.idcliente : ''}
+                        onChange={(e) => setSelectedCliente({ ...selectedCliente, idcliente: e.target.value })}
+                    >
+                        {filteredClientes.map(cliente => (
+                            <option key={cliente.idcliente} value={cliente.idcliente}>
+                                {`${cliente.nombre} ${cliente.apellidos}`}
+                            </option>
+                        ))}
+                    </select>
                     <label>Servicio:</label>
-                    <select></select>
+                    <select className="pagos-servicio"></select>
+                </div>
+                <div className="pagos-busqueda">
                     <label>Año:</label>
                     <input 
                         className="pagos-input"
@@ -99,7 +144,7 @@ const Pagos = () => {
                         name="año"
                         min={new Date().getFullYear()}
                         max={new Date().getFullYear() + 1}
-                        value={selectedCliente.año}
+                        value={selectedCliente ? selectedCliente.año : ''}
                         onChange={handleInputChange}
                         style={{width :'6rem'}}
                     />
@@ -112,7 +157,6 @@ const Pagos = () => {
                         <input
                             type="checkbox"
                             id="select-all"
-                            onChange={handleSelectAllMonths}
                         />
                         <label htmlFor="select-all">Seleccionar todos los meses (12 meses por el precio de 11)</label>
                     </div>
@@ -123,8 +167,6 @@ const Pagos = () => {
                                     type="checkbox"
                                     id={`mes-${index}`}
                                     value={(index + 1).toString().padStart(2, '0')}
-                                    onChange={handleMonthChange}
-                                    checked={selectedCliente.meses.includes((index + 1).toString().padStart(2, '0'))}
                                 />
                                 <label htmlFor={`mes-${index}`}>{mes}</label>
                             </div>
@@ -133,30 +175,6 @@ const Pagos = () => {
 
                 </div>
                 <div className="pagos-data">
-                    <div className="row">
-                        <label>Cliente:</label>
-                        <input 
-                            className="pagos-input"
-                            type="text"
-                            placeholder="Nombre del Cliente"
-                            name="nombre"
-                            value={selectedCliente.nombre}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label>Año:</label>
-                        <input 
-                            className="pagos-input"
-                            type="number"
-                            placeholder="Año"
-                            name="año"
-                            min={new Date().getFullYear()}
-                            max={new Date().getFullYear() + 1}
-                            value={selectedCliente.año}
-                            onChange={handleInputChange}
-                        />
-                    </div>
                     <div className="row">
                         <label>Fecha:</label>
                         <input 

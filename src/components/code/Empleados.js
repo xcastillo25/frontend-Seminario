@@ -189,27 +189,27 @@ const Empleados = () => {
     };    
 
     const handleUsuarioSave = async () => {
-        if (!usuario.username || !usuario.password || !usuario.confirmPassword || !usuario.idrol) {
+        if (!usuario.usuario || !usuario.password || !usuario.confirmPassword || !usuario.idrol || !selectedEmpleado.email) {
             toast.error('Todos los campos son obligatorios.');
             return;
         }
-    
+     
         if (usuario.password !== usuario.confirmPassword) {
             toast.error('Las contraseñas no coinciden.');
             return;
         }
-    
+     
         setLoadingSave(true);
         try {
             const usuarioData = {
                 idempleado: selectedEmpleado.idempleado,
-                usuario: usuario.username,
+                usuario: usuario.usuario,
                 password: usuario.password,
                 idrol: usuario.idrol,
+                email: selectedEmpleado.email,  // Asegúrate de incluir el email aquí.
                 activo: usuario.activo
             };
-    
-            // Realiza la solicitud POST
+     
             await axios.post(`${API_URL}/usuarios`, usuarioData);
             toast.success('Usuario asignado exitosamente');
             setShowUsuarioModal(false);
@@ -218,20 +218,23 @@ const Empleados = () => {
             const errorMessage = error.response && error.response.data && error.response.data.message
                 ? error.response.data.message
                 : 'Error al guardar el usuario.';
-    
+     
             toast.error(errorMessage);
             console.error('Error al guardar el usuario:', errorMessage, error);
         } finally {
             setLoadingSave(false);
         }
     };
+    
 
     const handleUsuarioUpdate = async () => {
-        if (!usuario.username || !usuario.password || !usuario.confirmPassword || !usuario.idrol) {
+        // Validación de campos obligatorios
+        if (!usuario.usuario || !usuario.password || !usuario.confirmPassword || !usuario.idrol || !selectedEmpleado.email) {
             toast.error('Todos los campos son obligatorios.');
             return;
         }
     
+        // Verificación de que las contraseñas coincidan
         if (usuario.password !== usuario.confirmPassword) {
             toast.error('Las contraseñas no coinciden.');
             return;
@@ -239,10 +242,12 @@ const Empleados = () => {
     
         setLoadingSave(true);
         try {
+            // Preparar los datos a enviar al backend
             const usuarioData = {
-                usuario: usuario.username,
+                usuario: usuario.usuario,
                 password: usuario.password,
                 idrol: usuario.idrol,
+                email: selectedEmpleado.email,  // Incluye el campo email aquí
                 activo: usuario.activo
             };
     
@@ -252,16 +257,19 @@ const Empleados = () => {
             fetchEmpleados();
             setShowUsuarioModal(false);
         } catch (error) {
+            // Manejo de errores
             const errorMessage = error.response && error.response.data && error.response.data.message
                 ? error.response.data.message
                 : 'Error al actualizar el usuario.';
-    
+        
             toast.error(errorMessage);
             console.error('Error al actualizar el usuario:', errorMessage, error);
         } finally {
+            // Restablecer el estado de carga
             setLoadingSave(false);
         }
     };
+    
 
     const toggleUsuarioActive = async (idusuario) => {
         setLoadingToggle(true); 
@@ -302,7 +310,7 @@ const Empleados = () => {
     };
 
     const clearUsuarioForm = () => {
-        setUsuario({ username: '', password: '', confirmPassword: '', idrol: '', activo: true });
+        setUsuario({ usuario: '', password: '', confirmPassword: '', idrol: '', activo: true });
         setIsUpdating(false);
     }; 
 
@@ -328,7 +336,7 @@ const Empleados = () => {
     const handleSelectedUsuario = (usuario) => {
         setUsuario({
             idusuario : usuario.idusuario,
-            username: usuario.usuario,
+            usuario: usuario.usuario,
             password: '',
             confirmPassword: '',
             idrol: usuario.idrol,
@@ -533,8 +541,8 @@ const Empleados = () => {
                                             className="modal-input"
                                             type="text"
                                             placeholder="Nombre de usuario"
-                                            name="username"
-                                            value={usuario.username}
+                                            name="usuario"
+                                            value={usuario.usuario}
                                             onChange={handleUsuarioInputChange}
                                         />
                                     </div>

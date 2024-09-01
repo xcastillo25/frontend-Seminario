@@ -22,6 +22,14 @@
   margin-bottom: 1rem;
 }
 
+.pagos-cliente{
+  width: 15rem;
+}
+
+.pagos-servicio{
+  width: 10rem;
+}
+
 .pagos-busqueda {
   display: flex;
   flex-direction: row;
