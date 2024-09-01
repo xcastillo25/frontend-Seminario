@@ -565,11 +565,7 @@ const Empleados = () => {
                                         <div className="password-container">
                                             <input
                                                 className="modal-input"
-<<<<<<< Updated upstream
                                                 type={showPassword ? "text" : "password"}
-=======
-                                                type={showPassword ? "text" : "password"} // Cambia el tipo de input según el estado
->>>>>>> Stashed changes
                                                 placeholder="Contraseña"
                                                 name="password"
                                                 value={usuario.password}
