@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../design/Dashboard.css';
 import Logo from '../../assets/paseo.jpg';
 import { useNavigate } from 'react-router-dom';
@@ -19,12 +19,18 @@ const Dashboard = () => {
   const [topBarIcon, setTopBarIcon] = useState('dashboard');
   const { user } = useAuth();
 
+
   const [plataformaVisible, setPlataformaVisible] = useState('plataformaActividades');
   const [asideVisible, setAsideVisible] = useState(true);
   const asideRef = useRef(null);
 
+  useEffect(() => {
+    console.log('Usuario cargado:', user); // Verificar si el usuario está cargado
+  }, [user]);
+
   const mostrarPlataforma = (plataforma) => {
     setPlataformaVisible(plataforma);
+    console.log("Usuarios", user)
   };
 
   const navigate = useNavigate();

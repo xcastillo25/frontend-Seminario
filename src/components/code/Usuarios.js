@@ -47,7 +47,7 @@ const Usuarios = () => {
     };
 
     const validateForm = () => {
-        if (!selectedUsuario || !selectedUsuario.usuario || !selectedUsuario.password || !selectedUsuario.idrol || !selectedUsuario.idpersona) {
+        if (!selectedUsuario || !selectedUsuario.usuario || !selectedUsuario.password || !selectedUsuario.idrol || !selectedUsuario.idcliente) {
             toast.error('Todos los campos son obligatorios.');
             return false;
         }
@@ -180,8 +180,8 @@ const Usuarios = () => {
                             className="usuarios-input"
                             type="text"
                             placeholder="Id Persona"
-                            name="idpersona"
-                            value={selectedUsuario ? selectedUsuario.idpersona : ''}
+                            name="idcliente"
+                            value={selectedUsuario ? selectedUsuario.idcliente : ''}
                             onChange={handleInputChange}
                         />
                     </div>
