@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../design/Dashboard.css';
 import Logo from '../../assets/paseo.jpg';
 import { useNavigate } from 'react-router-dom';
