@@ -22,8 +22,13 @@ const Dashboard = () => {
   const [asideVisible, setAsideVisible] = useState(true);
   const asideRef = useRef(null);
 
+  useEffect(() => {
+    console.log('Usuario cargado:', user); // Verificar si el usuario está cargado
+  }, [user]);
+
   const mostrarPlataforma = (plataforma) => {
     setPlataformaVisible(plataforma);
+    console.log("Usuarios", user)
   };
 
   const navigate = useNavigate();
