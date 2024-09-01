@@ -6,8 +6,11 @@ import Empleados from './Empleados';
 import Configuracion from './Configuracion';
 import Roles from './Roles';
 import Clientes from './Clientes';
+<<<<<<< Updated upstream
 import Pagos from './Pagos'
 import Usuarios from './Usuarios';
+=======
+>>>>>>> Stashed changes
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -16,7 +19,11 @@ const Dashboard = () => {
   const [theme, setTheme] = useState('light');
   const [topBarTitle, setTopBarTitle] = useState('Dashboard');
   const [topBarIcon, setTopBarIcon] = useState('dashboard');
+<<<<<<< Updated upstream
   const { user } = useAuth();
+=======
+  const { user} = useAuth();
+>>>>>>> Stashed changes
 
   const [plataformaVisible, setPlataformaVisible] = useState('plataformaActividades');
   const [asideVisible, setAsideVisible] = useState(true);

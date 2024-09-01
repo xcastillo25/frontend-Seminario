@@ -212,7 +212,6 @@ const Empleados = () => {
      
             await axios.post(`${API_URL}/usuarios`, usuarioData);
             toast.success('Usuario asignado exitosamente');
-            setShowUsuarioModal(false);
             fetchEmpleados();
         } catch (error) {
             const errorMessage = error.response && error.response.data && error.response.data.message
@@ -255,7 +254,6 @@ const Empleados = () => {
             await axios.put(`${API_URL}/usuarios/${usuario.idusuario}`, usuarioData);
             toast.success('Usuario actualizado exitosamente');
             fetchEmpleados();
-            setShowUsuarioModal(false);
         } catch (error) {
             // Manejo de errores
             const errorMessage = error.response && error.response.data && error.response.data.message
@@ -314,9 +312,9 @@ const Empleados = () => {
         setIsUpdating(false);
     }; 
 
-    const handleResetPassword = async () => {
+    const handleResetPassword = async (idusuario) => {
         try {
-            await axios.patch(`${API_URL}/usuarios/${selectedEmpleado.idempleado}/reset`);
+            await axios.patch(`${API_URL}/usuarios/${idusuario}/reset`);
             toast.success('Contraseña reseteada exitosamente');
         } catch (error) {
             handleError(error, 'Error al resetear la contraseña.');
@@ -567,7 +565,11 @@ const Empleados = () => {
                                         <div className="password-container">
                                             <input
                                                 className="modal-input"
+<<<<<<< Updated upstream
                                                 type={showPassword ? "text" : "password"}
+=======
+                                                type={showPassword ? "text" : "password"} // Cambia el tipo de input según el estado
+>>>>>>> Stashed changes
                                                 placeholder="Contraseña"
                                                 name="password"
                                                 value={usuario.password}
@@ -681,6 +683,7 @@ const Empleados = () => {
                     </div>
                 </div>
             )}
+
         </main>
     );
 };
