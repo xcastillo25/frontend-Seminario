@@ -1,0 +1,371 @@
+.servicios-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .servicios-section {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color);
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .servicios-title {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    font-weight: bold;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .servicios-data {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .servicios-data .row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+  }
+  
+  .servicios-label {
+    color: var(--color-label);
+    font-size: 1.1rem;
+  }
+  
+  .servicios-input {
+    border: 1px solid var(--input-border);
+    font-size: 1.1rem;
+    padding: 0 5px;
+    height: 1.8rem;
+    border-radius: 5px;
+  }
+  
+  .servicios-data-buttons {
+    display: flex;
+    flex-direction: row;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+  
+  .servicios-button {
+    height: 2.5rem;
+    width: 8rem;
+    font-size: 1rem;
+    background-color: var(--button-green);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .servicios-button:hover {
+    background-color: var(--button-hover-green);
+    transform: scale(1.05);
+  }
+  
+  .servicios-buscar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .servicios-select {
+    border: 1px solid var(--input-border);
+    font-size: 1.1rem;
+    padding: 0 5px;
+    height: 1.8rem;
+    border-radius: 5px;
+    background-color: white;
+  }
+  
+  .servicios-table {
+    margin-top: 1rem;
+  }
+  
+  .servicios-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .servicios-table th,
+  .servicios-table td {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    color: var(--text-color);
+    text-align: center;
+  }
+  
+  .servicios-table th {
+    background-color: var(--table-header);
+    font-weight: bold;
+    color: var(--table-header-text);
+  }
+  
+  .servicios-table tr:nth-child(odd) td {
+    background-color: var(--table-cell-odd);
+  }
+  
+  .servicios-table tr:nth-child(even) td {
+    background-color: var(--table-cell-pair); 
+  }
+  
+  .servicios-table tr:hover td {
+    background-color: var(--table-cell-hover); 
+    color: white; 
+    cursor: pointer;
+  }
+  
+  .servicios-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .eliminar-icon-button {
+    background-color: red;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .eliminar-icon {
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+  }
+  
+  .eliminar-icon:hover {
+    transform: scale(1.2);
+  }
+  
+  .status {
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .status.active {
+    background-color: #27ae60; /* Verde para estado activo */
+  }
+  
+  .status.inactive {
+    background-color: #e74c3c; /* Rojo para estado inactivo */
+  }
+  
+  /* Paginador */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .pagination button {
+    background-color: var(--button-green);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .pagination button:hover {
+    background-color: var(--button-hover-green);
+  }
+  
+  .pagination button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+  }
+  
+  .pagination select {
+    border: 1px solid var(--input-border);
+    font-size: 1.1rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    background-color: white;
+  }
+  
+  /* Modal de confirmación */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-content-usuarios {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-content-lotes {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    height: 550px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-icon {
+    font-size: 6rem;
+    color: #e74c3c;
+  }
+  
+  .modal h3 {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin: 0.5;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .confirm-button {
+    background-color: #e74c3c;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cancel-button {
+    background-color: var(--dark-green);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .confirm-button:hover, .cancel-button:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+  
+  .confirm-button:active, .cancel-button:active {
+    transform: scale(0.98);
+  }
+  
+  .input-container {
+    display: flex;
+    width: 100%;
+  }
+  
+  .select-input {
+    flex-grow: 1;
+    border: 1px solid var(--input-border);
+    font-size: 1.1rem;
+    padding: 0 5px;
+    height: 1.8rem;
+    border-radius: 5px;
+  }
+  
+  .btn-select {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 5px;
+
+  }
+
+.btn-select i {
+    font-size: 1.6rem ;
+    color: var(--button-green);
+}
+
+.lote-cancel-button {
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s ease;
+  height: 3rem;
+  padding: 0px 20px;
+}
+
+.lote-confirm-button:hover,
+.lote-cancel-button:hover {
+  opacity: 0.9;
+  scale: 1.05;
+  background-color: #2ecc71;
+}
+
+.lote-confirm-button {
+  background-color: var(--dark-green);
+  color: white;
+  border: none;
+  padding: 0px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  height: 3rem;
+  font-size: 1.1rem;
+}
+
+.servicio-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
