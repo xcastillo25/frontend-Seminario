@@ -1,73 +1,93 @@
-import React, { useState } from 'react';
-import '../design/Pagos.css'; // Asegúrate de crear este archivo
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import '../design/Pagos.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { API_URL } from '../../config/config';
 
 const Pagos = () => {
-    const [selectedCliente, setSelectedCliente] = useState({
-        nombre: '',
-        año: new Date().getFullYear(),
-        meses: [],
-        cuota: 100,  // Ejemplo de cuota fija
-        total: 0,
-        monto_exceso: 0,
-    });
+    const [servicios, setServicios] = useState([]);
+    const [filteredServicios, setFilteredServicios] = useState([]);
+    const [selectedServicio, setSelectedServicio] = useState({});
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterColumn, setFilterColumn] = useState('clientes.nombre');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [showModal, setShowModal] = useState(false);
+    const [clienteToDelete, setClienteToDelete] = useState(null);
+    const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingToggle, setLoadingToggle] = useState(false);
+    const [selectedYear1, setSelectedYear1] = useState(new Date().getFullYear());
+    const [selectedYear2, setSelectedYear2] = useState(new Date().getFullYear() + 1);
+    const [years, setYears] = useState([]);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setSelectedCliente({
-            ...selectedCliente,
-            [name]: value,
-        });
-    };
+    useEffect(() => {
+        fetchServicios();
+        generateYears();
+    }, []);
 
-    const handleMonthChange = (e) => {
-        const { value, checked } = e.target;
-        let updatedMeses = selectedCliente.meses || [];
+    useEffect(() => {
+        filterServicios();
+    }, [searchTerm, filterColumn, servicios]);
 
-        if (checked) {
-            updatedMeses.push(value);
-        } else {
-            updatedMeses = updatedMeses.filter(mes => mes !== value);
+    const generateYears = () => {
+        const startYear = 2020;
+        const endYear = 2035;
+        const yearsArray = [];
+        for (let year = startYear; year <= endYear; year++) {
+            yearsArray.push(year);
         }
-
-        setSelectedCliente({
-            ...selectedCliente,
-            meses: updatedMeses,
-        });
+        setYears(yearsArray);
     };
 
-    const handleSelectAllMonths = (e) => {
-        if (e.target.checked) {
-            const allMonths = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-            setSelectedCliente(prevState => ({
-                ...prevState,
-                meses: allMonths,
-                total: prevState.cuota * 11, // 12 meses por el precio de 11
-            }));
-            toast.success('Has seleccionado pagar todo el año con un mes gratis.');
-        } else {
-            setSelectedCliente(prevState => ({
-                ...prevState,
-                meses: [],
-                total: 0,
-            }));
+    const fetchServicios = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/servicio`);
+            console.log('Servicios recibidos:', response.data.servicios);  // Log de los servicios recibidos
+            setServicios(response.data.servicios);
+            setFilteredServicios(response.data.servicios); // Inicializa con todos los servicios
+        } catch (error) {
+            handleError(error, 'Error al cargar servicios');
         }
     };
 
-    const calcularTotal = () => {
-        const { meses, cuota, monto_exceso } = selectedCliente;
-        let total = meses.length === 12 ? cuota * 11 : cuota * meses.length;
+    const filterServicios = () => {
+        let filtered = servicios;
 
-        if (monto_exceso) {
-            total += parseFloat(monto_exceso);
+        if (searchTerm) {
+            filtered = servicios.filter(servicio => {
+                const valueToFilter = filterColumn.includes('clientes.')
+                    ? servicio.clientes[filterColumn.split('.')[1]] // Si el filtro es por cliente
+                    : servicio.lotes[filterColumn.split('.')[1]]; // Si el filtro es por lote
+
+                return valueToFilter?.toLowerCase().includes(searchTerm.toLowerCase());
+            });
         }
 
-        setSelectedCliente(prevState => ({
-            ...prevState,
-            total: total.toFixed(2),
-        }));
+        console.log('Servicios filtrados:', filtered);  // Log de los servicios filtrados
+        setFilteredServicios(filtered);
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const handleFilterChange = (e) => {
+        setFilterColumn(e.target.value);
+    };
+
+    const handleError = (error, defaultMessage) => {
+        const errorMessage = error.response && error.response.data && error.response.data.message
+            ? error.response.data.message
+            : defaultMessage;
+        toast.error(errorMessage);
+    };
+
+    const handleSelectCliente = (e) => {
+        const selectedServicioId = parseInt(e.target.value);
+        const selectedServicio = servicios.find(serv => serv.idservicio === selectedServicioId);
+        setSelectedServicio(selectedServicio);
     };
 
     return (
@@ -77,165 +97,208 @@ const Pagos = () => {
                 <h1 className="pagos-title">Gestión de Pagos</h1>
                 <div className="pagos-busqueda">
                     <label>Buscar por:</label>
-                    <select>
-                        <option value="">Criterio de búsqueda</option>
-                        <option>Nombre</option>
-                        <option>Apellidos</option>
-                        <option>CUI</option>
-                        <option>NIT</option>
-                        <option>Teléfono</option>
+                    <select value={filterColumn} onChange={handleFilterChange}>
+                        <option value="lotes.ubicacion">Lote</option>
+                        <option value="clientes.nombre">Nombre</option>
+                        <option value="clientes.apellidos">Apellidos</option>
+                        <option value="clientes.cui">CUI</option>
+                        <option value="clientes.nit">NIT</option>
+                        <option value="clientes.telefono">Teléfono</option>
                     </select>
                     <input 
                         type="text"
-                        placeholder="Buscar cliente"
+                        placeholder="Buscar datos"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
                     />
-                    <label>Servicio:</label>
-                    <select></select>
-                    <label>Año:</label>
-                    <input 
-                        className="pagos-input"
-                        type="text"
-                        placeholder="Año"
-                        name="año"
-                        min={new Date().getFullYear()}
-                        max={new Date().getFullYear() + 1}
-                        value={selectedCliente.año}
-                        onChange={handleInputChange}
-                        style={{width :'6rem'}}
-                    />
+                    <label>Cliente:</label>
+                    <select 
+                        className="pagos-cliente" 
+                        name="cliente" 
+                        value={selectedServicio.idservicio || ''}
+                        onChange={handleSelectCliente}
+                    >
+                        {filteredServicios.map(servicio => (
+                            <option key={servicio.idservicio} value={servicio.idservicio}>
+                                {`${servicio.clientes.nombre} ${servicio.clientes.apellidos}, Lote: ${servicio.lotes.ubicacion}`}
+                            </option>
+                        ))}
+                    </select>
+                    <button>Buscar</button>
                 </div>
+                <h1 className="pagos-title">Selecciona los meses de pago</h1>
                 <div className="pagos-mes">
-                    <div>
-                        <label>Meses a pagar:</label>
-                    </div>
-                    <div>
-                        <input
-                            type="checkbox"
-                            id="select-all"
-                            onChange={handleSelectAllMonths}
-                        />
-                        <label htmlFor="select-all">Seleccionar todos los meses (12 meses por el precio de 11)</label>
-                    </div>
-                    <div className="pagos-meses">
-                        {['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'].map((mes, index) => (
-                            <div key={index} className="checkbox-mes">
+                    <div className="meses">
+                        <h1>Año Anterior</h1>
+                        <select value={selectedYear1} onChange={(e) => setSelectedYear1(e.target.value)}>
+                            {years.map(year => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="pagos-meses">
+                            <div className="checkbox-mes">
+                                <p>Enero</p>
                                 <input
                                     type="checkbox"
-                                    id={`mes-${index}`}
-                                    value={(index + 1).toString().padStart(2, '0')}
-                                    onChange={handleMonthChange}
-                                    checked={selectedCliente.meses.includes((index + 1).toString().padStart(2, '0'))}
                                 />
-                                <label htmlFor={`mes-${index}`}>{mes}</label>
                             </div>
-                        ))}   
-                    </div>
+                            <div className="checkbox-mes">
+                                <p>Febrero</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Marzo</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Abril</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Mayo</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Junio</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Julio</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Agosto</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Septiembre</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Octubre</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Noviembre</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Diciembre</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
 
-                </div>
-                <div className="pagos-data">
-                    <div className="row">
-                        <label>Cliente:</label>
-                        <input 
-                            className="pagos-input"
-                            type="text"
-                            placeholder="Nombre del Cliente"
-                            name="nombre"
-                            value={selectedCliente.nombre}
-                            onChange={handleInputChange}
-                        />
+                        </div>
+                        
                     </div>
-                    <div className="row">
-                        <label>Año:</label>
-                        <input 
-                            className="pagos-input"
-                            type="number"
-                            placeholder="Año"
-                            name="año"
-                            min={new Date().getFullYear()}
-                            max={new Date().getFullYear() + 1}
-                            value={selectedCliente.año}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label>Fecha:</label>
-                        <input 
-                            className="pagos-input"
-                            type="date"
-                            placeholder="Fecha"
-                            name="fecha"
-                            value={selectedCliente.fecha || ''}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label>Concepto:</label>
-                        <input 
-                            className="pagos-input"
-                            type="text"
-                            placeholder="Concepto del pago"
-                            name="concepto"
-                            value={selectedCliente.concepto || ''}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label>Consumo:</label>
-                        <input 
-                            className="pagos-input"
-                            type="number"
-                            placeholder="Consumo"
-                            name="consumo"
-                            value={selectedCliente.consumo || ''}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label>Mora:</label>
-                        <input 
-                            className="pagos-input"
-                            type="number"
-                            placeholder="Mora"
-                            name="mora"
-                            value={selectedCliente.mora || ''}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label>Exceso:</label>
-                        <input 
-                            className="pagos-input"
-                            type="number"
-                            placeholder="Exceso"
-                            name="exceso"
-                            value={selectedCliente.exceso || ''}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label>Monto Exceso:</label>
-                        <input 
-                            className="pagos-input"
-                            type="number"
-                            placeholder="Monto del Exceso"
-                            name="monto_exceso"
-                            value={selectedCliente.monto_exceso || ''}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label>Total:</label>
-                        <input 
-                            className="pagos-input"
-                            type="number"
-                            placeholder="Total"
-                            name="total"
-                            value={selectedCliente.total || ''}
-                            readOnly
-                        />
-                    </div>
-                    <div className="row">
-                        <button onClick={calcularTotal} className="calcular-btn">Calcular Total</button>
+                    <div className="meses">
+                        <h1>Año Siguiente</h1>
+                        <select value={selectedYear2} onChange={(e) => setSelectedYear2(e.target.value)}>
+                            {years.map(year => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="pagos-meses">
+                            <div className="checkbox-mes">
+                                <p>Enero</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Febrero</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Marzo</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Abril</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Mayo</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Junio</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Julio</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Agosto</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Septiembre</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Octubre</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Noviembre</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+                            <div className="checkbox-mes">
+                                <p>Diciembre</p>
+                                <input
+                                    type="checkbox"
+                                />
+                            </div>
+
+                        </div>
+                        
                     </div>
                 </div>
             </section>

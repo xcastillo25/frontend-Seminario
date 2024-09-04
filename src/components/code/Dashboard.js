@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../design/Dashboard.css';
 import Logo from '../../assets/paseo.jpg';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,8 @@ import Roles from './Roles';
 import Clientes from './Clientes';
 import Pagos from './Pagos'
 import Usuarios from './Usuarios';
+import Servicios from './Servicios';  
+import Lotes from './Lotes';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -18,12 +20,18 @@ const Dashboard = () => {
   const [topBarIcon, setTopBarIcon] = useState('dashboard');
   const { user } = useAuth();
 
+
   const [plataformaVisible, setPlataformaVisible] = useState('plataformaActividades');
   const [asideVisible, setAsideVisible] = useState(true);
   const asideRef = useRef(null);
 
+  useEffect(() => {
+    console.log('Usuario cargado:', user); // Verificar si el usuario está cargado
+  }, [user]);
+
   const mostrarPlataforma = (plataforma) => {
     setPlataformaVisible(plataforma);
+    console.log("Usuarios", user)
   };
 
   const navigate = useNavigate();
@@ -59,8 +67,11 @@ const Dashboard = () => {
       mostrarPlataforma('plataformaPagos');
     } else if (menuItem === 'Usuarios'){
       mostrarPlataforma('plataformaUsuarios')
-    }
-    
+      } else if (menuItem === 'Servicios'){
+      mostrarPlataforma('plataformaServicios')
+    }else if (menuItem === 'Lotes'){
+    mostrarPlataforma('plataformaLotes')
+  } 
   };
 
   return (
@@ -192,6 +203,8 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaClientes' && <Clientes setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaPagos' && <Pagos setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaUsuarios' && <Usuarios setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaServicios' && <Servicios setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaLotes' && <Lotes setPlataformaVisible={setPlataformaVisible}/>}
         </section> 
       </main>
     </div>

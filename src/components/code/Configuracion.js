@@ -47,15 +47,63 @@ const Configuracion = () => {
     };
 
     const validateForm = () => {
-        if (!selectedConfiguracion || !selectedConfiguracion.servicio || !selectedConfiguracion.cuota || !selectedConfiguracion.mora || !selectedConfiguracion.empresa || !selectedConfiguracion.direccion) {
-            toast.error('Todos los campos son obligatorios.');
+        if (!selectedConfiguracion) {
+            toast.error('La configuración seleccionada es inválida.');
             return false;
         }
+    
+        if (!selectedConfiguracion.servicio) {
+            toast.error('El campo "Servicio" es obligatorio.');
+            return false;
+        }
+    
+        if (!selectedConfiguracion.cuota) {
+            toast.error('El campo "Cuota" es obligatorio.');
+            return false;
+        }
+    
+        if (!selectedConfiguracion.porcentaje_mora) {
+            toast.error('El campo "Mora" es obligatorio.');
+            return false;
+        }
+    
+        if (!selectedConfiguracion.empresa) {
+            toast.error('El campo "Empresa" es obligatorio.');
+            return false;
+        }
+    
+        if (!selectedConfiguracion.direccion) {
+            toast.error('El campo "Dirección" es obligatorio.');
+            return false;
+        }
+    
+        if (!selectedConfiguracion.porcentaje_exceso) {
+            toast.error('El campo "Porcentaje Exceso" es obligatorio.');
+            return false;
+        }
+    
+        if (!selectedConfiguracion.limite) {
+            toast.error('El campo "Límite" es obligatorio.');
+            return false;
+        }
+    
+        if (!selectedConfiguracion.cuota_instalacion) {
+            toast.error('El campo "Cuota de Instalación" es obligatorio.');
+            return false;
+        }
+    
+        if (!selectedConfiguracion.cuota_conexion) {
+            toast.error('El campo "Cuota de Conexión" es obligatorio.');
+            return false;
+        }
+    
         return true;
     };
+    
 
     const handleSave = async () => {
         if (!validateForm()) return;
+    
         setLoadingSave(true);
         try {
             if (selectedConfiguracion && selectedConfiguracion.idconfiguracion) {
@@ -73,6 +121,7 @@ const Configuracion = () => {
             setLoadingSave(false);
         }
     };
+    
 
     const handleDeleteClick = (idconfiguracion) => {
         setConfiguracionToDelete(idconfiguracion);
@@ -169,8 +218,8 @@ const Configuracion = () => {
                             className="configuracion-input"
                             type="number"
                             placeholder="Mora"
-                            name="mora"
-                            value={selectedConfiguracion ? selectedConfiguracion.mora : ''}
+                            name="porcentaje_mora"
+                            value={selectedConfiguracion ? selectedConfiguracion.porcentaje_mora : ''}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -193,17 +242,6 @@ const Configuracion = () => {
                             placeholder="Dirección"
                             name="direccion"
                             value={selectedConfiguracion ? selectedConfiguracion.direccion : ''}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className="row">
-                        <label className="configuracion-label">Exceso:</label>
-                        <input
-                            className="configuracion-input"
-                            type="number"
-                            placeholder="Exceso"
-                            name="exceso"
-                            value={selectedConfiguracion ? selectedConfiguracion.exceso : ''}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -241,13 +279,13 @@ const Configuracion = () => {
                         />
                     </div>
                     <div className="row">
-                        <label className="configuracion-label">Cuota de Reconexión:</label>
+                        <label className="configuracion-label">Cuota de Conexión:</label>
                         <input
                             className="configuracion-input"
                             type="number"
                             placeholder="Cuota de Reconexión"
-                            name="cuota_reconexion"
-                            value={selectedConfiguracion ? selectedConfiguracion.cuota_reconexion : ''}
+                            name="cuota_conexion"
+                            value={selectedConfiguracion ? selectedConfiguracion.cuota_conexion : ''}
                             onChange={handleInputChange}
                         />
                     </div>

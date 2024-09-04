@@ -1,10 +1,10 @@
-.usuarios-container {
+.lotes-container {
     display: flex;
     flex-direction: column;
     gap: 1rem;
   }
   
-  .usuarios-section {
+  .lotes-section {
     display: flex;
     flex-direction: column;
     background-color: var(--background-color);
@@ -13,7 +13,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
   
-  .usuarios-title {
+  .lotes-title {
     font-size: 1.1rem;
     color: var(--text-color);
     font-weight: bold;
@@ -22,26 +22,26 @@
     margin-bottom: 1rem;
   }
   
-  .usuarios-data {
+  .lotes-data {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
     width: 100%;
   }
   
-  .usuarios-data .row {
+  .lotes-data .row {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
     width: 100%;
   }
   
-  .usuarios-label {
+  .lotes-label {
     color: var(--color-label);
     font-size: 1.1rem;
   }
   
-  .usuarios-input {
+  .lotes-input {
     border: 1px solid var(--input-border);
     font-size: 1.1rem;
     padding: 0 5px;
@@ -49,7 +49,7 @@
     border-radius: 5px;
   }
   
-  .usuarios-data-buttons {
+  .lotes-data-buttons {
     display: flex;
     flex-direction: row;
     margin-top: 1rem;
@@ -57,7 +57,7 @@
     gap: 1rem;
   }
   
-  .usuarios-button {
+  .lotes-button {
     height: 2.5rem;
     width: 8rem;
     font-size: 1rem;
@@ -68,56 +68,39 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
-
-  .usuarios-button-reset{
-    height: 2.5rem;
-    width: 12rem;
-    font-size: 1rem;
-    background-color: var(--button-green);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
   
-  .usuarios-button:hover {
-    background-color: var(--button-hover-green);
-    transform: scale(1.05);
-  }
-
-  .usuarios-button-reset:hover {
+  .lotes-button:hover {
     background-color: var(--button-hover-green);
     transform: scale(1.05);
   }
   
-  .usuarios-buscar {
+  .lotes-buscar {
     display: flex;
     gap: 0.5rem;
     align-items: center;
   }
   
-  .usuarios-select {
+  .lotes-select {
     border: 1px solid var(--input-border);
     font-size: 1.1rem;
     padding: 0 5px;
-    height: 1.9rem;
+    height: 1.8rem;
     border-radius: 5px;
     background-color: white;
   }
   
-  .usuarios-table {
+  .lotes-table {
     margin-top: 1rem;
   }
   
-  .usuarios-data-table {
+  .lotes-data-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
   }
   
-  .usuarios-table th,
-  .usuarios-table td {
+  .lotes-table th,
+  .lotes-table td {
     padding: 12px 15px;
     border: 1px solid var(--border-color);
     text-align: left;
@@ -125,27 +108,27 @@
     text-align: center;
   }
   
-  .usuarios-table th {
+  .lotes-table th {
     background-color: var(--table-header);
     font-weight: bold;
     color: var(--table-header-text);
   }
   
-  .usuarios-table tr:nth-child(odd) td {
+  .lotes-table tr:nth-child(odd) td {
     background-color: var(--table-cell-odd);
   }
   
-  .usuarios-table tr:nth-child(even) td {
-    background-color: var(--table-cell-pair); 
+  .lotes-table tr:nth-child(even) td {
+    background-color: var(--table-cell-pair);
   }
   
-  .usuarios-table tr:hover td {
-    background-color: var(--table-cell-hover); 
-    color: white; 
+  .lotes-table tr:hover td {
+    background-color: var(--table-cell-hover);
+    color: white;
     cursor: pointer;
   }
   
-  .usuarios-actions {
+  .lotes-actions {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -284,12 +267,14 @@
     transition: background-color 0.3s ease;
   }
   
-  .confirm-button:hover, .cancel-button:hover {
+  .confirm-button:hover,
+  .cancel-button:hover {
     opacity: 0.9;
     transform: scale(1.05);
   }
   
-  .confirm-button:active, .cancel-button:active {
+  .confirm-button:active,
+  .cancel-button:active {
     transform: scale(0.98);
   }
   
