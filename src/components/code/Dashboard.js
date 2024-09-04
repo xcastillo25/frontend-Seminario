@@ -8,6 +8,7 @@ import Roles from './Roles';
 import Clientes from './Clientes';
 import Pagos from './Pagos'
 import Usuarios from './Usuarios';
+import Lotes from './Lotes';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -65,7 +66,9 @@ const Dashboard = () => {
       mostrarPlataforma('plataformaPagos');
     } else if (menuItem === 'Usuarios'){
       mostrarPlataforma('plataformaUsuarios')
-    }
+    }else if (menuItem === 'Lotes'){
+    mostrarPlataforma('plataformaLotes')
+  }
     
   };
 
@@ -198,6 +201,7 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaClientes' && <Clientes setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaPagos' && <Pagos setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaUsuarios' && <Usuarios setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaLotes' && <Lotes setPlataformaVisible={setPlataformaVisible}/>}
         </section> 
       </main>
     </div>
