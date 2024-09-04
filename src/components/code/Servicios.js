@@ -10,32 +10,111 @@ const Servicios = () => {
     const [servicios, setServicios] = useState([]);
     const [selectedServicio, setSelectedServicio] = useState(null);
     const [editing, setEditing] = useState(false);
+    const [searchTermLote, setSearchTermLote] = useState('');
+    const [searchTermCliente, setSearchTermCliente] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterColumn, setFilterColumn] = useState('ID configuracion');
+    const [filterColumn, setFilterColumn] = useState('servicio');
+    const [filterColumnLote, setFilterColumnLote] = useState('ubicacion');
+    const [filterColumnCliente, setFilterColumnCliente] = useState('nombre');
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [currentPageLotes, setCurrentPageLotes] = useState(1);
+    const [rowsPerPageLotes, setRowsPerPageLotes] = useState(5);
     const [showModal, setShowModal] = useState(false);
+    const [showLotesModal, setShowLotesModal] = useState(false);
+    const [showClientesModal, setShowClientesModal] = useState(false);
     const [servicioToDelete, setServicioToDelete] = useState(null);
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingToggle, setLoadingToggle] = useState(false);
+    const [configuraciones, setConfiguraciones] =useState([]);
+    const [lotes, setLotes] =useState([]);
+    const [clientes, setClientes] =useState([]);
+    const [selectedLote, setSelectedLote] = useState(null);
+    const [isLoteSelected, setIsLoteSelected] = useState(false);
+    const [selectedCliente, setSelectedCliente] = useState(null);
+    const [isClienteSelected, setIsClienteSelected] = useState(false);
 
     useEffect(() => {
         fetchServicios();
+        fetchConfiguraciones();
+        fetchLotes();
+        fetchClientes();
     }, []);
 
     const fetchServicios = async () => {
         try {
-            const response = await axios.get(`${API_URL}/servicio`);
+            const response = await axios.get(`${API_URL}/servicioalt`);
             setServicios(response.data.servicios);
         } catch (error) {
             handleError(error, 'Error al cargar servicios');
         }
     };
 
+    const fetchConfiguraciones = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/configuracion`);
+            setConfiguraciones(response.data.configuraciones);
+        } catch (error) {
+            handleError(error, 'Error al cargar configuraciones');
+        }
+    };
+
+    const fetchLotes = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/lote`);
+            setLotes(response.data.lotes);
+        } catch (error) {
+            handleError(error, 'Error al cargar lotes');
+        }
+    };
+
+    const fetchClientes = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/clientes`);
+            setClientes(response.data.clientes);
+        } catch (error) {
+            handleError(error, 'Error al cargar clientes');
+        }
+    };
+
     const handleSelectServicio = (servicio) => {
         setSelectedServicio(servicio);
+        setSelectedLote(null)
+        setIsLoteSelected(false)
+        setSelectedCliente(null)
+        setIsClienteSelected(false)
         setLoadingToggle(false);
         setEditing(false);
+    };
+
+    const handleSelectLote = (lote) => {
+        setSelectedLote(lote);
+        setLoadingToggle(false);
+        setEditing(false);
+    };
+
+    const handleSelectCliente = (cliente) => {
+        setSelectedCliente(cliente);
+        setLoadingToggle(false);
+        setEditing(false);
+    };
+
+    const handleSeleccionarLote = () => {
+        if (selectedLote) {
+            setIsLoteSelected(true);
+            setShowLotesModal(false);
+        } else {
+            alert("Por favor, selecciona un lote antes de confirmar."); 
+        }
+    };
+
+    const handleSeleccionarCliente = () => {
+        if (selectedCliente) {
+            setIsClienteSelected(true);
+            setShowClientesModal(false);
+        } else {
+            alert("Por favor, selecciona un cliente antes de confirmar."); 
+        }
     };
 
     const handleInputChange = (e) => {
@@ -45,6 +124,14 @@ const Servicios = () => {
         });
         setEditing(true);
     };
+
+    const handleShowLotes = () => {
+        setShowLotesModal(true);
+    }
+
+    const handleShowClientes = () => {
+        setShowClientesModal(true);
+    }
 
     const validateForm = () => {
         const cuiRegex = /^[0-9]{13}$/;
@@ -77,6 +164,12 @@ const Servicios = () => {
     const handleSave = async () => {
         if (!validateForm()) return;
         setLoadingSave(true); 
+        if(selectedCliente!=null){
+            selectedServicio.idcliente=selectedCliente.idcliente;
+        }
+        if(selectedLote!=null){
+            selectedServicio.idlote=selectedLote.idlote;
+        }
         try {
             if (selectedServicio && selectedServicio.idservicio) {
                 await axios.put(`${API_URL}/servicio/${selectedServicio.idservicio}`, selectedServicio);
@@ -145,17 +238,30 @@ const Servicios = () => {
         toast.error(errorMessage);
     };
 
-    const filteredServicios = servicios.filter((servicio) => {
-        const value = servicio[filterColumn] !== undefined ? servicio[filterColumn].toString() : '';
-        return value.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    const filteredServicios = servicios.filter((servicio) =>
+        servicio[filterColumn].toString().toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const filteredLotes = lotes.filter((lote) =>
+        lote[filterColumnLote].toString().toLowerCase().includes(searchTermLote.toLowerCase())
+    );
+
+    const filteredCliente = clientes.filter((cliente) =>
+        cliente[filterColumnCliente].toString().toLowerCase().includes(searchTermCliente.toLowerCase())
+        
+    );
     
 
     const indexOfLastPost = currentPage * rowsPerPage;
     const indexOfFirstPost = indexOfLastPost - rowsPerPage;
+    const indexOfLastPostLotes = currentPageLotes * rowsPerPageLotes;
+    const indexOfFirstPostLotes = indexOfLastPostLotes - rowsPerPageLotes;
     const currentServicios = filteredServicios.slice(indexOfFirstPost, indexOfLastPost);
+    const currentLote = filteredLotes.slice(indexOfFirstPostLotes, indexOfLastPostLotes);
+    const currentCliente = filteredCliente.slice(indexOfFirstPost, indexOfLastPost);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const paginateLotes = (pageNumber) => setCurrentPageLotes(pageNumber);
 
     return (
         <main className="servicios-container">
@@ -165,14 +271,73 @@ const Servicios = () => {
                 <div className="servicios-data">
                     <div className="row">
                         <label className="servicios-label">Configuracion:</label>
-                        <input
-                            className="servicios-input"
-                            type="text"
-                            placeholder="ID de la configuracion"
-                            name="idconfiguracion"
+                        <select
+                            className='servicios-input'
+                            name='idconfiguracion'
                             value={selectedServicio ? selectedServicio.idconfiguracion: ''}
                             onChange={handleInputChange}
-                        />
+                        >
+                            <option value=''>Selecciona una configuracion</option>
+                            {configuraciones.map((configuracion)=>(
+                                <option key={configuracion.idconfiguracion} value={configuracion.idconfiguracion}>
+                                    {configuracion.servicio}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="row">
+                        <label className="servicios-label">Lote:</label>
+                        <div className='input-container'>
+                            <input
+                                className="select-input"
+                                type="text"
+                                placeholder="Lote"
+                                name="ubicacion"
+                                value={isLoteSelected && selectedLote ? selectedLote.ubicacion : (selectedServicio ? selectedServicio.loteubicacion : '')}
+                                onChange={handleInputChange}
+                                readOnly
+                            />
+                            <input
+                                type="hidden"
+                                name="idlote"
+                                value={isLoteSelected && selectedLote ? selectedLote.idlote : (selectedServicio ? selectedServicio.idlote : '')}
+                                readOnly
+                            />
+                            <button 
+                                className="btn-select" 
+                                type="button"
+                                onClick= {(e) => { e.stopPropagation(); handleShowLotes()}}
+                            >
+                                <i className="fas fa-mouse-pointer"></i> {}
+                            </button>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <label className="servicios-label">Cliente</label>
+                        <div className='input-container'>
+                            <input
+                                className="select-input"
+                                type="text"
+                                placeholder="Cliente"
+                                name="nombre"
+                                value={isClienteSelected && selectedCliente ? selectedCliente.nombre : (selectedServicio ? selectedServicio.nombrecliente : '')}
+                                onChange={handleInputChange}
+                                readOnly
+                            />
+                             <input
+                                type='hidden'
+                                name='idcliente'
+                                value={isClienteSelected && selectedCliente ? selectedCliente.idcliente : (selectedServicio ? selectedServicio.idcliente : '')}
+                                readOnly
+                            />
+                            <button
+                                className='btn-select'
+                                type='button'
+                                onClick={(e) => { e.stopPropagation(); handleShowClientes()}}
+                            >
+                                <i className="fas fa-mouse-pointer"></i> {}
+                            </button>
+                        </div>
                     </div>
                     <div className="row">
                         <label className="servicios-label">No. Titulo:</label>
@@ -229,7 +394,9 @@ const Servicios = () => {
                         value={filterColumn}
                         onChange={(e) => setFilterColumn(e.target.value)}
                     >
-                        <option value="idconfiguracion">ID de configuracion</option>
+                        <option value="servicio">Configuracion</option>
+                        <option value="loteubicacion">Lote</option>
+                        <option value="nombrecliente">Cliente</option>
                         <option value="no_titulo">No. Titulo</option>
                         <option value="no_contador">No. Contador</option>
                         <option value="estatus_contador">Estatus</option>
@@ -246,7 +413,9 @@ const Servicios = () => {
                     <table className="servicios-data-table">
                         <thead>
                             <tr>
-                                <th>ID configuracion</th>
+                                <th>Configuracion</th>
+                                <th>Lote</th>
+                                <th>Cliente</th>
                                 <th>No. Titulo</th>
                                 <th>No. Contador</th>
                                 <th>Estatus</th>
@@ -257,7 +426,9 @@ const Servicios = () => {
                         <tbody>
                             {currentServicios.map((servicio) => (
                                 <tr key={servicio.idservicio} onClick={() => handleSelectServicio(servicio)}>
-                                    <td>{servicio.idconfiguracion}</td>
+                                    <td>{servicio.servicio}</td>
+                                    <td>{servicio.loteubicacion}</td>
+                                    <td>{servicio.nombrecliente}</td>
                                     <td>{servicio.no_titulo}</td>
                                     <td>{servicio.no_contador}</td>
                                     <td>{servicio.estatus_contador}</td>
@@ -304,6 +475,151 @@ const Servicios = () => {
                         <div className="modal-buttons">
                             <button onClick={confirmDelete} className="confirm-button" disabled={loadingSave}>Eliminar</button>
                             <button onClick={cancelDelete} className="cancel-button" disabled={loadingSave}>Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showLotesModal && (
+                <div className='modal' style={{ zIndex: 1100}}>
+                    <div className='modal-content-lotes'>
+                        <h3>Asignacion de lote al servicio</h3>
+                        <div className='modal-body'>
+                            <div className='modal-section'>
+                                <h1 className='servicios-tittle'>Datos existentes</h1>
+                                <div className='servicios-buscar'>
+                                    <label className='servicios-label'>Buscar</label>
+                                    <select 
+                                        className='servicios-select'
+                                        value={filterColumnLote}
+                                        onChange={(e)=> setFilterColumnLote(e.target.value)}
+                                    >
+                                        <option value='ubicacion'>Ubicacion</option>
+                                        <option value='manzana'>Manzana</option>
+                                        <option value='lote'>Lote</option>
+                                    </select>
+                                    <input
+                                        type='text'
+                                        className='servicios-input'
+                                        placeholder='Buscar'
+                                        value={searchTermLote}
+                                        onChange={(e) => setSearchTermLote(e.target.value)}
+                                    />
+                                </div>
+                                <div className='servicios-table'>
+                                    <table className='servicios-data-table'>
+                                        <thead>
+                                            <tr>
+                                                <th>Manzana</th>
+                                                <th>Lote</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {currentLote.map((lote) => (
+                                                <tr key={lote.idlote} onClick={() => handleSelectLote(lote)}>
+                                                    <td>{lote.manzana}</td>
+                                                    <td>{lote.lote}</td>
+                                                    <td>
+                                                        <span className={`status ${lote.activo ? 'active' : 'inactive'}`}>
+                                                            {lote.activo ? 'Activo' : 'Inactivo'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    <div className="pagination">
+                                        <button onClick={() => paginateLotes(1)} disabled={currentPageLotes === 1}>Inicio</button>
+                                        <button onClick={() => paginateLotes(currentPageLotes - 1)} disabled={currentPageLotes === 1}>Anterior</button>
+                                        {Array.from({ length: Math.ceil(filteredLotes.length / rowsPerPageLotes) }, (_, index) => (
+                                            <button key={index + 1} onClick={() => paginateLotes(index + 1)}>
+                                                {index + 1}
+                                            </button>
+                                        ))}
+                                        <button onClick={() => paginateLotes(currentPageLotes + 1)} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPageLotes)}>Siguiente</button>
+                                        <button onClick={() => paginateLotes(Math.ceil(filteredLotes.length / rowsPerPageLotes))} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPageLotes)}>Último</button>
+                                        <select className="rows-per-page" value={rowsPerPageLotes} onChange={(e) => setRowsPerPage(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
+                                            <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="20">20</option>
+                                            <option value="50">50</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className='pagination'>
+                                    <button onClick={() => handleSeleccionarLote()} className='lote-confirm-buttonn'>Seleccionar</button>
+                                    <button onClick={() => setShowLotesModal(false)} className='lote-cancel-button'>Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showClientesModal && (
+                <div className='servicio-modal'>
+                    <div className='modal-content-usuarios'>
+                        <h3>Asignación de cliente al servicio</h3>
+                        <div className='modal-body'>
+                            <div className='modal-section'>
+                                <div className='servicios-buscar'>
+                                    <label className='servicios-label'>Buscar</label>    
+                                    <select 
+                                        className='servicios-select'
+                                        value={filterColumnCliente}
+                                        onChange={(e) => setFilterColumnCliente(e.target.value)}
+                                    >
+                                        <option value='nombre'>Nombre</option>
+                                        <option value='apellidos'>Apellidos</option>
+                                        <option value='cui'>CUI</option>
+                                        <option value='nit'>NIT</option>
+                                        <option value='telefono'>Telefono</option>
+                                        <option value='email'>Email</option>
+                                    </select>
+                                    <input
+                                        type='text'
+                                        className='servicios-input'
+                                        placeholder='Buscar'
+                                        value={searchTermCliente}
+                                        onChange={(e) => setSearchTermCliente(e.target.value)}
+                                    />
+                                </div>
+                                <div className='servicios-table'>
+                                    <table className='servicios-data-table'>
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Apellidos</th>
+                                                <th>CUI</th>
+                                                <th>NIT</th>
+                                                <th>Telefono</th>
+                                                <th>Email</th>
+                                                <th>Estatus</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {currentCliente.map((cliente) => (
+                                                <tr key={cliente.idcliente} onClick={() => handleSelectCliente(cliente)}>
+                                                    <td>{cliente.nombre}</td>
+                                                    <td>{cliente.apellidos}</td>
+                                                    <td>{cliente.cui}</td>
+                                                    <td>{cliente.nit}</td>
+                                                    <td>{cliente.telefono}</td>
+                                                    <td>{cliente.email}</td>
+                                                    <td>
+                                                        <span className={`status ${cliente.activo ? 'active' : 'inactive'}`}>
+                                                            {cliente.activo ? 'Activo' : 'Inactivo'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className='pagination'>
+                                    <button onClick={() => handleSeleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
+                                    <button onClick={() => setShowClientesModal(false)} className='lote-cancel-button'>Cancelar</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

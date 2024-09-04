@@ -629,7 +629,7 @@ const Empleados = () => {
                                     >
                                         Nuevo
                                     </button>
-                                    <button onClick={() => setShowUsuarioModal(false)} className="usuario-cancel-button">Cancelar</button>
+                                    <button onClick={() => setShowUsuarioModal(false)} className="cancel-button">Cancelar</button>
                                 </div>
                             </div>
                             <div className="modal-section">
