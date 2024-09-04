@@ -68,8 +68,25 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
+
+  .usuarios-button-reset{
+    height: 2.5rem;
+    width: 12rem;
+    font-size: 1rem;
+    background-color: var(--button-green);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
   
   .usuarios-button:hover {
+    background-color: var(--button-hover-green);
+    transform: scale(1.05);
+  }
+
+  .usuarios-button-reset:hover {
     background-color: var(--button-hover-green);
     transform: scale(1.05);
   }
@@ -84,7 +101,7 @@
     border: 1px solid var(--input-border);
     font-size: 1.1rem;
     padding: 0 5px;
-    height: 1.8rem;
+    height: 1.9rem;
     border-radius: 5px;
     background-color: white;
   }
