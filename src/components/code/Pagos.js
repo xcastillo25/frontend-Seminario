@@ -43,7 +43,7 @@ const Pagos = () => {
 
     const fetchServicios = async () => {
         try {
-            const response = await axios.get(`${API_URL}/servicio`);
+            const response = await axios.get(`${API_URL}/servicio-pago`);
             console.log('Servicios recibidos:', response.data.servicios);  // Log de los servicios recibidos
             setServicios(response.data.servicios);
             setFilteredServicios(response.data.servicios); // Inicializa con todos los servicios
@@ -96,7 +96,7 @@ const Pagos = () => {
             <section className="pagos-section">
                 <h1 className="pagos-title">Gestión de Pagos</h1>
                 <div className="pagos-busqueda">
-                    <label>Buscar por:</label>
+                    <label>Buscar:</label>
                     <select value={filterColumn} onChange={handleFilterChange}>
                         <option value="lotes.ubicacion">Lote</option>
                         <option value="clientes.nombre">Nombre</option>
