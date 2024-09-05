@@ -272,7 +272,7 @@ const Servicios = () => {
                     <div className="row">
                         <label className="servicios-label">Configuracion:</label>
                         <select
-                            className='servicios-input'
+                            className='servicios-select'
                             name='idconfiguracion'
                             value={selectedServicio ? selectedServicio.idconfiguracion: ''}
                             onChange={handleInputChange}
