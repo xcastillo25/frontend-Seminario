@@ -19,9 +19,9 @@ const LecturasTable = () => {
         try {
             const response = await axios.get(`${API_URL}/view-lecturas`);
             console.log('Datos de la API:', response.data); // Verifica los datos aquí
-
+    
             // Verifica si la estructura de la respuesta es correcta
-            if (response.data && Array.isArray(response.data.Lecturas)) {
+            if (response.data && response.data.Lecturas) {
                 setLecturas(response.data.Lecturas);
                 console.log('Lecturas actualizadas:', response.data.Lecturas);
             } else {
@@ -31,6 +31,7 @@ const LecturasTable = () => {
             console.error('Error al cargar lecturas', error);
         }
     };
+    
 
     const handleSearchYearChange = (e) => {
         setSearchYear(e.target.value);
@@ -48,9 +49,7 @@ const LecturasTable = () => {
     const filteredLecturas = lecturas.filter((lectura) => {
         const yearMatch = searchYear ? lectura.año.toString() === searchYear : true;
         const monthMatch = searchMonth ? lectura.mes.toString() === searchMonth : true;
-        const loteMatch = searchLecturas === '' || searchLecturas === 'no seleccionado'
-            ? !lectura.lote
-            : lectura.lote.toLowerCase().includes(searchLecturas.toLowerCase());
+        const loteMatch = searchLecturas ? lectura.lote.toLowerCase().includes(searchLecturas.toLowerCase()) : true;
         return yearMatch && monthMatch && loteMatch;
     });
 
