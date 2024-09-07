@@ -342,8 +342,7 @@ const Empleados = () => {
         const limpiarBusqueda = () => {
             fetchEmpleados();
             setQuery('');
-            setAlertaVisible(false);
-        }
+            }
 
     const handleSelectedUsuario = (usuario) => {
         setUsuario({
