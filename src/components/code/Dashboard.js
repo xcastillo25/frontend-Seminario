@@ -10,6 +10,7 @@ import Pagos from './Pagos'
 import Usuarios from './Usuarios';
 import Servicios from './Servicios';  
 import Lotes from './Lotes';
+import Lecturas from './Lecturas';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -71,7 +72,9 @@ const Dashboard = () => {
       mostrarPlataforma('plataformaServicios')
     }else if (menuItem === 'Lotes'){
     mostrarPlataforma('plataformaLotes')
-  } 
+    }else if (menuItem === 'Lecturas'){
+      mostrarPlataforma('plataformaLecturas')
+    } 
   };
 
   return (
@@ -145,6 +148,14 @@ const Dashboard = () => {
             <span className="material-icons">payment</span>
             <span>Pagos</span>
           </a>
+          <a 
+            href="#lecturas" 
+            className={`menu-item ${activeMenuItem === 'Lecturas' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Lecturas', 'Lecturas', 'table_rows')}
+          >
+            <span className="material-icons">table_rows</span>
+            <span>Lecturas</span>
+          </a>
           
         </nav>
         <div className="community">
@@ -205,6 +216,8 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaUsuarios' && <Usuarios setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaServicios' && <Servicios setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaLotes' && <Lotes setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaLecturas' && <Lecturas setPlataformaVisible={setPlataformaVisible}/>}
+          
         </section> 
       </main>
     </div>
