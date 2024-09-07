@@ -195,6 +195,17 @@ const Clientes = () => {
                         />
                     </div>
                     <div className="row">
+                        <label className="clientes-label">NIT:</label>
+                        <input
+                            className="clientes-input"
+                            type="text"
+                            placeholder="NIT del Cliente"
+                            name="nit"
+                            value={selectedCliente ? selectedCliente.nit : ''}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="row">
                         <label className="clientes-label">Teléfono:</label>
                         <input
                             className="clientes-input"
@@ -258,6 +269,7 @@ const Clientes = () => {
                                 <th>Nombre</th>
                                 <th>Apellidos</th>
                                 <th>CUI</th>
+                                <th>NIT</th>
                                 <th>Teléfono</th>
                                 <th>Correo</th>
                                 <th>Estado</th>
@@ -270,6 +282,7 @@ const Clientes = () => {
                                     <td>{cliente.nombre}</td>
                                     <td>{cliente.apellidos}</td>
                                     <td>{cliente.cui}</td>
+                                    <td>{cliente.nit}</td>
                                     <td>{cliente.telefono}</td>
                                     <td>{cliente.email}</td>
                                     <td>

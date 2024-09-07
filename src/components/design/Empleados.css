@@ -119,12 +119,12 @@
 }
 
 .empleados-table tr:nth-child(even) td {
-  background-color: var(--table-cell-pair); 
+  background-color: var(--table-cell-pair);
 }
 
 .empleados-table tr:hover td {
-  background-color: var(--table-cell-hover); 
-  color: white; 
+  background-color: var(--table-cell-hover);
+  color: white;
   cursor: pointer;
 }
 
@@ -210,15 +210,13 @@
 }
 
 .usuario-modal .modal-content {
-  width: 80%; 
+  width: 80%;
   max-width: 50rem;
   background-color: white;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-
-
 
 .modal h3 {
   font-size: 1.2rem;
@@ -256,13 +254,15 @@
   padding: 0px 20px;
 }
 
-.usuario-confirm-button:hover, .usuario-cancel-button:hover {
+.usuario-confirm-button:hover,
+.usuario-cancel-button:hover {
   opacity: 0.9;
   scale: 1.05;
   background-color: #2ecc71;
 }
 
-.confirm-button:active, .cancel-button:active {
+.confirm-button:active,
+.cancel-button:active {
   transform: scale(0.98);
 }
 
@@ -284,11 +284,11 @@
   background-color: #2980b9;
 }
 
-.usuario-modal-data{
+.usuario-modal-data {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-bottom:1rem;
+  margin-bottom: 1rem;
 }
 
 .modal-body .row {
@@ -306,6 +306,7 @@
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 5px;
+  background-color: white;
 }
 
 .confirm-button {
@@ -363,12 +364,12 @@
 }
 
 .modal-data-table tr:nth-child(even) td {
-  background-color: var(--table-cell-pair); 
+  background-color: var(--table-cell-pair);
 }
 
 .modal-data-table tr:hover td {
-  background-color: var(--table-cell-hover); 
-  color: white; 
+  background-color: var(--table-cell-hover);
+  color: white;
   cursor: pointer;
 }
 
