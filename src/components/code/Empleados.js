@@ -27,7 +27,9 @@ const Empleados = () => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+    const [query, setQuery] = useState('');
+    const [searchingSave, setSearchingSave] = useState(false);
+    
     useEffect(() => {
         fetchEmpleados();
         fetchRoles();
@@ -317,13 +319,31 @@ const Empleados = () => {
     
     const fetchUsuario = async (idEmpleado) => {
         try {
-            const response = await axios.get(`${API_URL}/usuario-empleado/${idEmpleado}`);
+            const response = await axios.get(`${API_URL}/reset/password/${idEmpleado}`);
             setUsuarios(response.data.usuarios || []);
             clearUsuarioForm();
         } catch (error) {
             handleError(error, 'Error al cargar los datos del usuario.');
         }
     };
+    
+    const buscarEmpleado = async (query) => {
+            try {
+                setSearchingSave(true);
+                const response = await axios.get(`${API_URL}/empleados/buscar?query=${query}`);
+                setEmpleados(response.data.empleados);
+                console.log(response.data.empleados);            
+            } catch (error) {
+                handleError(error, 'Empleado no encontrado');            
+            } finally {            
+            }
+        };
+        
+        const limpiarBusqueda = () => {
+            fetchEmpleados();
+            setQuery('');
+            setAlertaVisible(false);
+        }
 
     const handleSelectedUsuario = (usuario) => {
         setUsuario({
@@ -425,14 +445,22 @@ const Empleados = () => {
                         <option value="cui">CUI</option>
                         <option value="telefono">Teléfono</option>
                     </select>
+                    
                     <input
                         type="text"
                         className="empleados-input"
                         placeholder="Buscar"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
                     />
+                    <button className="usuarios-button" onClick={() => buscarEmpleado(query)} disabled={searchingSave}>
+                        Buscar
+                    </button>
+                    <button className="usuarios-button" onClick={() => limpiarBusqueda()}>
+                        Cancelar
+                    </button>
                 </div>
+               
                 <div className="empleados-table">
                     <table className="empleados-data-table">
                         <thead>
