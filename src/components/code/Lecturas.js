@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../design/Lecturas.css'; // Asegúrate de que este archivo exista
-import { API_URL } from '../../config/config'; // Ajusta la ruta si es necesario
+import { API_URL } from '../../config/config';
 
 const LecturasTable = () => {
     const [lecturas, setLecturas] = useState([]);
@@ -11,6 +11,10 @@ const LecturasTable = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
+    // Estado para el modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalImage, setModalImage] = useState('');
+
     useEffect(() => {
         fetchLecturas();
     }, []);
@@ -19,8 +23,7 @@ const LecturasTable = () => {
         try {
             const response = await axios.get(`${API_URL}/view-lecturas`);
             console.log('Datos de la API:', response.data); // Verifica los datos aquí
-    
-            // Verifica si la estructura de la respuesta es correcta
+
             if (response.data && response.data.Lecturas) {
                 setLecturas(response.data.Lecturas);
                 console.log('Lecturas actualizadas:', response.data.Lecturas);
@@ -31,7 +34,6 @@ const LecturasTable = () => {
             console.error('Error al cargar lecturas', error);
         }
     };
-    
 
     const handleSearchYearChange = (e) => {
         setSearchYear(e.target.value);
@@ -45,7 +47,16 @@ const LecturasTable = () => {
         setSearchLecturas(e.target.value);
     };
 
-    // Filtra las lecturas en base a los criterios de búsqueda
+    const openModal = (imageUrl) => {
+        setModalImage(imageUrl);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setModalImage('');
+    };
+
     const filteredLecturas = lecturas.filter((lectura) => {
         const yearMatch = searchYear ? lectura.año.toString() === searchYear : true;
         const monthMatch = searchMonth ? lectura.mes.toString() === searchMonth : true;
@@ -124,9 +135,9 @@ const LecturasTable = () => {
                                     <td>{lectura.mes}</td>
                                     <td>{lectura.año}</td>
                                     <td>
-                                        <a href={lectura.url_foto} target="_blank" rel="noopener noreferrer">
+                                        <button className="view-photo-button" onClick={() => openModal(lectura.url_foto)}>
                                             Ver Foto
-                                        </a>
+                                        </button>
                                     </td>
                                     <td>{lectura.numero_contador}</td>
                                     <td>{lectura.lote || 'Lote no asignado'}</td>
@@ -157,6 +168,16 @@ const LecturasTable = () => {
                     </select>
                 </div>
             </section>
+
+            {/* Modal */}
+            {isModalOpen && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close-button" onClick={closeModal}>&times;</span>
+                        <img src={modalImage} alt="Lectura" className="modal-image"/>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
