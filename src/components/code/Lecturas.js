@@ -10,10 +10,7 @@ const LecturasTable = () => {
     const [searchLecturas, setSearchLecturas] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    // Estado para el modal
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalImage, setModalImage] = useState('');
+    const [selectedImage, setSelectedImage] = useState('');
 
     useEffect(() => {
         fetchLecturas();
@@ -22,7 +19,7 @@ const LecturasTable = () => {
     const fetchLecturas = async () => {
         try {
             const response = await axios.get(`${API_URL}/view-lecturas`);
-            console.log('Datos de la API:', response.data); // Verifica los datos aquí
+            console.log('Datos de la API:', response.data);
 
             if (response.data && response.data.Lecturas) {
                 setLecturas(response.data.Lecturas);
@@ -47,14 +44,12 @@ const LecturasTable = () => {
         setSearchLecturas(e.target.value);
     };
 
-    const openModal = (imageUrl) => {
-        setModalImage(imageUrl);
-        setIsModalOpen(true);
+    const handleImageClick = (imageUrl) => {
+        setSelectedImage(imageUrl);
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setModalImage('');
+    const handleImageClose = () => {
+        setSelectedImage('');
     };
 
     const filteredLecturas = lecturas.filter((lectura) => {
@@ -135,7 +130,7 @@ const LecturasTable = () => {
                                     <td>{lectura.mes}</td>
                                     <td>{lectura.año}</td>
                                     <td>
-                                        <button className="view-photo-button" onClick={() => openModal(lectura.url_foto)}>
+                                        <button className="view-photo-button" onClick={() => handleImageClick(lectura.url_foto)}>
                                             Ver Foto
                                         </button>
                                     </td>
@@ -169,13 +164,11 @@ const LecturasTable = () => {
                 </div>
             </section>
 
-            {/* Modal */}
-            {isModalOpen && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <span className="close-button" onClick={closeModal}>&times;</span>
-                        <img src={modalImage} alt="Lectura" className="modal-image"/>
-                    </div>
+            {/* Imagen seleccionada */}
+            {selectedImage && (
+                <div className="image-viewer">
+                    <img src={selectedImage} alt="Lectura" className="image-viewer-image" />
+                    <button className="image-viewer-close" onClick={handleImageClose}>Cerrar</button>
                 </div>
             )}
         </div>
@@ -183,3 +176,4 @@ const LecturasTable = () => {
 };
 
 export default LecturasTable;
+
