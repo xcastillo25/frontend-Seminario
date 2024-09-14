@@ -19,37 +19,25 @@ const LecturasTable = () => {
     const fetchLecturas = async () => {
         try {
             const response = await axios.get(`${API_URL}/view-lecturas`);
-            console.log('Datos de la API:', response.data);
-
-            if (response.data && response.data.Lecturas) {
+            if (response.data?.Lecturas) {
                 setLecturas(response.data.Lecturas);
-                console.log('Lecturas actualizadas:', response.data.Lecturas);
             } else {
-                console.error('La estructura de datos no es la esperada:', response.data);
+                console.error('Estructura de datos no válida:', response.data);
             }
         } catch (error) {
             console.error('Error al cargar lecturas', error);
         }
     };
 
-    const handleSearchYearChange = (e) => {
-        setSearchYear(e.target.value);
-    };
+    const handleSearchYearChange = (e) => setSearchYear(e.target.value);
 
-    const handleSearchMonthChange = (e) => {
-        setSearchMonth(e.target.value);
-    };
+    const handleSearchMonthChange = (e) => setSearchMonth(e.target.value);
 
-    const handleSearchLecturasChange = (e) => {
-        setSearchLecturas(e.target.value);
-    };
+    const handleSearchLecturasChange = (e) => setSearchLecturas(e.target.value);
 
-    const handleImageClick = (imageUrl) => {
-        setSelectedImage(imageUrl);
-    };
+    const handleImageClick = (imageUrl) => setSelectedImage(imageUrl);
 
     const handleImageClose = (e) => {
-        // Si el clic es fuera de la imagen, cerramos la vista
         if (e.target.classList.contains('image-viewer-custom')) {
             setSelectedImage('');
         }
@@ -62,9 +50,7 @@ const LecturasTable = () => {
         return yearMatch && monthMatch && loteMatch;
     });
 
-    const paginate = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -75,31 +61,19 @@ const LecturasTable = () => {
             <section className="lecturas-section">
                 <h1 className="lecturas-title">Lecturas</h1>
                 <div className="search-filters">
-                    <select
-                        className="search-select"
-                        value={searchYear}
-                        onChange={handleSearchYearChange}
-                    >
+                    <select className="search-select" value={searchYear} onChange={handleSearchYearChange}>
                         <option value="">Seleccionar Año</option>
                         {Array.from({ length: 16 }, (_, i) => 2020 + i).map(year => (
-                            <option key={year} value={year}>
-                                {year}
-                            </option>
+                            <option key={year} value={year}>{year}</option>
                         ))}
                     </select>
-                    <select
-                        className="search-select"
-                        value={searchMonth}
-                        onChange={handleSearchMonthChange}
-                    >
+                    <select className="search-select" value={searchMonth} onChange={handleSearchMonthChange}>
                         <option value="">Seleccionar Mes</option>
                         {[
                             'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
                         ].map((month, index) => (
-                            <option key={index + 1} value={index + 1}>
-                                {month}
-                            </option>
+                            <option key={index + 1} value={index + 1}>{month}</option>
                         ))}
                     </select>
                     <input
@@ -167,7 +141,6 @@ const LecturasTable = () => {
                 </div>
             </section>
 
-            {/* Imagen seleccionada como "modal" */}
             {selectedImage && (
                 <div className="image-viewer-custom" onClick={handleImageClose}>
                     <div className="image-viewer-content">
