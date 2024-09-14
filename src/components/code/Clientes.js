@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import '../design/Clientes.css'; // Asegúrate de crear este archivo
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
+import MotorValidaciones from './MotorValidaciones';
+import {validaDPI, validaNIT, ValidaTelefono} from './ValidacionesAlmacenar';
 
 const Clientes = () => {
     const [clientes, setClientes] = useState([]);
@@ -19,8 +21,37 @@ const Clientes = () => {
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingToggle, setLoadingToggle] = useState(false);
 
+    //ReferenciasValidaciones
+    const telefonoRef = useRef(null);
+    const nombreRef = useRef(null);
+    const apellidosRef = useRef(null);
+    const correoRef = useRef(null);    
+    const cuiRef = useRef(null);
+    const nitRef = useRef(null);
+
     useEffect(() => {
         fetchClientes();
+
+        //Validaciones
+        MotorValidaciones.agregarEvento(telefonoRef.current, 'keypress', MotorValidaciones.validaSoloNumeros, 0);
+        MotorValidaciones.agregarEvento(nombreRef.current, 'keypress', MotorValidaciones.validaSoloLetras);
+        MotorValidaciones.agregarEvento(apellidosRef.current, 'keypress', MotorValidaciones.validaSoloLetras);
+        MotorValidaciones.agregarEvento(correoRef.current, 'keypress', MotorValidaciones.validaCaracteresEmail);
+        MotorValidaciones.agregarEvento(cuiRef.current, 'keypress', MotorValidaciones.validaSoloNumeros, 0);
+        MotorValidaciones.agregarEvento(nitRef.current, 'keypress', MotorValidaciones.validarNITKeyPress, 0);
+        if (correoRef.current) {
+            MotorValidaciones.agregarEvento(correoRef.current, 'blur', MotorValidaciones.validarEmailCompleto);
+        }
+        if (cuiRef.current) {
+            MotorValidaciones.agregarEvento(cuiRef.current, 'blur', MotorValidaciones.validarDPI);
+        }
+        if (nitRef.current) {
+            MotorValidaciones.agregarEvento(nitRef.current, 'blur', MotorValidaciones.validarNIT);
+        }
+        if (telefonoRef.current) {
+            MotorValidaciones.agregarEvento(telefonoRef.current, 'blur', MotorValidaciones.validaSoloNumerosCompleto);
+        }
+
     }, []);
 
     const fetchClientes = async () => {
@@ -47,22 +78,16 @@ const Clientes = () => {
     };
 
     const validateForm = () => {
-        const cuiRegex = /^[0-9]{13}$/;
-        const phoneRegex = /^(\+502\s?)?(\d{8})$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
 
         if (!selectedCliente || !selectedCliente.nombre || !selectedCliente.apellidos || !selectedCliente.cui || !selectedCliente.telefono || !selectedCliente.email) {
             toast.error('Todos los campos son obligatorios.');
             return false;
         }
 
-        if (!cuiRegex.test(selectedCliente.cui)) {
-            toast.error('El CUI debe contener exactamente 13 dígitos.');
-            return false;
-        }
-
-        if (!phoneRegex.test(selectedCliente.telefono)) {
-            toast.error('El número de teléfono debe tener un formato válido.');
+        const resValidaTelefono = ValidaTelefono(selectedCliente.telefono)
+        if (!resValidaTelefono.valido) {
+            toast.error(resValidaTelefono.mensaje);
             return false;
         }
 
@@ -70,6 +95,20 @@ const Clientes = () => {
             toast.error('Debe ingresar un correo electrónico válido.');
             return false;
         }
+
+        const resValidaDPI = validaDPI(selectedCliente.cui);
+        if (!resValidaDPI.valido) {
+            toast.error(resValidaDPI.mensaje);
+            return false;
+        }
+
+        const ResValidaNIT = validaNIT(selectedCliente.nit);
+        if(!ResValidaNIT.valido){
+            toast.error(ResValidaNIT.mensaje);
+            return false;
+        }
+
+        
 
         return true;
     };
@@ -170,6 +209,7 @@ const Clientes = () => {
                             name="nombre"
                             value={selectedCliente ? selectedCliente.nombre : ''}
                             onChange={handleInputChange}
+                            ref={nombreRef}
                         />
                     </div>
                     <div className="row">
@@ -181,17 +221,19 @@ const Clientes = () => {
                             name="apellidos"
                             value={selectedCliente ? selectedCliente.apellidos : ''}
                             onChange={handleInputChange}
+                            ref={apellidosRef}
                         />
                     </div>
                     <div className="row">
                         <label className="clientes-label">CUI:</label>
                         <input
-                            className="clientes-input"
+                            className="clientes-input"  
                             type="text"
                             placeholder="CUI del Cliente"
                             name="cui"
                             value={selectedCliente ? selectedCliente.cui : ''}
                             onChange={handleInputChange}
+                            ref = {cuiRef}
                         />
                     </div>
                     <div className="row">
@@ -203,6 +245,7 @@ const Clientes = () => {
                             name="nit"
                             value={selectedCliente ? selectedCliente.nit : ''}
                             onChange={handleInputChange}
+                            ref = {nitRef}
                         />
                     </div>
                     <div className="row">
@@ -214,6 +257,7 @@ const Clientes = () => {
                             name="telefono"
                             value={selectedCliente ? selectedCliente.telefono : ''}
                             onChange={handleInputChange}
+                            ref={telefonoRef}
                         />
                     </div>
                     <div className="row">
@@ -225,6 +269,7 @@ const Clientes = () => {
                             name="email"
                             value={selectedCliente ? selectedCliente.email : ''}
                             onChange={handleInputChange}
+                            ref={correoRef}
                         />
                     </div>
                 </div>
