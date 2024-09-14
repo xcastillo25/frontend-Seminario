@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import '../design/Empleados.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
+import MotorValidaciones from './MotorValidaciones';
+import { validaDPI, ValidaTelefono } from './ValidacionesAlmacenar';
+
 
 const Empleados = () => {
     const [empleados, setEmpleados] = useState([]);
@@ -30,9 +33,36 @@ const Empleados = () => {
     const [query, setQuery] = useState('');
     const [searchingSave, setSearchingSave] = useState(false);
     
+
+    //ReferenciasValidaciones
+    const telefonoRef = useRef(null);
+    const nombreRef = useRef(null);
+    const apellidosRef = useRef(null);
+    const correoRef = useRef(null);
+    const cuiRef = useRef(null);
+
     useEffect(() => {
         fetchEmpleados();
         fetchRoles();
+
+        //Validaciones
+        MotorValidaciones.agregarEvento(telefonoRef.current, 'keypress', MotorValidaciones.validaSoloNumeros, 0);
+        MotorValidaciones.agregarEvento(nombreRef.current, 'keypress', MotorValidaciones.validaSoloLetras);
+        MotorValidaciones.agregarEvento(apellidosRef.current, 'keypress', MotorValidaciones.validaSoloLetras);
+        MotorValidaciones.agregarEvento(correoRef.current, 'keypress', MotorValidaciones.validaCaracteresEmail);
+        MotorValidaciones.agregarEvento(cuiRef.current, 'keypress', MotorValidaciones.validaSoloNumeros, 0);
+        if (correoRef.current) {
+            MotorValidaciones.agregarEvento(correoRef.current, 'blur', MotorValidaciones.validarEmailCompleto);
+        }
+        if (cuiRef.current) {
+            MotorValidaciones.agregarEvento(cuiRef.current, 'blur', MotorValidaciones.validarDPI);
+        }
+        if (cuiRef.current) {
+            MotorValidaciones.agregarEvento(cuiRef.current, 'blur', MotorValidaciones.validarDPI);
+        }
+        if (telefonoRef.current) {
+            MotorValidaciones.agregarEvento(telefonoRef.current, 'blur', MotorValidaciones.validaSoloNumerosCompleto);
+        }
     }, []);
 
     const fetchEmpleados = async () => {
@@ -59,22 +89,23 @@ const Empleados = () => {
     };
 
     const validateForm = () => {
-        const cuiRegex = /^[0-9]{13}$/;
-        const phoneRegex = /^(\+502\s?)?(\d{8})$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
 
         if (!selectedEmpleado || !selectedEmpleado.nombre || !selectedEmpleado.apellidos || !selectedEmpleado.cui || !selectedEmpleado.telefono || !selectedEmpleado.email) {
             toast.error('Todos los campos son obligatorios.');
             return false;
         }
 
-        if (!cuiRegex.test(selectedEmpleado.cui)) {
-            toast.error('El CUI debe contener exactamente 13 dígitos.');
+        const resValidaTelefono = ValidaTelefono(selectedEmpleado.telefono)
+        if (!resValidaTelefono.valido) {
+            toast.error(resValidaTelefono.mensaje);
             return false;
         }
 
-        if (!phoneRegex.test(selectedEmpleado.telefono)) {
-            toast.error('El número de teléfono debe tener un formato válido.');
+
+        const resValidaDPI = validaDPI(selectedEmpleado.cui);
+        if (!resValidaDPI.valido) {
+            toast.error(resValidaDPI.mensaje);
             return false;
         }
 
@@ -88,7 +119,7 @@ const Empleados = () => {
 
     const handleSave = async () => {
         if (!validateForm()) return;
-        setLoadingSave(true); 
+        setLoadingSave(true);
         try {
             if (selectedEmpleado && selectedEmpleado.idempleado) {
                 await axios.put(`${API_URL}/empleados/${selectedEmpleado.idempleado}`, selectedEmpleado);
@@ -102,7 +133,7 @@ const Empleados = () => {
         } catch (error) {
             handleError(error, 'Error al guardar el empleado.');
         } finally {
-            setLoadingSave(false); 
+            setLoadingSave(false);
         }
     };
 
@@ -112,7 +143,7 @@ const Empleados = () => {
     };
 
     const confirmDelete = async () => {
-        setLoadingSave(true); 
+        setLoadingSave(true);
         try {
             await axios.delete(`${API_URL}/empleados/${empleadoToDelete}`);
             toast.success('Empleado eliminado');
@@ -122,7 +153,7 @@ const Empleados = () => {
             handleError(error, 'Error al eliminar el empleado.');
         } finally {
             setShowModal(false);
-            setLoadingSave(false); 
+            setLoadingSave(false);
         }
     };
 
@@ -132,7 +163,7 @@ const Empleados = () => {
     };
 
     const toggleActive = async (idempleado) => {
-        setLoadingToggle(true); 
+        setLoadingToggle(true);
         try {
             await axios.patch(`${API_URL}/empleados/${idempleado}/toggle`);
             toast.success('Estado cambiado');
@@ -140,13 +171,13 @@ const Empleados = () => {
         } catch (error) {
             handleError(error, 'Error al cambiar el estado.');
         } finally {
-            setLoadingToggle(false); 
+            setLoadingToggle(false);
         }
     };
 
     const clearForm = () => {
         setSelectedEmpleado(null);
-        setLoadingToggle(false); 
+        setLoadingToggle(false);
         setEditing(false);
     };
 
@@ -188,19 +219,19 @@ const Empleados = () => {
             ...usuario,
             [e.target.name]: e.target.value,
         });
-    };    
+    };
 
     const handleUsuarioSave = async () => {
         if (!usuario.usuario || !usuario.password || !usuario.confirmPassword || !usuario.idrol || !selectedEmpleado.email) {
             toast.error('Todos los campos son obligatorios.');
             return;
         }
-     
+
         if (usuario.password !== usuario.confirmPassword) {
             toast.error('Las contraseñas no coinciden.');
             return;
         }
-     
+
         setLoadingSave(true);
         try {
             const usuarioData = {
@@ -211,7 +242,7 @@ const Empleados = () => {
                 email: selectedEmpleado.email,  // Asegúrate de incluir el email aquí.
                 activo: usuario.activo
             };
-     
+
             await axios.post(`${API_URL}/usuarios`, usuarioData);
             toast.success('Usuario asignado exitosamente');
             fetchEmpleados();
@@ -219,14 +250,14 @@ const Empleados = () => {
             const errorMessage = error.response && error.response.data && error.response.data.message
                 ? error.response.data.message
                 : 'Error al guardar el usuario.';
-     
+
             toast.error(errorMessage);
             console.error('Error al guardar el usuario:', errorMessage, error);
         } finally {
             setLoadingSave(false);
         }
     };
-    
+
 
     const handleUsuarioUpdate = async () => {
         // Validación de campos obligatorios
@@ -234,13 +265,13 @@ const Empleados = () => {
             toast.error('Todos los campos son obligatorios.');
             return;
         }
-    
+
         // Verificación de que las contraseñas coincidan
         if (usuario.password !== usuario.confirmPassword) {
             toast.error('Las contraseñas no coinciden.');
             return;
         }
-    
+
         setLoadingSave(true);
         try {
             // Preparar los datos a enviar al backend
@@ -251,7 +282,7 @@ const Empleados = () => {
                 email: selectedEmpleado.email,  // Incluye el campo email aquí
                 activo: usuario.activo
             };
-    
+
             // Realiza la solicitud PUT para actualizar
             await axios.put(`${API_URL}/usuarios/${usuario.idusuario}`, usuarioData);
             toast.success('Usuario actualizado exitosamente');
@@ -261,7 +292,7 @@ const Empleados = () => {
             const errorMessage = error.response && error.response.data && error.response.data.message
                 ? error.response.data.message
                 : 'Error al actualizar el usuario.';
-        
+
             toast.error(errorMessage);
             console.error('Error al actualizar el usuario:', errorMessage, error);
         } finally {
@@ -269,10 +300,10 @@ const Empleados = () => {
             setLoadingSave(false);
         }
     };
-    
+
 
     const toggleUsuarioActive = async (idusuario) => {
-        setLoadingToggle(true); 
+        setLoadingToggle(true);
         try {
             await axios.patch(`${API_URL}/usuarios/${idusuario}/toggle`);
             toast.success('Estado de usuario cambiado');
@@ -280,10 +311,10 @@ const Empleados = () => {
         } catch (error) {
             handleError(error, 'Error al cambiar el estado del usuario.');
         } finally {
-            setLoadingToggle(false); 
+            setLoadingToggle(false);
         }
     };
-    
+
     const handleUsuarioDeleteClick = (idusuario) => {
         setUsuarioToDelete(idusuario);
         setShowUsuarioDeleteModal(true);
@@ -299,7 +330,7 @@ const Empleados = () => {
         } catch (error) {
             handleError(error, 'Error al eliminar el usuario.');
         } finally {
-            setShowUsuarioDeleteModal(false); 
+            setShowUsuarioDeleteModal(false);
             setLoadingSave(false);
         }
     };
@@ -312,7 +343,7 @@ const Empleados = () => {
     const clearUsuarioForm = () => {
         setUsuario({ usuario: '', password: '', confirmPassword: '', idrol: '', activo: true });
         setIsUpdating(false);
-    }; 
+    };
 
     const handleResetPassword = async (idusuario) => {
         try {
@@ -322,7 +353,7 @@ const Empleados = () => {
             handleError(error, 'Error al resetear la contraseña.');
         }
     };
-    
+
     const fetchUsuario = async (idEmpleado) => {
         try {
             const response = await axios.get(`${API_URL}/reset/password/${idEmpleado}`);
@@ -352,7 +383,7 @@ const Empleados = () => {
 
     const handleSelectedUsuario = (usuario) => {
         setUsuario({
-            idusuario : usuario.idusuario,
+            idusuario: usuario.idusuario,
             usuario: usuario.usuario,
             password: '',
             confirmPassword: '',
@@ -377,6 +408,7 @@ const Empleados = () => {
                             name="nombre"
                             value={selectedEmpleado ? selectedEmpleado.nombre : ''}
                             onChange={handleInputChange}
+                            ref={nombreRef}
                         />
                     </div>
                     <div className="row">
@@ -388,6 +420,7 @@ const Empleados = () => {
                             name="apellidos"
                             value={selectedEmpleado ? selectedEmpleado.apellidos : ''}
                             onChange={handleInputChange}
+                            ref={apellidosRef}
                         />
                     </div>
                     <div className="row">
@@ -399,6 +432,7 @@ const Empleados = () => {
                             name="cui"
                             value={selectedEmpleado ? selectedEmpleado.cui : ''}
                             onChange={handleInputChange}
+                            ref={cuiRef}
                         />
                     </div>
                     <div className="row">
@@ -410,6 +444,7 @@ const Empleados = () => {
                             name="telefono"
                             value={selectedEmpleado ? selectedEmpleado.telefono : ''}
                             onChange={handleInputChange}
+                            ref={telefonoRef}
                         />
                     </div>
                     <div className="row">
@@ -421,6 +456,7 @@ const Empleados = () => {
                             name="email"
                             value={selectedEmpleado ? selectedEmpleado.email : ''}
                             onChange={handleInputChange}
+                            ref={correoRef}
                         />
                     </div>
                 </div>
@@ -430,7 +466,7 @@ const Empleados = () => {
                     </button>
                     <button className="empleados-button" onClick={clearForm} disabled={loadingSave}>Nuevo</button>
                     {selectedEmpleado && !editing && (
-                        <button className="empleados-button" onClick={() => {toggleActive(selectedEmpleado.idempleado); clearForm();}} disabled={loadingToggle}>
+                        <button className="empleados-button" onClick={() => { toggleActive(selectedEmpleado.idempleado); clearForm(); }} disabled={loadingToggle}>
                             {loadingToggle ? (selectedEmpleado.activo ? 'Desactivando...' : 'Activando...') : (selectedEmpleado.activo ? 'Desactivar' : 'Activar')}
                         </button>
                     )}
@@ -552,7 +588,7 @@ const Empleados = () => {
                     </div>
                 </div>
             )}
-            
+
             {showUsuarioModal && (
                 <div className="usuario-modal">
                     <div className="modal-content">
@@ -582,7 +618,7 @@ const Empleados = () => {
                                             <option value="">Selecciona un rol</option>
                                             {roles.map((rol) => (
                                                 <option key={rol.idrol} value={rol.idrol}>
-                                                    {rol.rol} 
+                                                    {rol.rol}
                                                 </option>
                                             ))}
                                         </select>
@@ -598,8 +634,8 @@ const Empleados = () => {
                                                 value={usuario.password}
                                                 onChange={handleUsuarioInputChange}
                                             />
-                                            <span 
-                                                className="password-toggle-icon" 
+                                            <span
+                                                className="password-toggle-icon"
                                                 onClick={() => setShowPassword(!showPassword)}
                                             >
                                                 <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
@@ -617,8 +653,8 @@ const Empleados = () => {
                                                 value={usuario.confirmPassword}
                                                 onChange={handleUsuarioInputChange}
                                             />
-                                            <span 
-                                                className="password-toggle-icon" 
+                                            <span
+                                                className="password-toggle-icon"
                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                             >
                                                 <i className={`fas ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
@@ -639,7 +675,7 @@ const Empleados = () => {
                                                 {loadingSave ? 'Actualizando...' : 'Actualizar'}
                                             </button>
                                             <button
-                                                className="usuario-confirm-button" 
+                                                className="usuario-confirm-button"
                                                 onClick={() => toggleUsuarioActive(usuario.idusuario)}
                                                 disabled={loadingToggle} // Activar siempre que se esté actualizando
                                             >

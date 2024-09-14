@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import '../design/Lotes.css'; // Asegúrate de crear este archivo
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
+import MotorValidaciones from './MotorValidaciones';
+import { ValidaLetrasAlmacenar, ValidaLetrasyNumerosAlmacenar } from './ValidacionesAlmacenar';
+
 
 const Clientes = () => {
     const [lotes, setLotes] = useState([]);
@@ -19,7 +22,24 @@ const Clientes = () => {
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingToggle, setLoadingToggle] = useState(false);
 
+    //ReferenciasValidaciones
+    const manzanaRef = useRef(null);
+    const loteRef = useRef(null);
+
     useEffect(() => {
+        //Validaciones
+        MotorValidaciones.agregarEvento(manzanaRef.current, 'keypress', MotorValidaciones.validaSoloLetras);
+        MotorValidaciones.agregarEvento(loteRef.current, 'keypress', MotorValidaciones.validarNumerosYLetrasKeyPress);
+
+
+        if (manzanaRef.current) {
+            MotorValidaciones.agregarEvento(manzanaRef.current, 'blur', MotorValidaciones.validaSoloLetrasCompleto);
+        }
+
+        if (loteRef.current) {
+            MotorValidaciones.agregarEvento(loteRef.current, 'blur', MotorValidaciones.validaLetrasYNumerosCompleto);
+        }
+
         fetchLotes();
     }, []);
 
@@ -39,16 +59,30 @@ const Clientes = () => {
     };
 
     const handleInputChange = (e) => {
+        const { name, value } = e.target;
+
         setSelectedLote({
             ...selectedLote,
-            [e.target.name]: e.target.value,
+            [name]: name === 'manzana' || name === 'lote'? value.toUpperCase() : value,
         });
         setEditing(true);
     };
 
     const validateForm = () => {
-        if (!selectedLote || !selectedLote.manzana || !selectedLote.lote || !selectedLote.observaciones) {
+        if (!selectedLote || !selectedLote.manzana || !selectedLote.lote) {
             toast.error('Todos los campos son obligatorios.');
+            return false;
+        }
+
+        const resValidaSoloLetrasCompleto = ValidaLetrasAlmacenar(selectedLote.manzana, "Manzana");
+        if (!resValidaSoloLetrasCompleto.valido) {
+            toast.error(resValidaSoloLetrasCompleto.mensaje);
+            return false;
+        }
+
+        const resValidaLetrasyNumerosAlmacenar = ValidaLetrasyNumerosAlmacenar(selectedLote.lote, "Lote");
+        if (!resValidaLetrasyNumerosAlmacenar.valido) {
+            toast.error(resValidaLetrasyNumerosAlmacenar.mensaje);
             return false;
         }
 
@@ -57,7 +91,7 @@ const Clientes = () => {
 
     const handleSave = async () => {
         if (!validateForm()) return;
-        setLoadingSave(true); 
+        setLoadingSave(true);
         try {
             if (selectedLote && selectedLote.idlote) {
                 await axios.put(`${API_URL}/lote/${selectedLote.idlote}`, selectedLote);
@@ -71,7 +105,7 @@ const Clientes = () => {
         } catch (error) {
             handleError(error, 'Error al guardar el lote.');
         } finally {
-            setLoadingSave(false); 
+            setLoadingSave(false);
         }
     };
 
@@ -81,7 +115,7 @@ const Clientes = () => {
     };
 
     const confirmDelete = async () => {
-        setLoadingSave(true); 
+        setLoadingSave(true);
         try {
             await axios.delete(`${API_URL}/lote/${loteToDelete}`);
             toast.success('Lote eliminado');
@@ -91,7 +125,7 @@ const Clientes = () => {
             handleError(error, 'Error al eliminar el lote.');
         } finally {
             setShowModal(false);
-            setLoadingSave(false); 
+            setLoadingSave(false);
         }
     };
 
@@ -101,7 +135,7 @@ const Clientes = () => {
     };
 
     const toggleActive = async (idlote) => {
-        setLoadingToggle(true); 
+        setLoadingToggle(true);
         try {
             await axios.patch(`${API_URL}/lote/${idlote}/toggle`);
             toast.success('Estado cambiado');
@@ -109,13 +143,13 @@ const Clientes = () => {
         } catch (error) {
             handleError(error, 'Error al cambiar el estado.');
         } finally {
-            setLoadingToggle(false); 
+            setLoadingToggle(false);
         }
     };
 
     const clearForm = () => {
         setSelectedLote(null);
-        setLoadingToggle(false); 
+        setLoadingToggle(false);
         setEditing(false);
     };
 
@@ -151,6 +185,7 @@ const Clientes = () => {
                             name="manzana"
                             value={selectedLote ? selectedLote.manzana : ''}
                             onChange={handleInputChange}
+                            ref={manzanaRef}
                         />
                     </div>
                     <div className="row">
@@ -162,6 +197,7 @@ const Clientes = () => {
                             name="lote"
                             value={selectedLote ? selectedLote.lote : ''}
                             onChange={handleInputChange}
+                            ref={loteRef}
                         />
                     </div>
                     <div className="row">
@@ -183,7 +219,7 @@ const Clientes = () => {
                     </button>
                     <button className="lotes-button" onClick={clearForm} disabled={loadingSave}>Nuevo</button>
                     {selectedLote && !editing && (
-                        <button className="lotes-button" onClick={() => {toggleActive(selectedLote.idlote); clearForm();}} disabled={loadingToggle}>
+                        <button className="lotes-button" onClick={() => { toggleActive(selectedLote.idlote); clearForm(); }} disabled={loadingToggle}>
                             {loadingToggle ? (selectedLote.activo ? 'Desactivando...' : 'Activando...') : (selectedLote.activo ? 'Desactivar' : 'Activar')}
                         </button>
                     )}
