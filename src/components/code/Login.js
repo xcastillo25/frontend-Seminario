@@ -36,6 +36,7 @@ const Login = () => {
                 token: response.data.token,
                 usuario: {
                     idusuario: response.data.idusuario,
+                    idempleado: response.data.idempleado,
                     nombre: response.data.nombre,
                     apellidos: response.data.apellidos,
                     foto: response.data.foto,
