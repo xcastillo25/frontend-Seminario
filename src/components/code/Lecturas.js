@@ -48,8 +48,11 @@ const LecturasTable = () => {
         setSelectedImage(imageUrl);
     };
 
-    const handleImageClose = () => {
-        setSelectedImage('');
+    const handleImageClose = (e) => {
+        // Si el clic es fuera de la imagen, cerramos la vista
+        if (e.target.classList.contains('image-viewer-custom')) {
+            setSelectedImage('');
+        }
     };
 
     const filteredLecturas = lecturas.filter((lectura) => {
@@ -164,11 +167,12 @@ const LecturasTable = () => {
                 </div>
             </section>
 
-            {/* Imagen seleccionada */}
+            {/* Imagen seleccionada como "modal" */}
             {selectedImage && (
-                <div className="image-viewer">
-                    <img src={selectedImage} alt="Lectura" className="image-viewer-image" />
-                    <button className="image-viewer-close" onClick={handleImageClose}>Cerrar</button>
+                <div className="image-viewer-custom" onClick={handleImageClose}>
+                    <div className="image-viewer-content">
+                        <img src={selectedImage} alt="Lectura" className="image-viewer-image" />
+                    </div>
                 </div>
             )}
         </div>
@@ -176,4 +180,3 @@ const LecturasTable = () => {
 };
 
 export default LecturasTable;
-
