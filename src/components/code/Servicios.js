@@ -18,6 +18,8 @@ const Servicios = () => {
     const [filterColumnCliente, setFilterColumnCliente] = useState('nombre');
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [currentPageClientes, setCurrentPageClientes] = useState(1);
+    const [rowsPerPageClientes, setRowsPerPageClientes] = useState(5);
     const [currentPageLotes, setCurrentPageLotes] = useState(1);
     const [rowsPerPageLotes, setRowsPerPageLotes] = useState(5);
     const [showModal, setShowModal] = useState(false);
@@ -254,13 +256,16 @@ const Servicios = () => {
 
     const indexOfLastPost = currentPage * rowsPerPage;
     const indexOfFirstPost = indexOfLastPost - rowsPerPage;
+    const indexOfLastPostClientes = currentPageClientes * rowsPerPageClientes;
+    const indexOfFirstPostClientes = indexOfLastPostClientes - rowsPerPageClientes;
     const indexOfLastPostLotes = currentPageLotes * rowsPerPageLotes;
     const indexOfFirstPostLotes = indexOfLastPostLotes - rowsPerPageLotes;
     const currentServicios = filteredServicios.slice(indexOfFirstPost, indexOfLastPost);
     const currentLote = filteredLotes.slice(indexOfFirstPostLotes, indexOfLastPostLotes);
-    const currentCliente = filteredCliente.slice(indexOfFirstPost, indexOfLastPost);
+    const currentCliente = filteredCliente.slice(indexOfFirstPostClientes, indexOfLastPostClientes);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const paginateClientes = (pageNumber) => setCurrentPageClientes(pageNumber);
     const paginateLotes = (pageNumber) => setCurrentPageLotes(pageNumber);
 
     return (
@@ -320,7 +325,7 @@ const Servicios = () => {
                                 type="text"
                                 placeholder="Cliente"
                                 name="nombre"
-                                value={isClienteSelected && selectedCliente ? selectedCliente.nombre : (selectedServicio ? selectedServicio.nombrecliente : '')}
+                                value={isClienteSelected && selectedCliente ? selectedCliente.nombre+' '+selectedCliente.apellidos : (selectedServicio ? selectedServicio.nombrecliente : '')}
                                 onChange={handleInputChange}
                                 readOnly
                             />
@@ -485,7 +490,10 @@ const Servicios = () => {
                         <h3>Asignacion de lote al servicio</h3>
                         <div className='modal-body'>
                             <div className='modal-section'>
-                                <h1 className='servicios-tittle'>Datos existentes</h1>
+                                <div className='servicios-buscar'>
+                                    <label className='servicios-laberl'>Lote Seleccionado</label>
+                                    <h3>{selectedLote?selectedLote.ubicacion:'Ninguno'}</h3>
+                                </div>
                                 <div className='servicios-buscar'>
                                     <label className='servicios-label'>Buscar</label>
                                     <select 
@@ -526,6 +534,11 @@ const Servicios = () => {
                                                     </td>
                                                 </tr>
                                             ))}
+                                            {Array.from({ length: rowsPerPageLotes - currentLote.length }, (_, index) => (
+                                               <tr key={`empty-${index}`} className="empty-row">
+                                                  <td colSpan="3">&nbsp;</td>
+                                               </tr>
+                                            ))}
                                         </tbody>
                                     </table>
                                     <div className="pagination">
@@ -538,17 +551,14 @@ const Servicios = () => {
                                         ))}
                                         <button onClick={() => paginateLotes(currentPageLotes + 1)} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPageLotes)}>Siguiente</button>
                                         <button onClick={() => paginateLotes(Math.ceil(filteredLotes.length / rowsPerPageLotes))} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPageLotes)}>Último</button>
-                                        <select className="rows-per-page" value={rowsPerPageLotes} onChange={(e) => setRowsPerPage(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
+                                        <select className="rows-per-page" value={rowsPerPageLotes} onChange={(e) => setRowsPerPageLotes(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
                                             <option value="5">5</option>
-                                            <option value="10">10</option>
-                                            <option value="20">20</option>
-                                            <option value="50">50</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div className='pagination'>
                                     <button onClick={() => handleSeleccionarLote()} className='lote-confirm-buttonn'>Seleccionar</button>
-                                    <button onClick={() => setShowLotesModal(false)} className='lote-cancel-button'>Cancelar</button>
+                                    <button onClick={() => {setShowLotesModal(false); setSelectedLote(null)}} className='lote-cancel-button'>Cancelar</button>
                                 </div>
                             </div>
                         </div>
@@ -582,6 +592,8 @@ const Servicios = () => {
                                         value={searchTermCliente}
                                         onChange={(e) => setSearchTermCliente(e.target.value)}
                                     />
+                                    <label className='servicios_label'>Cliente Seleccionado:</label>
+                                    <h3 className='servicios_label'>{selectedCliente?selectedCliente.nombre+' '+selectedCliente.apellidos:'Ninguno'}</h3>
                                 </div>
                                 <div className='servicios-table'>
                                     <table className='servicios-data-table'>
@@ -612,12 +624,31 @@ const Servicios = () => {
                                                     </td>
                                                 </tr>
                                             ))}
+                                            {Array.from({ length: rowsPerPageClientes - currentCliente.length }, (_, index) => (
+                                               <tr key={`empty-${index}`} className="empty-row">
+                                                  <td colSpan="7">&nbsp;</td>
+                                               </tr>
+                                            ))}
                                         </tbody>
                                     </table>
+                                    <div className="pagination">
+                                        <button onClick={() => paginateClientes(1)} disabled={currentPageClientes === 1}>Inicio</button>
+                                        <button onClick={() => paginateClientes(currentPageClientes - 1)} disabled={currentPageClientes === 1}>Anterior</button>
+                                        {Array.from({ length: Math.ceil(filteredCliente.length / rowsPerPageClientes) }, (_, index) => (
+                                            <button key={index + 1} onClick={() => paginateClientes(index + 1)}>
+                                                {index + 1}
+                                            </button>
+                                        ))}
+                                        <button onClick={() => paginateClientes(currentPageClientes + 1)} disabled={currentPageClientes === Math.ceil(filteredCliente.length / rowsPerPageClientes)}>Siguiente</button>
+                                        <button onClick={() => paginateClientes(Math.ceil(filteredCliente.length / rowsPerPageClientes))} disabled={currentPageClientes === Math.ceil(filteredCliente.length / rowsPerPageClientes)}>Último</button>
+                                        <select className="rows-per-page" value={rowsPerPageClientes} onChange={(e) => setRowsPerPageClientes(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
+                                            <option value="5">5</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div className='pagination'>
                                     <button onClick={() => handleSeleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
-                                    <button onClick={() => setShowClientesModal(false)} className='lote-cancel-button'>Cancelar</button>
+                                    <button onClick={() => {setShowClientesModal(false); setSelectedCliente(null)}} className='lote-cancel-button'>Cancelar</button>
                                 </div>
                             </div>
                         </div>

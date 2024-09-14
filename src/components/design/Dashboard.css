@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  background-color: #ffffff !important;
+}
+
 :root {
   /* Tema claro */
   --light-green: #f5f7f6;

@@ -11,6 +11,7 @@ import Usuarios from './Usuarios';
 import Servicios from './Servicios';  
 import Lotes from './Lotes';
 import Lecturas from './Lecturas';
+import Perfil from './Perfil';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -68,13 +69,20 @@ const Dashboard = () => {
       mostrarPlataforma('plataformaPagos');
     } else if (menuItem === 'Usuarios'){
       mostrarPlataforma('plataformaUsuarios')
-      } else if (menuItem === 'Servicios'){
+    } else if (menuItem === 'Servicios'){
       mostrarPlataforma('plataformaServicios')
     }else if (menuItem === 'Lotes'){
     mostrarPlataforma('plataformaLotes')
     }else if (menuItem === 'Lecturas'){
       mostrarPlataforma('plataformaLecturas')
-    } 
+    }else if (menuItem === 'Perfil') {
+      const idempleado = user?.usuario?.idempleado;  // Verifica si existe idempleado
+      if (idempleado) {
+        mostrarPlataforma('plataformaPerfil');
+      } else {
+        console.error('El idempleado no está definido');
+      }
+    }
   };
 
   return (
@@ -92,6 +100,14 @@ const Dashboard = () => {
         </div>
         <nav className="menu">
           <h4>MENU</h4>
+          <a 
+            href="#perfil" 
+            className={`menu-item ${activeMenuItem === 'Perfil' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Perfil', 'Perfil', 'manage_accounts')}
+          >
+            <span className="material-icons">manage_accounts</span>
+            <span>Perfil</span>
+          </a>
           <a 
             href="#clientes" 
             className={`menu-item ${activeMenuItem === 'Clientes' ? 'active' : ''}`} 
@@ -217,7 +233,10 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaServicios' && <Servicios setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaLotes' && <Lotes setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaLecturas' && <Lecturas setPlataformaVisible={setPlataformaVisible}/>}
-          
+          {plataformaVisible === 'plataformaPerfil' && user?.usuario?.idempleado && (
+            <Perfil idempleado={user.usuario.idempleado} setPlataformaVisible={setPlataformaVisible} />
+          )}
+
         </section> 
       </main>
     </div>
