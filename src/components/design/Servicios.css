@@ -169,6 +169,8 @@ input:-webkit-autofill {
   .status.active {
     background-color: #27ae60; /* Verde para estado activo */
   }
+
+  
   
   .status.inactive {
     background-color: #e74c3c; /* Rojo para estado inactivo */

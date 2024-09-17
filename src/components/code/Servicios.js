@@ -24,23 +24,27 @@ const Servicios = () => {
     const [rowsPerPageLotes, setRowsPerPageLotes] = useState(5);
     const [showModal, setShowModal] = useState(false);
     const [showLotesModal, setShowLotesModal] = useState(false);
+    const [showPagoModal, setShowPagoModal] = useState(false);
     const [showClientesModal, setShowClientesModal] = useState(false);
     const [servicioToDelete, setServicioToDelete] = useState(null);
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingToggle, setLoadingToggle] = useState(false);
     const [configuraciones, setConfiguraciones] =useState([]);
     const [lotes, setLotes] =useState([]);
+    const [pagos, setPagos] =useState([]);
     const [clientes, setClientes] =useState([]);
     const [selectedLote, setSelectedLote] = useState(null);
     const [isLoteSelected, setIsLoteSelected] = useState(false);
     const [selectedCliente, setSelectedCliente] = useState(null);
     const [isClienteSelected, setIsClienteSelected] = useState(false);
+    const [currentPago, setCurrentPago] = useState(null)
 
     useEffect(() => {
         fetchServicios();
         fetchConfiguraciones();
         fetchLotes();
         fetchClientes();
+        fetchPagos();
     }, []);
 
     const fetchServicios = async () => {
@@ -78,6 +82,16 @@ const Servicios = () => {
             handleError(error, 'Error al cargar clientes');
         }
     };
+
+    const fetchPagos = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/pagoser`);
+            setPagos(response.data.pagoservicios);
+        } catch (error) {
+            handleError(error, 'Error al cargar Pagos');
+        }
+    };
+
 
     const handleSelectServicio = (servicio) => {
         setSelectedServicio(servicio);
@@ -133,6 +147,10 @@ const Servicios = () => {
 
     const handleShowClientes = () => {
         setShowClientesModal(true);
+    }
+
+    const handleShowPagos = () =>{
+        setShowPagoModal(true);
     }
 
     const validateForm = () => {
@@ -193,6 +211,13 @@ const Servicios = () => {
         setServicioToDelete(idservicio);
         setShowModal(true);
     };
+    
+    
+    const handlePayClick = (idpago) => {
+        setCurrentPago(pagos.filter((pago) =>
+            pago['idservicio'].toString().toLowerCase().includes(idpago)));
+        setShowPagoModal(true);
+    };
 
     const confirmDelete = async () => {
         setLoadingSave(true); 
@@ -229,6 +254,8 @@ const Servicios = () => {
 
     const clearForm = () => {
         setSelectedServicio(null);
+        setSelectedCliente(null);
+        setSelectedLote(null);
         setLoadingToggle(false); 
         setEditing(false);
     };
@@ -252,6 +279,8 @@ const Servicios = () => {
         cliente[filterColumnCliente].toString().toLowerCase().includes(searchTermCliente.toLowerCase())
         
     );
+
+    
     
 
     const indexOfLastPost = currentPage * rowsPerPage;
@@ -263,6 +292,7 @@ const Servicios = () => {
     const currentServicios = filteredServicios.slice(indexOfFirstPost, indexOfLastPost);
     const currentLote = filteredLotes.slice(indexOfFirstPostLotes, indexOfLastPostLotes);
     const currentCliente = filteredCliente.slice(indexOfFirstPostClientes, indexOfLastPostClientes);
+    
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
     const paginateClientes = (pageNumber) => setCurrentPageClientes(pageNumber);
@@ -423,6 +453,7 @@ const Servicios = () => {
                                 <th>Cliente</th>
                                 <th>No. Titulo</th>
                                 <th>No. Contador</th>
+                                <th>Pago</th>
                                 <th>Estatus</th>
                                 <th>Estado</th>
                                 <th>Eliminar</th>
@@ -436,6 +467,11 @@ const Servicios = () => {
                                     <td>{servicio.nombrecliente}</td>
                                     <td>{servicio.no_titulo}</td>
                                     <td>{servicio.no_contador}</td>
+                                    <td>
+                                        <button className="status active" onClick={(e) => { e.stopPropagation(); handlePayClick(servicio.idservicio); }}>
+                                            <span className="material-icons ">payments</span>
+                                        </button>
+                                    </td>
                                     <td>{servicio.estatus_contador}</td>
                                     <td>
                                         <span className={`status ${servicio.activo ? 'active' : 'inactive'}`}>
@@ -649,6 +685,53 @@ const Servicios = () => {
                                 <div className='pagination'>
                                     <button onClick={() => handleSeleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
                                     <button onClick={() => {setShowClientesModal(false); setSelectedCliente(null)}} className='lote-cancel-button'>Cancelar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showPagoModal && (
+                <div className='servicio-modal'>
+                    <div className='modal-content-usuarios'>
+                        <h3>Registro de Pago por Alta de Servicio</h3>
+                        <div className='modal-body'>
+                            <div className='modal-section'>
+                                <div className='servicios-table'>
+                                    <table className='servicios-data-table'>
+                                        <thead>
+                                            <tr>
+                                                <th>Titulo</th>
+                                                <th>Conexión</th>
+                                                <th>Fecha</th>
+                                                <th>Observaciones</th>
+                                                <th>Activo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {currentPago.map((pago) => (
+                                                <tr key={pago.idpago} onClick={() => handleSelectCliente(pago)}>
+                                                    <td>{pago.cuota}</td>
+                                                    <td>{pago.cuota_conexion}</td>
+                                                    <td>{pago.fecha}</td>
+                                                    <td>{pago.observaciones}</td>
+                                                    <td>
+                                                        <span className={`status ${pago.activo ? 'active' : 'inactive'}`}>
+                                                            {pago.activo ? 'Activo' : 'Inactivo'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {Array.from({ length: 4}, (_, index) => (
+                                               <tr key={`empty-${index}`} className="empty-row">
+                                                  <td colSpan="5">&nbsp;</td>
+                                               </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className='pagination'>
+                                    <button onClick={() => {setShowPagoModal(false)}} className='lote-cancel-button'>Cerrar</button>
                                 </div>
                             </div>
                         </div>
