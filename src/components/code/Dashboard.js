@@ -10,6 +10,7 @@ import Pagos from './Pagos'
 import Usuarios from './Usuarios';
 import Servicios from './Servicios';  
 import Lotes from './Lotes';
+import Lecturas from './Lecturas';
 import Perfil from './Perfil';
 import { useAuth } from './ContextAuth';
 
@@ -68,11 +69,13 @@ const Dashboard = () => {
       mostrarPlataforma('plataformaPagos');
     } else if (menuItem === 'Usuarios'){
       mostrarPlataforma('plataformaUsuarios')
-      } else if (menuItem === 'Servicios'){
+    } else if (menuItem === 'Servicios'){
       mostrarPlataforma('plataformaServicios')
     }else if (menuItem === 'Lotes'){
-      mostrarPlataforma('plataformaLotes')
-    } else if (menuItem === 'Perfil') {
+    mostrarPlataforma('plataformaLotes')
+    }else if (menuItem === 'Lecturas'){
+      mostrarPlataforma('plataformaLecturas')
+    }else if (menuItem === 'Perfil') {
       const idempleado = user?.usuario?.idempleado;  // Verifica si existe idempleado
       if (idempleado) {
         mostrarPlataforma('plataformaPerfil');
@@ -161,6 +164,14 @@ const Dashboard = () => {
             <span className="material-icons">payment</span>
             <span>Pagos</span>
           </a>
+          <a 
+            href="#lecturas" 
+            className={`menu-item ${activeMenuItem === 'Lecturas' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Lecturas', 'Lecturas', 'table_rows')}
+          >
+            <span className="material-icons">table_rows</span>
+            <span>Lecturas</span>
+          </a>
           
         </nav>
         <div className="community">
@@ -221,7 +232,7 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaUsuarios' && <Usuarios setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaServicios' && <Servicios setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaLotes' && <Lotes setPlataformaVisible={setPlataformaVisible}/>}
-          
+          {plataformaVisible === 'plataformaLecturas' && <Lecturas setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaPerfil' && user?.usuario?.idempleado && (
             <Perfil idempleado={user.usuario.idempleado} setPlataformaVisible={setPlataformaVisible} />
           )}
