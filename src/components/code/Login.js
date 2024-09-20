@@ -6,16 +6,18 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { useAuth } from './ContextAuth';  // Asegúrate de importar correctamente el contexto
-import { API_URL } from '../../config/config';  // Asegúrate de que esta URL está configurada correctamente
+import { useAuth } from './ContextAuth';  
+import { API_URL } from '../../config/config';  
+import PasswordRecoveryModal from './PasswordRecoveryModal'; // Importa el modal
 
 const Login = () => {
     const [usuario, setUsuario] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Estado para manejar el modal
 
-    const { login } = useAuth();  // Obtener la función de login del contexto
+    const { login } = useAuth();  
     const navigate = useNavigate();
 
     const handleCheckboxChange = () => {
@@ -31,7 +33,6 @@ const Login = () => {
         try {
             const response = await axios.post(`${API_URL}/login`, { usuario, password });
 
-            // Guarda el token y los datos del usuario en el contexto de autenticación
             login({
                 token: response.data.token,
                 usuario: {
@@ -40,16 +41,24 @@ const Login = () => {
                     nombre: response.data.nombre,
                     apellidos: response.data.apellidos,
                     foto: response.data.foto,
-                    rol: response.data.rol  // Asegúrate de incluir el rol
+                    rol: response.data.rol  
                 }
             });
 
             toast.success('Inicio de sesión exitoso!');
-            navigate('/home');  // Redirige al usuario al dashboard
+            navigate('/home');  
 
         } catch (error) {
             toast.error(error.response?.data?.error || 'Error al iniciar sesión');
         }
+    };
+
+    const openPasswordRecoveryModal = () => {
+        setIsModalOpen(true); // Abre el modal
+    };
+
+    const closePasswordRecoveryModal = () => {
+        setIsModalOpen(false); // Cierra el modal
     };
 
     return (
@@ -98,7 +107,7 @@ const Login = () => {
                                     />
                                     Recuérdame
                                 </label>
-                                <a href="#" className="forgot-password">Recuperar la Contraseña</a>
+                                <a href="#" className="forgot-password" onClick={openPasswordRecoveryModal}>Recuperar la Contraseña</a>
                             </div>
                             <button type="submit" className="btn-signin">Iniciar Sesión</button>
                             <hr />
@@ -106,6 +115,9 @@ const Login = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Modal de recuperación de contraseña */}
+            <PasswordRecoveryModal isOpen={isModalOpen} onClose={closePasswordRecoveryModal} />
         </>
     );
 };
