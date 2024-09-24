@@ -4,6 +4,7 @@ import '../design/Perfil.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { ValidaTelefono } from './ValidacionesAlmacenar';
 import { API_URL } from '../../config/config';
 
 const Perfil = ({ idempleado, setPlataformaVisible }) => {
@@ -12,23 +13,28 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
     const [editing, setEditing] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
     // Cargar perfil del empleado cuando se recibe idempleado
+    const fetchEmpleadoPerfil = async (idempleado) => {
+        try {
+            const response = await axios.get(`${API_URL}/empleado/${idempleado}`);
+            console.log('Datos del empleado:', response.data.empleados);
+            setSelectedEmpleado(response.data.empleados); // Guardar los datos del empleado en el estado
+        } catch (error) {
+            toast.error('Error al cargar el perfil del empleado');
+        }
+    };
+
+    // useEffect para llamar a la función cuando cambie idempleado
     useEffect(() => {
         console.log('Idempleado recibido:', idempleado);
         if (idempleado) {
-            const fetchEmpleadoPerfil = async () => {
-                try {
-                    const response = await axios.get(`${API_URL}/empleado/${idempleado}`);
-                    console.log('Datos del empleado:', response.data.empleados);
-                    setSelectedEmpleado(response.data.empleados); // Guardar los datos del empleado en el estado
-                } catch (error) {
-                    toast.error('Error al cargar el perfil del empleado');
-                }
-            };
-            fetchEmpleadoPerfil(); // Llamar a la función para obtener los datos
+            fetchEmpleadoPerfil(idempleado); // Llamar a la función para obtener los datos
         }
-    }, [idempleado]); // Ejecutar el efecto cuando cambie el idempleado
+    }, [idempleado]);
 
     // Manejar el cambio en los inputs
     const handleInputChange = (e) => {
@@ -39,10 +45,90 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
         setEditing(true);
     };
 
+    const validateForm = () => {
+        const emailRegex = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
+
+        if (!selectedEmpleado.telefono) {
+            toast.error('El teléfono es obligatorios.');
+            return false;
+        }
+
+        const resValidaTelefono = ValidaTelefono(selectedEmpleado.telefono)
+        if (!resValidaTelefono.valido) {
+            toast.error(resValidaTelefono.mensaje);
+            return false;
+        }
+
+        if (!emailRegex.test(selectedEmpleado.email)) {
+            toast.error('Debe ingresar un correo electrónico válido.');
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleError = (error, defaultMessage) => {
+        const errorMessage = error.response && error.response.data && error.response.data.message
+            ? error.response.data.message
+            : defaultMessage;
+        toast.error(errorMessage);
+    };
+
+    const handleEditarTelefono = async () => {
+        if (!validateForm()) return;
+        setLoadingSave(true);
+        try {
+            if (selectedEmpleado && selectedEmpleado.idempleado) {
+                await axios.put(`${API_URL}/telefono-empleados/${selectedEmpleado.idempleado}`, selectedEmpleado);
+                toast.success('Empleado actualizado');
+            } 
+            fetchEmpleadoPerfil(idempleado);
+            clearForm();
+        } catch (error) {
+            handleError(error, 'Error al guardar el empleado.');
+        } finally {
+            setLoadingSave(false);
+        }
+    };
+
     const clearForm = () => {
         setSelectedEmpleado(null);
         setEditing(false);
     };
+
+    const handleCambiarPassword = async () => {
+        // Validar que las contraseñas coincidan
+        if (newPassword !== confirmPassword) {
+            toast.error('Las contraseñas no coinciden.');
+            return;
+        }
+    
+        setLoadingSave(true);
+        try {
+            // Hacer la solicitud al backend con el idempleado
+            const response = await axios.post(`${API_URL}/cambiarPassword`, {
+                idempleado: selectedEmpleado.idempleado, // Enviar idempleado
+                passwordActual: currentPassword,
+                nuevaPassword: newPassword,
+            });
+            
+            // Mostrar mensaje de éxito
+            toast.success(response.data.message);
+            
+            // Limpiar campos de contraseña
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+        } catch (error) {
+            // Manejar el error y mostrar el mensaje correspondiente
+            const errorMessage = error.response?.data?.error || 'Error al cambiar la contraseña.';
+            toast.error(errorMessage);
+        } finally {
+            setLoadingSave(false);
+        }
+    };
+    
+    
 
     return (
         <main className="perfil-container">
@@ -54,7 +140,8 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                     <div className="row">
                         <label className="perfil-label">Nombre:</label>
                         <input
-                            className="perfil-input"
+                            className="perfil-input lock"
+                            readOnly
                             type="text"
                             placeholder="Nombre del Empleado"
                             name="nombre"
@@ -65,7 +152,8 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                     <div className="row">
                         <label className="perfil-label">Apellidos:</label>
                         <input
-                            className="perfil-input"
+                            className="perfil-input lock"
+                            readOnly
                             type="text"
                             placeholder="Apellidos del Empleado"
                             name="apellidos"
@@ -76,7 +164,8 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                     <div className="row">
                         <label className="perfil-label">CUI:</label>
                         <input
-                            className="perfil-input"
+                            className="perfil-input lock"
+                            readOnly
                             type="text"
                             placeholder="CUI del Empleado"
                             name="cui"
@@ -87,7 +176,8 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                     <div className="row">
                         <label className="perfil-label">Correo:</label>
                         <input
-                            className="perfil-input"
+                            className="perfil-input lock"
+                            readOnly
                             type="email"
                             placeholder="Correo del Empleado"
                             name="email"
@@ -107,7 +197,9 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                         />
                     </div>
                     <div className="row-button">
-                        <button>Cambiar teléfono</button>
+                    <button onClick={handleEditarTelefono} disabled={loadingSave}>
+                            {loadingSave ? 'Guardando...' : 'Cambiar teléfono'}
+                        </button>
                     </div>
                 </div>
             </section>
@@ -122,8 +214,8 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Contraseña"
                                 name="password"
-                                //value={usuario.password}
-                                //onChange={handleUsuarioInputChange}
+                                value={currentPassword} // Vincular al estado actual
+                                onChange={(e) => setCurrentPassword(e.target.value)}
                             />
                             <span
                                 className="password-toggle-icon"
@@ -141,8 +233,8 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Contraseña"
                                 name="password"
-                                //value={usuario.password}
-                                //onChange={handleUsuarioInputChange}
+                                value={newPassword} // Vincular al estado de la nueva contraseña
+                                onChange={(e) => setNewPassword(e.target.value)}
                             />
                             <span
                                 className="password-toggle-icon"
@@ -160,8 +252,8 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                             type={showPassword ? "text" : "password"}
                             placeholder="Contraseña"
                             name="password"
-                            //value={usuario.password}
-                            //onChange={handleUsuarioInputChange}
+                            value={confirmPassword} // Vincular al estado de confirmación
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                         />
                         <span
                             className="password-toggle-icon"
@@ -173,8 +265,10 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                 </div>
                 </div>
                 <div className="perfil-buttons">
-                    <button>Cambiar</button>
-                    <button>Nuevo</button>
+                <button onClick={handleCambiarPassword} disabled={loadingSave}>
+                        {loadingSave ? 'Cambiando...' : 'Cambiar'}
+                    </button>
+                    <button onClick={clearForm}>Nuevo</button>
                 </div>
             </section>
         </main>

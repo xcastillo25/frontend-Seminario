@@ -206,7 +206,7 @@ const Usuarios = () => {
                     <div className="row">
                         <label className="usuarios-label">Nombre:</label>
                         <input
-                            className="usuarios-input"
+                            className="usuarios-input lock"
                             type="text"
                             placeholder="Nombre del empleado"
                             name="nombre"
@@ -218,7 +218,7 @@ const Usuarios = () => {
                     <div className="row">
                         <label className="usuarios-label">Apellidos:</label>
                         <input
-                            className="usuarios-input"
+                            className="usuarios-input lock"
                             type="text"
                             placeholder="Apellidos del empleado"
                             name="apellidos"
