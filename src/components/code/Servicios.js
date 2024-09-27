@@ -154,8 +154,13 @@ const Servicios = () => {
     }
 
     const validateForm = () => {
-         if (!selectedServicio || !selectedServicio.no_titulo || !selectedServicio.no_contador || !selectedServicio.estatus_contador
-            || !selectedServicio.idconfiguracion || !selectedServicio.ubicacion || !selectedServicio.nombre
+        if 
+        (
+            !selectedServicio || !selectedServicio.no_titulo || 
+            !selectedServicio.no_contador || !selectedServicio.estatus_contador ||
+            !selectedServicio.idconfiguracion || 
+            !selectedLote || !selectedLote.idlote ||
+            !selectedCliente || !selectedCliente.idcliente
         ) {
             toast.error('Todos los campos son obligatorios.');
             console.log(selectedServicio);
