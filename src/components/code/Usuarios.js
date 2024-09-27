@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../design/Usuarios.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
+import MotorValidaciones from './MotorValidaciones';
 
 const Usuarios = () => {
     const [usuarios, setUsuarios] = useState([]);
@@ -20,9 +21,18 @@ const Usuarios = () => {
     const [resetingToggle, setResetingToggle] = useState(false);
     const [roles, setRoles] = useState([]);
 
+    //ReferenciasValidaciones
+    const usuarioRef = useRef(null);
+
     useEffect(() => {
         fetchUsuarios();
         fetchRoles();
+
+        MotorValidaciones.agregarEvento(usuarioRef.current, 'keypress', MotorValidaciones.validaNombreUsuario);
+        if (usuarioRef.current) {
+            MotorValidaciones.agregarEvento(usuarioRef.current, 'blur', MotorValidaciones.validaNombreUsuarioCompleto);
+        }
+
     }, []);
 
     const fetchRoles = async () => {
@@ -184,6 +194,7 @@ const Usuarios = () => {
                             value={selectedUsuario ? selectedUsuario.usuario : ''}
                             onChange={handleInputChange}
                             disabled={!selectedUsuario}  // Deshabilitado si no hay usuario seleccionado
+                            ref={usuarioRef}
                         />
                     </div>
                     <div className="row">
