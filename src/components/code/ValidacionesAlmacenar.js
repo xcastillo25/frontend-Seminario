@@ -131,6 +131,11 @@ export function validaNIT(valor) {
         valido = false;
     }
 
+    // Permitir "CF" como un valor válido
+    if (valor.toUpperCase() === "CF") {
+        return { valido: true, mensaje: "" }; // Si es "CF", se considera válido
+    }
+
     const nitRegExp = /^(\d+)-?([\dk])$/i;
     if (!nitRegExp.test(valor)) {
         mensaje += "NIT con formato inválido. ";
