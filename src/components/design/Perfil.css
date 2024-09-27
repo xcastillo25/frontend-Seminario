@@ -71,6 +71,10 @@
     height: 1.8rem;
     border-radius: 5px;
   }
+
+  .lock{
+    background-color: rgb(224, 224, 224);
+  }
   
   .perfil-data-buttons {
     display: flex;
