@@ -1,5 +1,5 @@
 /* Contenedor principal */
-.lecturas-container {
+.pagos-container {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -8,16 +8,16 @@
     border-radius: 10px;
 }
 
-/* Sección de lecturas */
-.lecturas-section {
+/* Sección de pagos */
+.pagos-section {
     background-color: var(--background-color);
     border-radius: 10px;
     padding: 1rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Título de lecturas */
-.lecturas-title {
+/* Título de pagos */
+.pagos-title {
     font-size: 1.5rem;
     color: var(--text-color);
     font-weight: bold;
@@ -50,8 +50,8 @@
     width: 150px;
 }
 
-/* Tabla de lecturas */
-.lecturas-table {
+/* Tabla de pagos */
+.pagos-table {
     margin-top: 1rem;
     width: 100%;
     border-collapse: collapse;
@@ -60,29 +60,29 @@
     overflow: hidden;
 }
 
-.lecturas-table th,
-.lecturas-table td {
+.pagos-table th,
+.pagos-table td {
     padding: 12px 15px;
     border: 1px solid var(--border-color);
     text-align: center;
     color: var(--text-color);
 }
 
-.lecturas-table th {
+.pagos-table th {
     background-color: var(--table-header);
     font-weight: bold;
     color: var(--table-header-text);
 }
 
-.lecturas-table tr:nth-child(odd) td {
+.pagos-table tr:nth-child(odd) td {
     background-color: var(--table-cell-odd);
 }
 
-.lecturas-table tr:nth-child(even) td {
+.pagos-table tr:nth-child(even) td {
     background-color: var(--table-cell-pair);
 }
 
-.lecturas-table tr:hover td {
+.pagos-table tr:hover td {
     background-color: var(--table-cell-hover);
     color: white;
     cursor: pointer;
@@ -123,50 +123,4 @@
     border-radius: 5px;
     background-color: white;
     margin: 0 0.5rem;
-}
-
-/* Botón de ver foto */
-.view-photo-button {
-    background-color: #177de9;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-.view-photo-button:hover {
-    background-color: #0e5caf;
-}
-
-/* Modal para mostrar imagen */
-.image-viewer-custom {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.image-viewer-content {
-    position: relative;
-    background-color: transparent;
-    border-radius: 10px;
-    padding: 20px;
-}
-
-.image-viewer-image {
-    max-width: 700px;
-    max-height: 700px;
-    object-fit: contain;
-    transform: scale(1.2);
-    border: 5px solid white;
-    border-radius: 10px;
 }

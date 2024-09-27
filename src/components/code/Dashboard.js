@@ -12,6 +12,7 @@ import Servicios from './Servicios';
 import Lotes from './Lotes';
 import Lecturas from './Lecturas';
 import Perfil from './Perfil';
+import ViewPagos from './ViewPagos';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -82,6 +83,8 @@ const Dashboard = () => {
       } else {
         console.error('El idempleado no está definido');
       }
+    }else if (menuItem === 'ViewPagos') {
+      mostrarPlataforma('plataformaViewPagos');
     }
   };
 
@@ -172,6 +175,14 @@ const Dashboard = () => {
             <span className="material-icons">table_rows</span>
             <span>Lecturas</span>
           </a>
+          <a 
+            href="#ViewPagos" 
+            className={`menu-item ${activeMenuItem === 'ViewPagos' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('ViewPagos', 'ViewPagos', 'request_quote')}
+          >
+            <span className="material-icons">request_quote</span>
+            <span>View Pagos</span>
+          </a>
           
         </nav>
         <div className="community">
@@ -236,6 +247,7 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaPerfil' && user?.usuario?.idempleado && (
             <Perfil idempleado={user.usuario.idempleado} setPlataformaVisible={setPlataformaVisible} />
           )}
+          {plataformaVisible === 'plataformaViewPagos' && <ViewPagos setPlataformaVisible={setPlataformaVisible}/>}
 
         </section> 
       </main>
