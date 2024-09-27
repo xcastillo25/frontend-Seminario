@@ -154,29 +154,15 @@ const Servicios = () => {
     }
 
     const validateForm = () => {
-        const cuiRegex = /^[0-9]{13}$/;
-        const phoneRegex = /^(\+502\s?)?(\d{8})$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        /*if (!selectedServicio || !selectedServicio.nombre || !selectedServicio.apellidos || !selectedServicio.cui || !selectedServicio.telefono || !selectedServicio.email) {
+         if (!selectedServicio || !selectedServicio.no_titulo || !selectedServicio.no_contador || !selectedServicio.estatus_contador
+            || !selectedServicio.idconfiguracion || !selectedServicio.ubicacion || !selectedServicio.nombre
+        ) {
             toast.error('Todos los campos son obligatorios.');
+            console.log(selectedServicio);
             return false;
         }
-
-        if (!cuiRegex.test(selectedServicio.cui)) {
-            toast.error('El CUI debe contener exactamente 13 dígitos.');
-            return false;
-        }
-
-        if (!phoneRegex.test(selectedServicio.telefono)) {
-            toast.error('El número de teléfono debe tener un formato válido.');
-            return false;
-        }
-
-        if (!emailRegex.test(selectedServicio.email)) {
-            toast.error('Debe ingresar un correo electrónico válido.');
-            return false;
-        }*/
+        
+        
 
         return true;
     };

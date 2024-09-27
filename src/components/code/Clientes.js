@@ -51,6 +51,12 @@ const Clientes = () => {
         if (telefonoRef.current) {
             MotorValidaciones.agregarEvento(telefonoRef.current, 'blur', MotorValidaciones.validaSoloNumerosCompleto);
         }
+        if (nombreRef.current) {
+            MotorValidaciones.agregarEvento(nombreRef.current, 'blur', MotorValidaciones.validaSoloLetrasCompleto);
+        }
+        if (apellidosRef.current) {
+            MotorValidaciones.agregarEvento(apellidosRef.current, 'blur', MotorValidaciones.validaSoloLetrasCompleto);
+        }
 
     }, []);
 
