@@ -29,10 +29,10 @@ const Servicios = () => {
     const [servicioToDelete, setServicioToDelete] = useState(null);
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingToggle, setLoadingToggle] = useState(false);
-    const [configuraciones, setConfiguraciones] =useState([]);
-    const [lotes, setLotes] =useState([]);
-    const [pagos, setPagos] =useState([]);
-    const [clientes, setClientes] =useState([]);
+    const [configuraciones, setConfiguraciones] = useState([]);
+    const [lotes, setLotes] = useState([]);
+    const [pagos, setPagos] = useState([]);
+    const [clientes, setClientes] = useState([]);
     const [selectedLote, setSelectedLote] = useState(null);
     const [isLoteSelected, setIsLoteSelected] = useState(false);
     const [selectedCliente, setSelectedCliente] = useState(null);
@@ -46,6 +46,18 @@ const Servicios = () => {
         fetchClientes();
         fetchPagos();
     }, []);
+
+
+    const meses = [
+        { value: 1, label: 'Enero' }, { value: 2, label: 'Febrero' }, { value: 3, label: 'Marzo' },
+        { value: 4, label: 'Abril' }, { value: 5, label: 'Mayo' }, { value: 6, label: 'Junio' },
+        { value: 7, label: 'Julio' }, { value: 8, label: 'Agosto' }, { value: 9, label: 'Septiembre' },
+        { value: 10, label: 'Octubre' }, { value: 11, label: 'Noviembre' }, { value: 12, label: 'Diciembre' }
+    ];
+
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
+
 
     const fetchServicios = async () => {
         try {
@@ -120,7 +132,7 @@ const Servicios = () => {
             setIsLoteSelected(true);
             setShowLotesModal(false);
         } else {
-            alert("Por favor, selecciona un lote antes de confirmar."); 
+            alert("Por favor, selecciona un lote antes de confirmar.");
         }
     };
 
@@ -129,7 +141,7 @@ const Servicios = () => {
             setIsClienteSelected(true);
             setShowClientesModal(false);
         } else {
-            alert("Por favor, selecciona un cliente antes de confirmar."); 
+            alert("Por favor, selecciona un cliente antes de confirmar.");
         }
     };
 
@@ -149,16 +161,18 @@ const Servicios = () => {
         setShowClientesModal(true);
     }
 
-    const handleShowPagos = () =>{
+    const handleShowPagos = () => {
         setShowPagoModal(true);
     }
 
     const validateForm = () => {
-        if 
-        (
-            !selectedServicio || !selectedServicio.no_titulo || 
+        if
+            (
+            !selectedServicio || !selectedServicio.no_titulo ||
             !selectedServicio.no_contador || !selectedServicio.estatus_contador ||
-            !selectedServicio.idconfiguracion || 
+            !selectedServicio.mes_inicio_lectura || // Nueva verificación añadida
+            !selectedServicio.anio_inicio_lectura || // Nueva verificación añadida
+            !selectedServicio.idconfiguracion ||
             !selectedLote || !selectedLote.idlote ||
             !selectedCliente || !selectedCliente.idcliente
         ) {
@@ -166,21 +180,25 @@ const Servicios = () => {
             console.log(selectedServicio);
             return false;
         }
-        
-        
+
+
 
         return true;
     };
 
     const handleSave = async () => {
         if (!validateForm()) return;
-        setLoadingSave(true); 
-        if(selectedCliente!=null){
-            selectedServicio.idcliente=selectedCliente.idcliente;
+        setLoadingSave(true);
+        if (selectedCliente != null) {
+            selectedServicio.idcliente = selectedCliente.idcliente;
         }
-        if(selectedLote!=null){
-            selectedServicio.idlote=selectedLote.idlote;
+        if (selectedLote != null) {
+            selectedServicio.idlote = selectedLote.idlote;
         }
+
+        selectedServicio.mes_inicio_lectura = selectedServicio.mes_inicio_lectura || null;
+        selectedServicio.anio_inicio_lectura = selectedServicio.anio_inicio_lectura || null;
+
         try {
             if (selectedServicio && selectedServicio.idservicio) {
                 await axios.put(`${API_URL}/servicio/${selectedServicio.idservicio}`, selectedServicio);
@@ -194,7 +212,7 @@ const Servicios = () => {
         } catch (error) {
             handleError(error, 'Error al guardar el servicio.');
         } finally {
-            setLoadingSave(false); 
+            setLoadingSave(false);
         }
     };
 
@@ -202,8 +220,8 @@ const Servicios = () => {
         setServicioToDelete(idservicio);
         setShowModal(true);
     };
-    
-    
+
+
     const handlePayClick = (idpago) => {
         setCurrentPago(pagos.filter((pago) =>
             pago['idservicio'].toString().toLowerCase().includes(idpago)));
@@ -211,7 +229,7 @@ const Servicios = () => {
     };
 
     const confirmDelete = async () => {
-        setLoadingSave(true); 
+        setLoadingSave(true);
         try {
             await axios.delete(`${API_URL}/servicio/${servicioToDelete}`);
             toast.success('Servicio eliminado');
@@ -221,7 +239,7 @@ const Servicios = () => {
             handleError(error, 'Error al eliminar el servicio.');
         } finally {
             setShowModal(false);
-            setLoadingSave(false); 
+            setLoadingSave(false);
         }
     };
 
@@ -231,7 +249,7 @@ const Servicios = () => {
     };
 
     const toggleActive = async (idservicio) => {
-        setLoadingToggle(true); 
+        setLoadingToggle(true);
         try {
             await axios.patch(`${API_URL}/servicio/${idservicio}/toggle`);
             toast.success('Estado cambiado');
@@ -239,7 +257,7 @@ const Servicios = () => {
         } catch (error) {
             handleError(error, 'Error al cambiar el estado.');
         } finally {
-            setLoadingToggle(false); 
+            setLoadingToggle(false);
         }
     };
 
@@ -247,7 +265,7 @@ const Servicios = () => {
         setSelectedServicio(null);
         setSelectedCliente(null);
         setSelectedLote(null);
-        setLoadingToggle(false); 
+        setLoadingToggle(false);
         setEditing(false);
     };
 
@@ -268,11 +286,11 @@ const Servicios = () => {
 
     const filteredCliente = clientes.filter((cliente) =>
         cliente[filterColumnCliente].toString().toLowerCase().includes(searchTermCliente.toLowerCase())
-        
+
     );
 
-    
-    
+
+
 
     const indexOfLastPost = currentPage * rowsPerPage;
     const indexOfFirstPost = indexOfLastPost - rowsPerPage;
@@ -283,7 +301,7 @@ const Servicios = () => {
     const currentServicios = filteredServicios.slice(indexOfFirstPost, indexOfLastPost);
     const currentLote = filteredLotes.slice(indexOfFirstPostLotes, indexOfLastPostLotes);
     const currentCliente = filteredCliente.slice(indexOfFirstPostClientes, indexOfLastPostClientes);
-    
+
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
     const paginateClientes = (pageNumber) => setCurrentPageClientes(pageNumber);
@@ -300,11 +318,11 @@ const Servicios = () => {
                         <select
                             className='servicios-select'
                             name='idconfiguracion'
-                            value={selectedServicio ? selectedServicio.idconfiguracion: ''}
+                            value={selectedServicio ? selectedServicio.idconfiguracion : ''}
                             onChange={handleInputChange}
                         >
                             <option value=''>Selecciona una configuracion</option>
-                            {configuraciones.map((configuracion)=>(
+                            {configuraciones.map((configuracion) => (
                                 <option key={configuracion.idconfiguracion} value={configuracion.idconfiguracion}>
                                     {configuracion.servicio}
                                 </option>
@@ -329,12 +347,12 @@ const Servicios = () => {
                                 value={isLoteSelected && selectedLote ? selectedLote.idlote : (selectedServicio ? selectedServicio.idlote : '')}
                                 readOnly
                             />
-                            <button 
-                                className="btn-select" 
+                            <button
+                                className="btn-select"
                                 type="button"
-                                onClick= {(e) => { e.stopPropagation(); handleShowLotes()}}
+                                onClick={(e) => { e.stopPropagation(); handleShowLotes() }}
                             >
-                                <i className="fas fa-mouse-pointer"></i> {}
+                                <i className="fas fa-mouse-pointer"></i> { }
                             </button>
                         </div>
                     </div>
@@ -346,11 +364,11 @@ const Servicios = () => {
                                 type="text"
                                 placeholder="Cliente"
                                 name="nombre"
-                                value={isClienteSelected && selectedCliente ? selectedCliente.nombre+' '+selectedCliente.apellidos : (selectedServicio ? selectedServicio.nombrecliente : '')}
+                                value={isClienteSelected && selectedCliente ? selectedCliente.nombre + ' ' + selectedCliente.apellidos : (selectedServicio ? selectedServicio.nombrecliente : '')}
                                 onChange={handleInputChange}
                                 readOnly
                             />
-                             <input
+                            <input
                                 type='hidden'
                                 name='idcliente'
                                 value={isClienteSelected && selectedCliente ? selectedCliente.idcliente : (selectedServicio ? selectedServicio.idcliente : '')}
@@ -359,9 +377,9 @@ const Servicios = () => {
                             <button
                                 className='btn-select'
                                 type='button'
-                                onClick={(e) => { e.stopPropagation(); handleShowClientes()}}
+                                onClick={(e) => { e.stopPropagation(); handleShowClientes() }}
                             >
-                                <i className="fas fa-mouse-pointer"></i> {}
+                                <i className="fas fa-mouse-pointer"></i> { }
                             </button>
                         </div>
                     </div>
@@ -372,7 +390,7 @@ const Servicios = () => {
                             type="text"
                             placeholder="Numero de titulo"
                             name="no_titulo"
-                            value={selectedServicio ? selectedServicio.no_titulo: ''}
+                            value={selectedServicio ? selectedServicio.no_titulo : ''}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -398,6 +416,39 @@ const Servicios = () => {
                             onChange={handleInputChange}
                         />
                     </div>
+                    <div className="row">
+                        <label className="servicios-label">Mes Inicio Lectura:</label>
+                        <select
+                            className="servicios-select"
+                            name="mes_inicio_lectura"
+                            value={selectedServicio ? selectedServicio.mes_inicio_lectura : ''}
+                            onChange={handleInputChange}
+                        >
+                            <option value="">Selecciona un mes</option>
+                            {meses.map((mes) => (
+                                <option key={mes.value} value={mes.value}>
+                                    {mes.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="row">
+                        <label className="servicios-label">Año Inicio Lectura:</label>
+                        <select
+                            className="servicios-select"
+                            name="año_inicio_lectura"
+                            value={selectedServicio ? selectedServicio.anio_inicio_lectura : ''}
+                            onChange={handleInputChange}
+                        >
+                            <option value="">Selecciona un año</option>
+                            {years.map((year) => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                 </div>
                 <div className="servicios-data-buttons">
                     <button className="servicios-button" onClick={handleSave} disabled={loadingSave}>
@@ -405,7 +456,7 @@ const Servicios = () => {
                     </button>
                     <button className="servicios-button" onClick={clearForm} disabled={loadingSave}>Nuevo</button>
                     {selectedServicio && !editing && (
-                        <button className="servicios-button" onClick={() => {toggleActive(selectedServicio.idservicio); clearForm();}} disabled={loadingToggle}>
+                        <button className="servicios-button" onClick={() => { toggleActive(selectedServicio.idservicio); clearForm(); }} disabled={loadingToggle}>
                             {loadingToggle ? (selectedServicio.activo ? 'Desactivando...' : 'Activando...') : (selectedServicio.activo ? 'Desactivar' : 'Activar')}
                         </button>
                     )}
@@ -444,6 +495,8 @@ const Servicios = () => {
                                 <th>Cliente</th>
                                 <th>No. Titulo</th>
                                 <th>No. Contador</th>
+                                <th>Mes Inicio</th>
+                                <th>Año Inicio</th>
                                 <th>Pago</th>
                                 <th>Estatus</th>
                                 <th>Estado</th>
@@ -458,6 +511,9 @@ const Servicios = () => {
                                     <td>{servicio.nombrecliente}</td>
                                     <td>{servicio.no_titulo}</td>
                                     <td>{servicio.no_contador}</td>
+                                    <td>{meses.find(mes => mes.value === servicio.mes_inicio_lectura)?.label}</td>
+                                    <td>{servicio.anio_inicio_lectura}</td>
+
                                     <td>
                                         <button className="status active" onClick={(e) => { e.stopPropagation(); handlePayClick(servicio.idservicio); }}>
                                             <span className="material-icons ">payments</span>
@@ -512,21 +568,21 @@ const Servicios = () => {
                 </div>
             )}
             {showLotesModal && (
-                <div className='modal' style={{ zIndex: 1100}}>
+                <div className='modal' style={{ zIndex: 1100 }}>
                     <div className='modal-content-lotes'>
                         <h3>Asignacion de lote al servicio</h3>
                         <div className='modal-body'>
                             <div className='modal-section'>
                                 <div className='servicios-buscar'>
                                     <label className='servicios-laberl'>Lote Seleccionado</label>
-                                    <h3>{selectedLote?selectedLote.ubicacion:'Ninguno'}</h3>
+                                    <h3>{selectedLote ? selectedLote.ubicacion : 'Ninguno'}</h3>
                                 </div>
                                 <div className='servicios-buscar'>
                                     <label className='servicios-label'>Buscar</label>
-                                    <select 
+                                    <select
                                         className='servicios-select'
                                         value={filterColumnLote}
-                                        onChange={(e)=> setFilterColumnLote(e.target.value)}
+                                        onChange={(e) => setFilterColumnLote(e.target.value)}
                                     >
                                         <option value='ubicacion'>Ubicacion</option>
                                         <option value='manzana'>Manzana</option>
@@ -562,9 +618,9 @@ const Servicios = () => {
                                                 </tr>
                                             ))}
                                             {Array.from({ length: rowsPerPageLotes - currentLote.length }, (_, index) => (
-                                               <tr key={`empty-${index}`} className="empty-row">
-                                                  <td colSpan="3">&nbsp;</td>
-                                               </tr>
+                                                <tr key={`empty-${index}`} className="empty-row">
+                                                    <td colSpan="3">&nbsp;</td>
+                                                </tr>
                                             ))}
                                         </tbody>
                                     </table>
@@ -585,7 +641,7 @@ const Servicios = () => {
                                 </div>
                                 <div className='pagination'>
                                     <button onClick={() => handleSeleccionarLote()} className='lote-confirm-buttonn'>Seleccionar</button>
-                                    <button onClick={() => {setShowLotesModal(false); setSelectedLote(null)}} className='lote-cancel-button'>Cancelar</button>
+                                    <button onClick={() => { setShowLotesModal(false); setSelectedLote(null) }} className='lote-cancel-button'>Cancelar</button>
                                 </div>
                             </div>
                         </div>
@@ -599,8 +655,8 @@ const Servicios = () => {
                         <div className='modal-body'>
                             <div className='modal-section'>
                                 <div className='servicios-buscar'>
-                                    <label className='servicios-label'>Buscar</label>    
-                                    <select 
+                                    <label className='servicios-label'>Buscar</label>
+                                    <select
                                         className='servicios-select'
                                         value={filterColumnCliente}
                                         onChange={(e) => setFilterColumnCliente(e.target.value)}
@@ -620,7 +676,7 @@ const Servicios = () => {
                                         onChange={(e) => setSearchTermCliente(e.target.value)}
                                     />
                                     <label className='servicios_label'>Cliente Seleccionado:</label>
-                                    <h3 className='servicios_label'>{selectedCliente?selectedCliente.nombre+' '+selectedCliente.apellidos:'Ninguno'}</h3>
+                                    <h3 className='servicios_label'>{selectedCliente ? selectedCliente.nombre + ' ' + selectedCliente.apellidos : 'Ninguno'}</h3>
                                 </div>
                                 <div className='servicios-table'>
                                     <table className='servicios-data-table'>
@@ -652,9 +708,9 @@ const Servicios = () => {
                                                 </tr>
                                             ))}
                                             {Array.from({ length: rowsPerPageClientes - currentCliente.length }, (_, index) => (
-                                               <tr key={`empty-${index}`} className="empty-row">
-                                                  <td colSpan="7">&nbsp;</td>
-                                               </tr>
+                                                <tr key={`empty-${index}`} className="empty-row">
+                                                    <td colSpan="7">&nbsp;</td>
+                                                </tr>
                                             ))}
                                         </tbody>
                                     </table>
@@ -675,7 +731,7 @@ const Servicios = () => {
                                 </div>
                                 <div className='pagination'>
                                     <button onClick={() => handleSeleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
-                                    <button onClick={() => {setShowClientesModal(false); setSelectedCliente(null)}} className='lote-cancel-button'>Cancelar</button>
+                                    <button onClick={() => { setShowClientesModal(false); setSelectedCliente(null) }} className='lote-cancel-button'>Cancelar</button>
                                 </div>
                             </div>
                         </div>
@@ -713,16 +769,16 @@ const Servicios = () => {
                                                     </td>
                                                 </tr>
                                             ))}
-                                            {Array.from({ length: 4}, (_, index) => (
-                                               <tr key={`empty-${index}`} className="empty-row">
-                                                  <td colSpan="5">&nbsp;</td>
-                                               </tr>
+                                            {Array.from({ length: 4 }, (_, index) => (
+                                                <tr key={`empty-${index}`} className="empty-row">
+                                                    <td colSpan="5">&nbsp;</td>
+                                                </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className='pagination'>
-                                    <button onClick={() => {setShowPagoModal(false)}} className='lote-cancel-button'>Cerrar</button>
+                                    <button onClick={() => { setShowPagoModal(false) }} className='lote-cancel-button'>Cerrar</button>
                                 </div>
                             </div>
                         </div>
