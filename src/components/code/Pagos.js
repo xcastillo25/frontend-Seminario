@@ -8,8 +8,9 @@ import { API_URL } from '../../config/config';
 
 const Pagos = () => {
     const [servicios, setServicios] = useState([]);
-    const [filteredServicios, setFilteredServicios] = useState([]);
+    const [lecturasNoPagadas, setLecturasNoPagadas] = useState([]);
     const [selectedServicio, setSelectedServicio] = useState({});
+    const [filteredServicios, setFilteredServicios] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterColumn, setFilterColumn] = useState('clientes.nombre');
     const [currentPage, setCurrentPage] = useState(1);
@@ -21,6 +22,8 @@ const Pagos = () => {
     const [selectedYear1, setSelectedYear1] = useState(new Date().getFullYear());
     const [selectedYear2, setSelectedYear2] = useState(new Date().getFullYear() + 1);
     const [years, setYears] = useState([]);
+    const [totalCuotas, setTotalCuotas] = useState(0);
+    const [totalExcesos, setTotalExcesos] = useState(0);
 
     useEffect(() => {
         fetchServicios();
@@ -51,6 +54,30 @@ const Pagos = () => {
             handleError(error, 'Error al cargar servicios');
         }
     };
+
+    const fetchLecturasNoPagadas = async (idservicio) => {
+        try {
+            const response = await axios.get(`${API_URL}/lecturas-no-pagadas/${idservicio}`);
+            console.log('Lecturas no pagadas recibidas:', response.data.lecturasNoPagadas);  // Log de las lecturas recibidas
+            setLecturasNoPagadas(response.data.lecturasNoPagadas);
+    
+            // Calcular el total de cuotas y excesos
+            let totalCuotas = 0;
+            let totalExcesos = 0;
+    
+            response.data.lecturasNoPagadas.forEach((lectura) => {
+                totalCuotas += parseFloat(lectura.cuotaPendiente || 0);
+                totalExcesos += parseFloat(lectura.monto_exceso || 0);
+            });
+    
+            setTotalCuotas(totalCuotas.toFixed(2));
+            setTotalExcesos(totalExcesos.toFixed(2));
+    
+        } catch (error) {
+            handleError(error, 'Error al cargar lecturas no pagadas');
+        }
+    };
+    
 
     const filterServicios = () => {
         let filtered = servicios;
@@ -90,8 +117,28 @@ const Pagos = () => {
         setSelectedServicio(selectedServicio);
     };
 
+    const handleBuscarLecturas = () => {
+        if (selectedServicio.idservicio) {
+            fetchLecturasNoPagadas(selectedServicio.idservicio);  // Cargar lecturas no pagadas del servicio seleccionado
+        } else {
+            toast.error('Seleccione un cliente antes de buscar');
+        }
+    };
+
+    const isCheckboxDisabled = (mes, año) => {
+        // Buscar si la lectura para el mes y año específicos ya está pagada
+        const lectura = lecturasNoPagadas.find(lectura => lectura.lecturas.mes === mes && lectura.lecturas.año === año);
+        return lectura && lectura.pagada === true; // Si está pagada, desactiva el checkbox
+    };
+
+    const isCheckboxChecked = (mes, año) => {
+        // Buscar si la lectura para el mes y año específicos ya está pagada
+        const lectura = lecturasNoPagadas.find(lectura => lectura.lecturas.mes === mes && lectura.lecturas.año === año);
+        return lectura && lectura.pagada === true; // Si está pagada, marca el checkbox
+    };
+
     return (
-        <main className="pagos-container">
+        <main>
             <ToastContainer />
             <section className="pagos-section">
                 <h1 className="pagos-title">Gestión de Pagos</h1>
@@ -124,7 +171,7 @@ const Pagos = () => {
                             </option>
                         ))}
                     </select>
-                    <button>Buscar</button>
+                    <button onClick={handleBuscarLecturas}>Buscar</button>
                 </div>
                 <h1 className="pagos-title">Selecciona los meses de pago</h1>
                 <div className="pagos-mes">
@@ -300,6 +347,12 @@ const Pagos = () => {
                         </div>
                         
                     </div>
+                </div>
+                <div className="pagos-data">
+                    <h1>Total Cuotas Q. </h1>
+                    <label>{totalCuotas}</label>  {/* Mostrar el total de cuotas adeudadas */}
+                    <h1>Total Excesos Q. </h1>
+                    <label>{totalExcesos}</label>  {/* Mostrar el total de excesos adeudados */}
                 </div>
             </section>
         </main>
