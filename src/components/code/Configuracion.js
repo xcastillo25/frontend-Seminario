@@ -344,8 +344,8 @@ const Configuracion = () => {
                                     <td>{configuracion.empresa}</td>
                                     <td>{configuracion.direccion}</td>
                                     <td>{configuracion.cuota}</td>
-                                    <td>{configuracion.mora}</td>
-                                    <td>{configuracion.exceso}</td>
+                                    <td>{configuracion.porcentaje_mora}</td>
+                                    <td>{configuracion.porcentaje_exceso}</td>
                                     <td>
                                         <span className={`status ${configuracion.activo ? 'active' : 'inactive'}`}>
                                             {configuracion.activo ? 'Activo' : 'Inactivo'}

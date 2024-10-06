@@ -257,6 +257,15 @@ input:-webkit-autofill {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   }
 
+  .modal-content-pagos {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
   .modal-content-lotes {
     background-color: white;
     padding: 2rem;

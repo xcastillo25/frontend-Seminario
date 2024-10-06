@@ -5,14 +5,17 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 const Servicios = () => {
     const [servicios, setServicios] = useState([]);
     const [selectedServicio, setSelectedServicio] = useState(null);
     const [editing, setEditing] = useState(false);
+    const [editingPagos, setEditingPagos] = useState(false);
     const [searchTermLote, setSearchTermLote] = useState('');
     const [searchTermCliente, setSearchTermCliente] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchTermPagos, setSearchTermPagos] = useState('');
     const [filterColumn, setFilterColumn] = useState('servicio');
     const [filterColumnLote, setFilterColumnLote] = useState('ubicacion');
     const [filterColumnCliente, setFilterColumnCliente] = useState('nombre');
@@ -29,11 +32,14 @@ const Servicios = () => {
     const [servicioToDelete, setServicioToDelete] = useState(null);
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingToggle, setLoadingToggle] = useState(false);
+    const [loadingSavePagos, setLoadingSavePagos] = useState(false);
+    const [loadingTogglePagos, setLoadingTogglePagos] = useState(false);
     const [configuraciones, setConfiguraciones] =useState([]);
     const [lotes, setLotes] =useState([]);
     const [pagos, setPagos] =useState([]);
     const [clientes, setClientes] =useState([]);
     const [selectedLote, setSelectedLote] = useState(null);
+    const [selectedPago, setSelectedPago] = useState(null);
     const [isLoteSelected, setIsLoteSelected] = useState(false);
     const [selectedCliente, setSelectedCliente] = useState(null);
     const [isClienteSelected, setIsClienteSelected] = useState(false);
@@ -46,6 +52,18 @@ const Servicios = () => {
         fetchClientes();
         fetchPagos();
     }, []);
+
+
+    const meses = [
+        { value: 1, label: 'Enero' }, { value: 2, label: 'Febrero' }, { value: 3, label: 'Marzo' },
+        { value: 4, label: 'Abril' }, { value: 5, label: 'Mayo' }, { value: 6, label: 'Junio' },
+        { value: 7, label: 'Julio' }, { value: 8, label: 'Agosto' }, { value: 9, label: 'Septiembre' },
+        { value: 10, label: 'Octubre' }, { value: 11, label: 'Noviembre' }, { value: 12, label: 'Diciembre' }
+    ];
+
+    const currentYear = (new Date().getFullYear())+1;
+    const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
+
 
     const fetchServicios = async () => {
         try {
@@ -104,9 +122,14 @@ const Servicios = () => {
     };
 
     const handleSelectLote = (lote) => {
+        const existe = filteredServicios.find(
+            (servicio) => servicio.idlote === lote.idlote  
+        )
+        if(existe){
+            toast.error('Este lote ya esta ligado a un servicio, seleccione otro');
+            return;
+        }
         setSelectedLote(lote);
-        setLoadingToggle(false);
-        setEditing(false);
     };
 
     const handleSelectCliente = (cliente) => {
@@ -115,23 +138,41 @@ const Servicios = () => {
         setEditing(false);
     };
 
-    const handleSeleccionarLote = () => {
-        if (selectedLote) {
-            setIsLoteSelected(true);
-            setShowLotesModal(false);
-        } else {
-            alert("Por favor, selecciona un lote antes de confirmar."); 
-        }
+    const handleSelectPago = (pago) => {
+        setSelectedPago(pago);
     };
 
-    const handleSeleccionarCliente = () => {
-        if (selectedCliente) {
-            setIsClienteSelected(true);
-            setShowClientesModal(false);
-        } else {
-            alert("Por favor, selecciona un cliente antes de confirmar."); 
+
+    const seleccionarLote = () => {
+        const lote = selectedLote;
+        if(lote){
+            setSelectedServicio({
+                ...selectedServicio,
+                idlote: lote.idlote,
+                loteubicacion: lote.ubicacion
+            })
+            setShowLotesModal(false);
+            setSelectedLote(null);
+        }else{
+            toast.error('Por favor seleccione un lote antes de continuar')
         }
-    };
+    }
+
+
+    const seleccionarCliente = () => {
+        const cliente = selectedCliente;
+        if(cliente){
+            setSelectedServicio({
+                ...selectedServicio,
+                nombrecliente: cliente.nombre+' '+cliente.apellidos,
+                idcliente: cliente.idcliente
+            })
+            setShowClientesModal(false);
+            setSelectedCliente(null);
+        }else{
+            toast.error('Por favor seleccione un cliente antes de continuar')
+        }
+    }
 
     const handleInputChange = (e) => {
         setSelectedServicio({
@@ -141,6 +182,68 @@ const Servicios = () => {
         setEditing(true);
     };
 
+    const handleInputChangePago = (e) => {
+        setSelectedPago({
+            ...selectedPago,
+            [e.target.name]: e.target.value,
+        });
+        setEditing(true);
+    };
+
+    
+    const handleInputChangePago4 = (e) => {
+        setSelectedPago({
+            ...selectedPago,
+            [e.target.name]: e.target.value,
+            pendiente: e.target.value - (selectedPago.pagado?selectedPago.pagado:0)
+        });
+        setEditing(true);
+    };
+    
+    const handleInputChangePago3 = (e) => {
+        setSelectedPago({
+            ...selectedPago,
+            [e.target.name]: e.target.value,
+            pendiente: (selectedPago.total - e.target.value)!==0 ? (selectedPago.total - e.target.value) : '0'
+        });
+        setEditing(true);
+    };
+    
+    const handleInputChangePago2 = (e) => {
+        const pago = selectedPago;
+        if(!pago.idpago){
+            let total = null;
+            if (e.target.value==='Instalación'){
+                const existe = filteredPagos.find((pago) => pago.nombre==='Instalación')
+                if (existe){
+                    toast.error('Ya existe un pago de instalación, puede seleccionarlo en la lista si desea actualizarlo');
+                    
+                    return;
+                }
+                total = selectedServicio.cuota_instalacion;
+            }else if(e.target.value==='Conexión'){
+                const existe = filteredPagos.find((pago) => pago.nombre==='Conexión')
+                if (existe){
+                    toast.error('Ya existe un pago de conexión, puede seleccionarlo en la lista si desea actualizarlo');
+                    
+                    return;
+                }
+                total = selectedServicio.cuota_conexion;
+            }
+            setSelectedPago({
+                ...pago,
+                [e.target.name]: e.target.value,
+                total: total,
+                pendiente: total
+            });
+            setEditing(true);
+            return;
+        }else{
+            toast.error('No se puede cambiar el tipo de pago de un pago que ya ha sido creado')
+        }
+    };
+    
+
     const handleShowLotes = () => {
         setShowLotesModal(true);
     }
@@ -149,7 +252,13 @@ const Servicios = () => {
         setShowClientesModal(true);
     }
 
-    const handleShowPagos = () =>{
+    const handleShowPagos = (servicio) =>{
+        setSelectedServicio(servicio);
+        setSearchTermPagos(servicio.idservicio);
+        setSelectedPago({
+            ...selectedPago,
+            idservicio: servicio.idservicio
+        })
         setShowPagoModal(true);
     }
 
@@ -163,7 +272,9 @@ const Servicios = () => {
                 !selectedServicio.idconfiguracion ||
                 !selectedServicio.loteubicacion ||
                 !selectedServicio.idcliente ||
-                !selectedServicio.estatus_contador
+                !selectedServicio.estatus_contador ||
+                !selectedServicio.anio_inicio_lectura || 
+                !selectedServicio.mes_inicio_lectura
             ) {
                 toast.error('Todos los campos son obligatorios.');
                 console.log(selectedServicio)
@@ -172,11 +283,16 @@ const Servicios = () => {
             }
         } else {
             if(
-                !selectedServicio || !selectedServicio.no_titulo || 
+                !selectedServicio || 
+                !selectedServicio.no_titulo || 
                 !selectedServicio.no_contador ||
                 !selectedServicio.idconfiguracion || 
-                !selectedLote || !selectedLote.idlote ||
-                !selectedCliente || !selectedCliente.idcliente
+                !selectedLote || 
+                !selectedLote.idlote ||
+                !selectedCliente || 
+                !selectedCliente.idcliente ||
+                !selectedServicio.anio_inicio_lectura || 
+                !selectedServicio.mes_inicio_lectura
             ){
                 toast.error('Todos los campos son obligatorios.');
                 console.log(selectedServicio)
@@ -190,14 +306,9 @@ const Servicios = () => {
     
 
     const handleSave = async () => {
+        console.log('ser',selectedServicio)
         if (!validateForm()) return;
         setLoadingSave(true); 
-        if(selectedCliente!=null){
-            selectedServicio.idcliente=selectedCliente.idcliente;
-        }
-        if(selectedLote!=null){
-            selectedServicio.idlote=selectedLote.idlote;
-        }
         try {
             if (selectedServicio && selectedServicio.idservicio) {
                 await axios.put(`${API_URL}/servicio/${selectedServicio.idservicio}`, selectedServicio);
@@ -211,7 +322,27 @@ const Servicios = () => {
         } catch (error) {
             handleError(error, 'Error al guardar el servicio.');
         } finally {
-            setLoadingSave(false); 
+            setLoadingSave(false);
+        }
+    };
+
+    const handleSavePagos = async () => {
+        //if (!validateForm()) return;
+        setLoadingSavePagos(true); 
+        try {
+            if (selectedPago && selectedPago.idpago) {
+                await axios.put(`${API_URL}/pagoser/${selectedPago.idpago}`, selectedPago);
+                toast.success('Pago actualizado');
+            } else {
+                await axios.post(`${API_URL}/pagoser`, selectedPago);
+                toast.success('Pago creado');
+            }
+            fetchPagos();
+            clearFormPagos();
+        } catch (error) {
+            handleError(error, 'Error al guardar el Pago.');
+        } finally {
+            setLoadingSavePagos(false); 
         }
     };
 
@@ -219,16 +350,11 @@ const Servicios = () => {
         setServicioToDelete(idservicio);
         setShowModal(true);
     };
-    
-    
-    const handlePayClick = (idpago) => {
-        setCurrentPago(pagos.filter((pago) =>
-            pago['idservicio'].toString().toLowerCase().includes(idpago)));
-        setShowPagoModal(true);
-    };
+
+
 
     const confirmDelete = async () => {
-        setLoadingSave(true); 
+        setLoadingSave(true);
         try {
             await axios.delete(`${API_URL}/servicio/${servicioToDelete}`);
             toast.success('Servicio eliminado');
@@ -238,7 +364,7 @@ const Servicios = () => {
             handleError(error, 'Error al eliminar el servicio.');
         } finally {
             setShowModal(false);
-            setLoadingSave(false); 
+            setLoadingSave(false);
         }
     };
 
@@ -248,7 +374,7 @@ const Servicios = () => {
     };
 
     const toggleActive = async (idservicio) => {
-        setLoadingToggle(true); 
+        setLoadingToggle(true);
         try {
             await axios.patch(`${API_URL}/servicio/${idservicio}/toggle`);
             toast.success('Estado cambiado');
@@ -256,7 +382,7 @@ const Servicios = () => {
         } catch (error) {
             handleError(error, 'Error al cambiar el estado.');
         } finally {
-            setLoadingToggle(false); 
+            setLoadingToggle(false);
         }
     };
 
@@ -264,9 +390,18 @@ const Servicios = () => {
         setSelectedServicio(null);
         setSelectedCliente(null);
         setSelectedLote(null);
-        setLoadingToggle(false); 
+        setLoadingToggle(false);
         setEditing(false);
     };
+
+    const clearFormPagos = () => {
+        setSelectedPago({
+            idservicio: selectedServicio.idservicio
+        });
+        setLoadingTogglePagos(false); 
+        setEditingPagos(false);
+    };
+
 
     const handleError = (error, defaultMessage) => {
         const errorMessage = error.response && error.response.data && error.response.data.message
@@ -285,10 +420,13 @@ const Servicios = () => {
 
     const filteredCliente = clientes.filter((cliente) =>
         cliente[filterColumnCliente].toString().toLowerCase().includes(searchTermCliente.toLowerCase())
-        
+
     );
 
-    
+    const filteredPagos = pagos.filter((pago) =>
+        pago.idservicio===searchTermPagos)
+        
+    ;
     
 
     const indexOfLastPost = currentPage * rowsPerPage;
@@ -300,7 +438,7 @@ const Servicios = () => {
     const currentServicios = filteredServicios.slice(indexOfFirstPost, indexOfLastPost);
     const currentLote = filteredLotes.slice(indexOfFirstPostLotes, indexOfLastPostLotes);
     const currentCliente = filteredCliente.slice(indexOfFirstPostClientes, indexOfLastPostClientes);
-    
+
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
     const paginateClientes = (pageNumber) => setCurrentPageClientes(pageNumber);
@@ -317,11 +455,11 @@ const Servicios = () => {
                         <select
                             className='servicios-select'
                             name='idconfiguracion'
-                            value={selectedServicio ? selectedServicio.idconfiguracion: ''}
+                            value={selectedServicio ? selectedServicio.idconfiguracion : ''}
                             onChange={handleInputChange}
                         >
                             <option value=''>Selecciona una configuracion</option>
-                            {configuraciones.map((configuracion)=>(
+                            {configuraciones.map((configuracion) => (
                                 <option key={configuracion.idconfiguracion} value={configuracion.idconfiguracion}>
                                     {configuracion.servicio}
                                 </option>
@@ -336,22 +474,16 @@ const Servicios = () => {
                                 type="text"
                                 placeholder="Lote"
                                 name="ubicacion"
-                                value={isLoteSelected && selectedLote ? selectedLote.ubicacion : (selectedServicio ? selectedServicio.loteubicacion : '')}
+                                value={selectedServicio ? selectedServicio.loteubicacion : ''}
                                 onChange={handleInputChange}
-                                readOnly
-                            />
-                            <input
-                                type="hidden"
-                                name="idlote"
-                                value={isLoteSelected && selectedLote ? selectedLote.idlote : (selectedServicio ? selectedServicio.idlote : '')}
                                 readOnly
                             />
                             <button 
                                 className="btn-select" 
                                 type="button"
-                                onClick= {(e) => { e.stopPropagation(); handleShowLotes()}}
+                                onClick={(e) => { e.stopPropagation(); handleShowLotes() }}
                             >
-                                <i className="fas fa-mouse-pointer"></i> {}
+                                <i className="fas fa-mouse-pointer"></i> { }
                             </button>
                         </div>
                     </div>
@@ -363,22 +495,16 @@ const Servicios = () => {
                                 type="text"
                                 placeholder="Cliente"
                                 name="nombre"
-                                value={isClienteSelected && selectedCliente ? selectedCliente.nombre+' '+selectedCliente.apellidos : (selectedServicio ? selectedServicio.nombrecliente : '')}
+                                value={selectedServicio ? selectedServicio.nombrecliente : ''}
                                 onChange={handleInputChange}
-                                readOnly
-                            />
-                             <input
-                                type='hidden'
-                                name='idcliente'
-                                value={isClienteSelected && selectedCliente ? selectedCliente.idcliente : (selectedServicio ? selectedServicio.idcliente : '')}
                                 readOnly
                             />
                             <button
                                 className='btn-select'
                                 type='button'
-                                onClick={(e) => { e.stopPropagation(); handleShowClientes()}}
+                                onClick={(e) => { e.stopPropagation(); handleShowClientes() }}
                             >
-                                <i className="fas fa-mouse-pointer"></i> {}
+                                <i className="fas fa-mouse-pointer"></i> { }
                             </button>
                         </div>
                     </div>
@@ -389,7 +515,7 @@ const Servicios = () => {
                             type="text"
                             placeholder="Numero de titulo"
                             name="no_titulo"
-                            value={selectedServicio ? selectedServicio.no_titulo: ''}
+                            value={selectedServicio ? selectedServicio.no_titulo : ''}
                             onChange={handleInputChange}
                         />
                     </div>
@@ -417,6 +543,39 @@ const Servicios = () => {
                             <option value="Cortado">Cortado</option>
                         </select>
                     </div>
+                    <div className="row">
+                        <label className="servicios-label">Mes Inicio Lectura:</label>
+                        <select
+                            className="servicios-select"
+                            name="mes_inicio_lectura"
+                            value={selectedServicio ? selectedServicio.mes_inicio_lectura : ''}
+                            onChange={handleInputChange}
+                        >
+                            <option value="">Selecciona un mes</option>
+                            {meses.map((mes) => (
+                                <option key={mes.value} value={mes.value}>
+                                    {mes.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="row">
+                        <label className="servicios-label">Año Inicio Lectura:</label>
+                        <select
+                            className="servicios-select"
+                            name="anio_inicio_lectura"
+                            value={selectedServicio ? selectedServicio.anio_inicio_lectura : ''}
+                            onChange={handleInputChange}
+                        >
+                            <option value="">Selecciona un año</option>
+                            {years.map((year) => (
+                                <option key={year} value={year}>
+                                    {year}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                 </div>
                 <div className="servicios-data-buttons">
                     <button className="servicios-button" onClick={handleSave} disabled={loadingSave}>
@@ -424,7 +583,7 @@ const Servicios = () => {
                     </button>
                     <button className="servicios-button" onClick={clearForm} disabled={loadingSave}>Nuevo</button>
                     {selectedServicio && !editing && (
-                        <button className="servicios-button" onClick={() => {toggleActive(selectedServicio.idservicio); clearForm();}} disabled={loadingToggle}>
+                        <button className="servicios-button" onClick={() => { toggleActive(selectedServicio.idservicio); clearForm(); }} disabled={loadingToggle}>
                             {loadingToggle ? (selectedServicio.activo ? 'Desactivando...' : 'Activando...') : (selectedServicio.activo ? 'Desactivar' : 'Activar')}
                         </button>
                     )}
@@ -463,6 +622,8 @@ const Servicios = () => {
                                 <th>Cliente</th>
                                 <th>No. Titulo</th>
                                 <th>No. Contador</th>
+                                <th>Mes Inicio</th>
+                                <th>Año Inicio</th>
                                 <th>Pago</th>
                                 <th>Estatus</th>
                                 <th>Estado</th>
@@ -477,8 +638,11 @@ const Servicios = () => {
                                     <td>{servicio.nombrecliente}</td>
                                     <td>{servicio.no_titulo}</td>
                                     <td>{servicio.no_contador}</td>
+                                    <td>{meses.find(mes => mes.value === servicio.mes_inicio_lectura)?.label}</td>
+                                    <td>{servicio.anio_inicio_lectura}</td>
+
                                     <td>
-                                        <button className="status active" onClick={(e) => { e.stopPropagation(); handlePayClick(servicio.idservicio); }}>
+                                        <button className="status active" onClick={(e) => { e.stopPropagation(); handleShowPagos(servicio); }}>
                                             <span className="material-icons ">payments</span>
                                         </button>
                                     </td>
@@ -489,7 +653,7 @@ const Servicios = () => {
                                         </span>
                                     </td>
                                     <td className="servicios-actions">
-                                        <button className="eliminar-icon-button" onClick={(e) => { e.stopPropagation(); handleDeleteClick(servicio.idservicio); }} disabled={loadingSave || loadingToggle}>
+                                        <button className="eliminar-icon-button" onClick={(e) => { e.stopPropagation(); toast.error('No es posible eliminar el servicio ya que otros elementos dependen de este registro'); }} disabled={loadingSave || loadingToggle}>
                                             <span className="material-icons eliminar-icon">delete</span>
                                         </button>
                                     </td>
@@ -531,21 +695,21 @@ const Servicios = () => {
                 </div>
             )}
             {showLotesModal && (
-                <div className='modal' style={{ zIndex: 1100}}>
+                <div className='modal' style={{ zIndex: 1100 }}>
                     <div className='modal-content-lotes'>
                         <h3>Asignacion de lote al servicio</h3>
                         <div className='modal-body'>
                             <div className='modal-section'>
                                 <div className='servicios-buscar'>
                                     <label className='servicios-laberl'>Lote Seleccionado</label>
-                                    <h3>{selectedLote?selectedLote.ubicacion:'Ninguno'}</h3>
+                                    <h3>{selectedLote ? selectedLote.ubicacion : 'Ninguno'}</h3>
                                 </div>
                                 <div className='servicios-buscar'>
                                     <label className='servicios-label'>Buscar</label>
-                                    <select 
+                                    <select
                                         className='servicios-select'
                                         value={filterColumnLote}
-                                        onChange={(e)=> setFilterColumnLote(e.target.value)}
+                                        onChange={(e) => setFilterColumnLote(e.target.value)}
                                     >
                                         <option value='ubicacion'>Ubicacion</option>
                                         <option value='manzana'>Manzana</option>
@@ -581,9 +745,9 @@ const Servicios = () => {
                                                 </tr>
                                             ))}
                                             {Array.from({ length: rowsPerPageLotes - currentLote.length }, (_, index) => (
-                                               <tr key={`empty-${index}`} className="empty-row">
-                                                  <td colSpan="3">&nbsp;</td>
-                                               </tr>
+                                                <tr key={`empty-${index}`} className="empty-row">
+                                                    <td colSpan="3">&nbsp;</td>
+                                                </tr>
                                             ))}
                                         </tbody>
                                     </table>
@@ -603,7 +767,7 @@ const Servicios = () => {
                                     </div>
                                 </div>
                                 <div className='pagination'>
-                                    <button onClick={() => handleSeleccionarLote()} className='lote-confirm-buttonn'>Seleccionar</button>
+                                    <button onClick={() => seleccionarLote()} className='lote-confirm-buttonn'>Seleccionar</button>
                                     <button onClick={() => {setShowLotesModal(false); setSelectedLote(null)}} className='lote-cancel-button'>Cancelar</button>
                                 </div>
                             </div>
@@ -618,8 +782,8 @@ const Servicios = () => {
                         <div className='modal-body'>
                             <div className='modal-section'>
                                 <div className='servicios-buscar'>
-                                    <label className='servicios-label'>Buscar</label>    
-                                    <select 
+                                    <label className='servicios-label'>Buscar</label>
+                                    <select
                                         className='servicios-select'
                                         value={filterColumnCliente}
                                         onChange={(e) => setFilterColumnCliente(e.target.value)}
@@ -639,7 +803,7 @@ const Servicios = () => {
                                         onChange={(e) => setSearchTermCliente(e.target.value)}
                                     />
                                     <label className='servicios_label'>Cliente Seleccionado:</label>
-                                    <h3 className='servicios_label'>{selectedCliente?selectedCliente.nombre+' '+selectedCliente.apellidos:'Ninguno'}</h3>
+                                    <h3 className='servicios_label'>{selectedCliente ? selectedCliente.nombre + ' ' + selectedCliente.apellidos : 'Ninguno'}</h3>
                                 </div>
                                 <div className='servicios-table'>
                                     <table className='servicios-data-table'>
@@ -671,9 +835,9 @@ const Servicios = () => {
                                                 </tr>
                                             ))}
                                             {Array.from({ length: rowsPerPageClientes - currentCliente.length }, (_, index) => (
-                                               <tr key={`empty-${index}`} className="empty-row">
-                                                  <td colSpan="7">&nbsp;</td>
-                                               </tr>
+                                                <tr key={`empty-${index}`} className="empty-row">
+                                                    <td colSpan="7">&nbsp;</td>
+                                                </tr>
                                             ))}
                                         </tbody>
                                     </table>
@@ -693,7 +857,7 @@ const Servicios = () => {
                                     </div>
                                 </div>
                                 <div className='pagination'>
-                                    <button onClick={() => handleSeleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
+                                    <button onClick={() => seleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
                                     <button onClick={() => {setShowClientesModal(false); setSelectedCliente(null)}} className='lote-cancel-button'>Cancelar</button>
                                 </div>
                             </div>
@@ -702,49 +866,126 @@ const Servicios = () => {
                 </div>
             )}
             {showPagoModal && (
-                <div className='servicio-modal'>
-                    <div className='modal-content-usuarios'>
-                        <h3>Registro de Pago por Alta de Servicio</h3>
+                <div className='servicio-modal' style={{zIndex: 1100}}>
+                    <div className='modal-content-pagos'>
+                        <h3>Gestion de pagos relacionados al servicio</h3>
                         <div className='modal-body'>
                             <div className='modal-section'>
+                                <div className='servicios-data' >
+                                    <div className="row">
+                                        <label className="servicios-label">Tipo de pago:</label>
+                                        <select
+                                            className='servicios-select'
+                                            name='nombre'
+                                            value={selectedPago.nombre ? selectedPago.nombre: ''}
+                                            onChange={handleInputChangePago2}
+                                        >
+                                            <option value=''>Selecciona una configuracion</option>
+                                            <option  value='Instalación'>Instalación</option>
+                                            <option value='Conexión'>Conexión</option>
+                                            <option value='Otro'>Otro</option>
+                                        </select>
+                                    </div>
+                                    <div className="row">
+                                        <label className="servicios-label">Concepto:</label>
+                                        <input
+                                            className="servicios-input"
+                                            type="text"
+                                            placeholder="Concepto de pago"
+                                            name="concepto"
+                                            value={selectedPago.concepto ? selectedPago.concepto: ''}
+                                            onChange={handleInputChangePago}
+                                        />
+                                    </div>
+                                    <div className="row">
+                                        <label className="servicios-label">Fecha:</label>
+                                        <input
+                                            className="servicios-input"
+                                            type="date"
+                                            name="fecha"
+                                            value={selectedPago.fecha ? selectedPago.fecha: ''}
+                                            onChange={handleInputChangePago}
+                                        />
+                                    </div> 
+                                    <div className="row">
+                                        <label className="servicios-label">Total a Pagar:</label>
+                                        <input
+                                            className="servicios-input"
+                                            type="text"
+                                            placeholder="Cantidad total a pagar"
+                                            name="total"
+                                            value={selectedPago.total ? selectedPago.total: ''}
+                                            onChange={handleInputChangePago4}
+                                            readOnly = {selectedPago.nombre==='Otro'?false:true}
+                                        />
+                                    </div> 
+                                    <div className="row">
+                                        <label className="servicios-label">Pendiente:</label>
+                                        <input
+                                            className="servicios-input"
+                                            type="text"
+                                            placeholder="Cantidad pendiente"
+                                            name="pendiente"
+                                            value={selectedPago.pendiente ? selectedPago.pendiente: ''}
+                                            onChange={handleInputChangePago}
+                                            readOnly 
+                                        />
+                                    </div>  
+                                    <div className="row">
+                                        <label className="servicios-label">Pagado:</label>
+                                        <input
+                                            className="servicios-input"
+                                            type="text"
+                                            placeholder="Cantidad ya pagada"
+                                            name="pagado"
+                                            value={selectedPago.pagado ? selectedPago.pagado: ''}
+                                            onChange={handleInputChangePago3}
+                                        />
+                                    </div>    
+                                </div>
+                                <div className='servicios-data-buttons'>
+                                        <button className="servicios-button" onClick={handleSavePagos} disabled={loadingSavePagos}>
+                                            {loadingSavePagos ? (selectedPago && selectedPago.idpago ? 'Actualizando...' : 'Agregando...') : (selectedPago && selectedPago.idpago ? 'Actualizar' : 'Guardar')}
+                                        </button>
+                                        <button className="servicios-button" onClick={clearFormPagos} disabled={loadingSavePagos}>Nuevo</button>
+                                </div>  
+                                <h3>Datos Existentes</h3>
                                 <div className='servicios-table'>
                                     <table className='servicios-data-table'>
                                         <thead>
-                                            <tr>
-                                                <th>Titulo</th>
-                                                <th>Conexión</th>
-                                                <th>Fecha</th>
-                                                <th>Observaciones</th>
-                                                <th>Activo</th>
-                                            </tr>
+                                            <th>Tipo de pago</th>
+                                            <th>Concepto</th>
+                                            <th>Fecha</th>
+                                            <th>Total</th>
+                                            <th>Pendiente</th>
+                                            <th>Pagado</th>
                                         </thead>
                                         <tbody>
-                                            {currentPago.map((pago) => (
-                                                <tr key={pago.idpago} onClick={() => handleSelectCliente(pago)}>
-                                                    <td>{pago.cuota}</td>
-                                                    <td>{pago.cuota_conexion}</td>
+                                            {filteredPagos.map((pago) => (
+                                                <tr key={pago.idpago} onClick={() => handleSelectPago(pago)}>
+                                                    <td>{pago.nombre}</td>
+                                                    <td>{pago.concepto}</td>
                                                     <td>{pago.fecha}</td>
-                                                    <td>{pago.observaciones}</td>
-                                                    <td>
-                                                        <span className={`status ${pago.activo ? 'active' : 'inactive'}`}>
-                                                            {pago.activo ? 'Activo' : 'Inactivo'}
-                                                        </span>
-                                                    </td>
+                                                    <td>{pago.total}</td>
+                                                    <td>{pago.pendiente}</td>
+                                                    <td>{pago.pagado}</td>
                                                 </tr>
                                             ))}
-                                            {Array.from({ length: 4}, (_, index) => (
+                                            {Array.from({ length: 5-filteredPagos.length }, (_, index) => (
                                                <tr key={`empty-${index}`} className="empty-row">
-                                                  <td colSpan="5">&nbsp;</td>
+                                                  <td colSpan="6">&nbsp;</td>
                                                </tr>
                                             ))}
                                         </tbody>
                                     </table>
+
                                 </div>
-                                <div className='pagination'>
-                                    <button onClick={() => {setShowPagoModal(false)}} className='lote-cancel-button'>Cerrar</button>
-                                </div>
-                            </div>
+                            </div>   
                         </div>
+                        <div className='pagination'>
+                            <button onClick={() => {setShowPagoModal(false); setSelectedPago(null); setSelectedServicio(null)}} className='lote-cancel-button'>Cerrar</button>
+                            
+                        </div>                           
                     </div>
                 </div>
             )}
