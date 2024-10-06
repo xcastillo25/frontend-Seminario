@@ -32,19 +32,12 @@ const Servicios = () => {
     const [servicioToDelete, setServicioToDelete] = useState(null);
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingToggle, setLoadingToggle] = useState(false);
-<<<<<<< HEAD
     const [loadingSavePagos, setLoadingSavePagos] = useState(false);
     const [loadingTogglePagos, setLoadingTogglePagos] = useState(false);
     const [configuraciones, setConfiguraciones] =useState([]);
     const [lotes, setLotes] =useState([]);
     const [pagos, setPagos] =useState([]);
     const [clientes, setClientes] =useState([]);
-=======
-    const [configuraciones, setConfiguraciones] = useState([]);
-    const [lotes, setLotes] = useState([]);
-    const [pagos, setPagos] = useState([]);
-    const [clientes, setClientes] = useState([]);
->>>>>>> jose.calel
     const [selectedLote, setSelectedLote] = useState(null);
     const [selectedPago, setSelectedPago] = useState(null);
     const [isLoteSelected, setIsLoteSelected] = useState(false);
@@ -68,7 +61,7 @@ const Servicios = () => {
         { value: 10, label: 'Octubre' }, { value: 11, label: 'Noviembre' }, { value: 12, label: 'Diciembre' }
     ];
 
-    const currentYear = new Date().getFullYear();
+    const currentYear = (new Date().getFullYear())+1;
     const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
 
 
@@ -145,7 +138,6 @@ const Servicios = () => {
         setEditing(false);
     };
 
-<<<<<<< HEAD
     const handleSelectPago = (pago) => {
         setSelectedPago(pago);
     };
@@ -163,23 +155,6 @@ const Servicios = () => {
             setSelectedLote(null);
         }else{
             toast.error('Por favor seleccione un lote antes de continuar')
-=======
-    const handleSeleccionarLote = () => {
-        if (selectedLote) {
-            setIsLoteSelected(true);
-            setShowLotesModal(false);
-        } else {
-            alert("Por favor, selecciona un lote antes de confirmar.");
-        }
-    };
-
-    const handleSeleccionarCliente = () => {
-        if (selectedCliente) {
-            setIsClienteSelected(true);
-            setShowClientesModal(false);
-        } else {
-            alert("Por favor, selecciona un cliente antes de confirmar.");
->>>>>>> jose.calel
         }
     }
 
@@ -277,7 +252,6 @@ const Servicios = () => {
         setShowClientesModal(true);
     }
 
-<<<<<<< HEAD
     const handleShowPagos = (servicio) =>{
         setSelectedServicio(servicio);
         setSearchTermPagos(servicio.idservicio);
@@ -285,9 +259,6 @@ const Servicios = () => {
             ...selectedPago,
             idservicio: servicio.idservicio
         })
-=======
-    const handleShowPagos = () => {
->>>>>>> jose.calel
         setShowPagoModal(true);
     }
 
@@ -296,15 +267,8 @@ const Servicios = () => {
             (
             !selectedServicio || !selectedServicio.no_titulo ||
             !selectedServicio.no_contador || !selectedServicio.estatus_contador ||
-<<<<<<< HEAD
-            !selectedServicio.idconfiguracion || !selectedServicio.idcliente || !selectedServicio.idlote
-=======
-            !selectedServicio.mes_inicio_lectura || // Nueva verificación añadida
-            !selectedServicio.anio_inicio_lectura || // Nueva verificación añadida
-            !selectedServicio.idconfiguracion ||
-            !selectedLote || !selectedLote.idlote ||
-            !selectedCliente || !selectedCliente.idcliente
->>>>>>> jose.calel
+            !selectedServicio.idconfiguracion || !selectedServicio.idcliente || !selectedServicio.idlote ||
+            !selectedServicio.anio_inicio_lectura || !selectedServicio.mes_inicio_lectura
         ) {
             toast.error('Todos los campos son obligatorios.');
             console.log(selectedServicio);
@@ -317,22 +281,9 @@ const Servicios = () => {
     };
 
     const handleSave = async () => {
+        console.log('ser',selectedServicio)
         if (!validateForm()) return;
-<<<<<<< HEAD
         setLoadingSave(true); 
-=======
-        setLoadingSave(true);
-        if (selectedCliente != null) {
-            selectedServicio.idcliente = selectedCliente.idcliente;
-        }
-        if (selectedLote != null) {
-            selectedServicio.idlote = selectedLote.idlote;
-        }
-
-        selectedServicio.mes_inicio_lectura = selectedServicio.mes_inicio_lectura || null;
-        selectedServicio.anio_inicio_lectura = selectedServicio.anio_inicio_lectura || null;
-
->>>>>>> jose.calel
         try {
             if (selectedServicio && selectedServicio.idservicio) {
                 await axios.put(`${API_URL}/servicio/${selectedServicio.idservicio}`, selectedServicio);
@@ -376,11 +327,6 @@ const Servicios = () => {
     };
 
 
-    const handlePayClick = (idpago) => {
-        setCurrentPago(pagos.filter((pago) =>
-            pago['idservicio'].toString().toLowerCase().includes(idpago)));
-        setShowPagoModal(true);
-    };
 
     const confirmDelete = async () => {
         setLoadingSave(true);
@@ -452,16 +398,11 @@ const Servicios = () => {
 
     );
 
-<<<<<<< HEAD
     const filteredPagos = pagos.filter((pago) =>
         pago.idservicio===searchTermPagos)
         
     ;
     
-=======
-
-
->>>>>>> jose.calel
 
     const indexOfLastPost = currentPage * rowsPerPage;
     const indexOfFirstPost = indexOfLastPost - rowsPerPage;
@@ -512,19 +453,8 @@ const Servicios = () => {
                                 onChange={handleInputChange}
                                 readOnly
                             />
-<<<<<<< HEAD
                             <button 
                                 className="btn-select" 
-=======
-                            <input
-                                type="hidden"
-                                name="idlote"
-                                value={isLoteSelected && selectedLote ? selectedLote.idlote : (selectedServicio ? selectedServicio.idlote : '')}
-                                readOnly
-                            />
-                            <button
-                                className="btn-select"
->>>>>>> jose.calel
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); handleShowLotes() }}
                             >
@@ -540,23 +470,10 @@ const Servicios = () => {
                                 type="text"
                                 placeholder="Cliente"
                                 name="nombre"
-<<<<<<< HEAD
                                 value={selectedServicio ? selectedServicio.nombrecliente : ''}
                                 onChange={handleInputChange}
                                 readOnly
                             />
-=======
-                                value={isClienteSelected && selectedCliente ? selectedCliente.nombre + ' ' + selectedCliente.apellidos : (selectedServicio ? selectedServicio.nombrecliente : '')}
-                                onChange={handleInputChange}
-                                readOnly
-                            />
-                            <input
-                                type='hidden'
-                                name='idcliente'
-                                value={isClienteSelected && selectedCliente ? selectedCliente.idcliente : (selectedServicio ? selectedServicio.idcliente : '')}
-                                readOnly
-                            />
->>>>>>> jose.calel
                             <button
                                 className='btn-select'
                                 type='button'
@@ -619,7 +536,7 @@ const Servicios = () => {
                         <label className="servicios-label">Año Inicio Lectura:</label>
                         <select
                             className="servicios-select"
-                            name="año_inicio_lectura"
+                            name="anio_inicio_lectura"
                             value={selectedServicio ? selectedServicio.anio_inicio_lectura : ''}
                             onChange={handleInputChange}
                         >
@@ -709,7 +626,7 @@ const Servicios = () => {
                                         </span>
                                     </td>
                                     <td className="servicios-actions">
-                                        <button className="eliminar-icon-button" onClick={(e) => { e.stopPropagation(); handleDeleteClick(servicio.idservicio); }} disabled={loadingSave || loadingToggle}>
+                                        <button className="eliminar-icon-button" onClick={(e) => { e.stopPropagation(); toast.error('No es posible eliminar el servicio ya que otros elementos dependen de este registro'); }} disabled={loadingSave || loadingToggle}>
                                             <span className="material-icons eliminar-icon">delete</span>
                                         </button>
                                     </td>
@@ -823,13 +740,8 @@ const Servicios = () => {
                                     </div>
                                 </div>
                                 <div className='pagination'>
-<<<<<<< HEAD
                                     <button onClick={() => seleccionarLote()} className='lote-confirm-buttonn'>Seleccionar</button>
                                     <button onClick={() => {setShowLotesModal(false); setSelectedLote(null)}} className='lote-cancel-button'>Cancelar</button>
-=======
-                                    <button onClick={() => handleSeleccionarLote()} className='lote-confirm-buttonn'>Seleccionar</button>
-                                    <button onClick={() => { setShowLotesModal(false); setSelectedLote(null) }} className='lote-cancel-button'>Cancelar</button>
->>>>>>> jose.calel
                                 </div>
                             </div>
                         </div>
@@ -918,13 +830,8 @@ const Servicios = () => {
                                     </div>
                                 </div>
                                 <div className='pagination'>
-<<<<<<< HEAD
                                     <button onClick={() => seleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
                                     <button onClick={() => {setShowClientesModal(false); setSelectedCliente(null)}} className='lote-cancel-button'>Cancelar</button>
-=======
-                                    <button onClick={() => handleSeleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
-                                    <button onClick={() => { setShowClientesModal(false); setSelectedCliente(null) }} className='lote-cancel-button'>Cancelar</button>
->>>>>>> jose.calel
                                 </div>
                             </div>
                         </div>
@@ -934,7 +841,7 @@ const Servicios = () => {
             {showPagoModal && (
                 <div className='servicio-modal' style={{zIndex: 1100}}>
                     <div className='modal-content-pagos'>
-                        <h3>Gestion y selección de categoria</h3>
+                        <h3>Gestion de pagos relacionados al servicio</h3>
                         <div className='modal-body'>
                             <div className='modal-section'>
                                 <div className='servicios-data' >
@@ -1037,30 +944,16 @@ const Servicios = () => {
                                                     <td>{pago.pagado}</td>
                                                 </tr>
                                             ))}
-<<<<<<< HEAD
                                             {Array.from({ length: 5-filteredPagos.length }, (_, index) => (
                                                <tr key={`empty-${index}`} className="empty-row">
                                                   <td colSpan="6">&nbsp;</td>
                                                </tr>
-=======
-                                            {Array.from({ length: 4 }, (_, index) => (
-                                                <tr key={`empty-${index}`} className="empty-row">
-                                                    <td colSpan="5">&nbsp;</td>
-                                                </tr>
->>>>>>> jose.calel
                                             ))}
                                         </tbody>
                                     </table>
 
                                 </div>
-<<<<<<< HEAD
                             </div>   
-=======
-                                <div className='pagination'>
-                                    <button onClick={() => { setShowPagoModal(false) }} className='lote-cancel-button'>Cerrar</button>
-                                </div>
-                            </div>
->>>>>>> jose.calel
                         </div>
                         <div className='pagination'>
                             <button onClick={() => {setShowPagoModal(false); setSelectedPago(null); setSelectedServicio(null)}} className='lote-cancel-button'>Cerrar</button>
