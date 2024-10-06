@@ -154,23 +154,40 @@ const Servicios = () => {
     }
 
     const validateForm = () => {
-        if 
-        (
-            !selectedServicio || !selectedServicio.no_titulo || 
-            !selectedServicio.no_contador || !selectedServicio.estatus_contador ||
-            !selectedServicio.idconfiguracion || 
-            !selectedLote || !selectedLote.idlote ||
-            !selectedCliente || !selectedCliente.idcliente
-        ) {
-            toast.error('Todos los campos son obligatorios.');
-            console.log(selectedServicio);
-            return false;
+
+        if (selectedServicio && selectedServicio.idservicio) {
+            if (
+                !selectedServicio ||
+                !selectedServicio.no_titulo || 
+                !selectedServicio.no_contador || 
+                !selectedServicio.idconfiguracion ||
+                !selectedServicio.loteubicacion ||
+                !selectedServicio.idcliente ||
+                !selectedServicio.estatus_contador
+            ) {
+                toast.error('Todos los campos son obligatorios.');
+                console.log(selectedServicio)
+                console.log(selectedCliente)
+                return false;
+            }
+        } else {
+            if(
+                !selectedServicio || !selectedServicio.no_titulo || 
+                !selectedServicio.no_contador ||
+                !selectedServicio.idconfiguracion || 
+                !selectedLote || !selectedLote.idlote ||
+                !selectedCliente || !selectedCliente.idcliente
+            ){
+                toast.error('Todos los campos son obligatorios.');
+                console.log(selectedServicio)
+                console.log(selectedCliente)
+                return false;
+            }
         }
-        
-        
 
         return true;
     };
+    
 
     const handleSave = async () => {
         if (!validateForm()) return;
@@ -389,14 +406,16 @@ const Servicios = () => {
                     </div>
                     <div className="row">
                         <label className="servicios-label">Estatus:</label>
-                        <input
-                            className="servicios-input"
-                            type="text"
-                            placeholder="Estado actual del servicio"
+                        <select
+                            className="estatus-contador"
                             name="estatus_contador"
                             value={selectedServicio ? selectedServicio.estatus_contador : ''}
                             onChange={handleInputChange}
-                        />
+                        >
+                            <option value="Pagando">Pagando</option>
+                            <option value="Suspendido">Suspendido</option>
+                            <option value="Cortado">Cortado</option>
+                        </select>
                     </div>
                 </div>
                 <div className="servicios-data-buttons">

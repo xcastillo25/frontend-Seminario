@@ -121,6 +121,23 @@ export function ValidaLetrasyNumerosAlmacenar(valor, campo){
     return { valido, mensaje };
 }
 
+export function ValidaLotesAlmacenar(valor, campo){
+    let mensaje = "";
+    let valido = true;
+
+    if (!valor) {
+        mensaje += `Campo ${campo} Vacío`;
+        valido = false;
+    }
+
+    const campoRegex = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’-]+$/;
+    if (!campoRegex.test(valor)) {
+        mensaje += `${campo} con formato inválido.`;
+        valido = false;
+    }
+
+    return { valido, mensaje };
+}
 
 export function validaNIT(valor) {
     let mensaje = "";

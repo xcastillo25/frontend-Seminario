@@ -54,6 +54,15 @@ input:-webkit-autofill {
     height: 1.8rem;
     border-radius: 5px;
   }
+
+  .estatus-contador {
+    border: 1px solid var(--input-border);
+    font-size: 1.1rem;
+    padding: 0 5px;
+    height: 1.9rem;
+    border-radius: 5px;
+    width: 200px;
+  }
   
   .servicios-data-buttons {
     display: flex;
