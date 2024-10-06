@@ -8,9 +8,10 @@ import { API_URL } from '../../config/config';
 
 const Pagos = () => {
     const [servicios, setServicios] = useState([]);
-    const [lecturasNoPagadas, setLecturasNoPagadas] = useState([]);
-    const [selectedServicio, setSelectedServicio] = useState({});
     const [filteredServicios, setFilteredServicios] = useState([]);
+    const [filteredServicio, setFilteredServicio] = useState(null);
+    const [lecturas, setLecturas] = useState([]); // Inicializamos lecturas como un array vacío
+    const [selectedServicio, setSelectedServicio] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [filterColumn, setFilterColumn] = useState('clientes.nombre');
     const [currentPage, setCurrentPage] = useState(1);
@@ -22,8 +23,7 @@ const Pagos = () => {
     const [selectedYear1, setSelectedYear1] = useState(new Date().getFullYear());
     const [selectedYear2, setSelectedYear2] = useState(new Date().getFullYear() + 1);
     const [years, setYears] = useState([]);
-    const [totalCuotas, setTotalCuotas] = useState(0);
-    const [totalExcesos, setTotalExcesos] = useState(0);
+    const [loadingLecturas, setLoadingLecturas] = useState(false);
 
     useEffect(() => {
         fetchServicios();
@@ -33,6 +33,37 @@ const Pagos = () => {
     useEffect(() => {
         filterServicios();
     }, [searchTerm, filterColumn, servicios]);
+
+    const fetchLecturas = async (idservicio) => {
+        try {
+            setLoadingLecturas(true);
+            const response = await axios.get(`${API_URL}/lecturas-idservicio/${idservicio}`);
+            console.log('Lecturas recibidas:', response.data.lecturas);  // Log para verificar las lecturas recibidas
+            setLecturas(response.data.lecturas || []);  // Aseguramos que lecturas sea siempre un array
+        } catch (error) {
+            handleError(error, 'Error al cargar lecturas');
+        } finally {
+            setLoadingLecturas(false);
+        }
+    };
+    
+
+    const filterServicio = () => {
+        const filtered = servicios.find(servicio => {
+            const valueToFilter = filterColumn.includes('clientes.')
+                ? servicio.clientes[filterColumn.split('.')[1]]
+                : servicio.lotes[filterColumn.split('.')[1]];
+
+            return valueToFilter?.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+        if (filtered) {
+            setFilteredServicio(filtered);
+            fetchLecturas(filtered.idservicio); // Cargar lecturas del servicio filtrado
+        } else {
+            setFilteredServicio(null);
+            setLecturas([]); // Limpiar lecturas si no hay servicio seleccionado
+        }
+    };
 
     const generateYears = () => {
         const startYear = 2020;
@@ -54,30 +85,6 @@ const Pagos = () => {
             handleError(error, 'Error al cargar servicios');
         }
     };
-
-    const fetchLecturasNoPagadas = async (idservicio) => {
-        try {
-            const response = await axios.get(`${API_URL}/lecturas-no-pagadas/${idservicio}`);
-            console.log('Lecturas no pagadas recibidas:', response.data.lecturasNoPagadas);  // Log de las lecturas recibidas
-            setLecturasNoPagadas(response.data.lecturasNoPagadas);
-    
-            // Calcular el total de cuotas y excesos
-            let totalCuotas = 0;
-            let totalExcesos = 0;
-    
-            response.data.lecturasNoPagadas.forEach((lectura) => {
-                totalCuotas += parseFloat(lectura.cuotaPendiente || 0);
-                totalExcesos += parseFloat(lectura.monto_exceso || 0);
-            });
-    
-            setTotalCuotas(totalCuotas.toFixed(2));
-            setTotalExcesos(totalExcesos.toFixed(2));
-    
-        } catch (error) {
-            handleError(error, 'Error al cargar lecturas no pagadas');
-        }
-    };
-    
 
     const filterServicios = () => {
         let filtered = servicios;
@@ -104,6 +111,10 @@ const Pagos = () => {
         setFilterColumn(e.target.value);
     };
 
+    const handleSearchClick = () => {
+        filterServicio();  // Aplica el filtro cuando se presiona el botón de buscar
+    };
+
     const handleError = (error, defaultMessage) => {
         const errorMessage = error.response && error.response.data && error.response.data.message
             ? error.response.data.message
@@ -117,28 +128,20 @@ const Pagos = () => {
         setSelectedServicio(selectedServicio);
     };
 
-    const handleBuscarLecturas = () => {
-        if (selectedServicio.idservicio) {
-            fetchLecturasNoPagadas(selectedServicio.idservicio);  // Cargar lecturas no pagadas del servicio seleccionado
-        } else {
-            toast.error('Seleccione un cliente antes de buscar');
-        }
+    const handleReset = () => {
+        setFilteredServicio(null);  // Restablece el resultado mostrado a null
+        setSearchTerm('');          // Limpia el campo de búsqueda
     };
 
-    const isCheckboxDisabled = (mes, año) => {
-        // Buscar si la lectura para el mes y año específicos ya está pagada
-        const lectura = lecturasNoPagadas.find(lectura => lectura.lecturas.mes === mes && lectura.lecturas.año === año);
-        return lectura && lectura.pagada === true; // Si está pagada, desactiva el checkbox
-    };
+    // Asegúrate de que lecturas sea un array antes de usar .slice()
+    const indexOfLastLectura = currentPage * rowsPerPage;
+    const indexOfFirstLectura = indexOfLastLectura - rowsPerPage;
+    const currentLecturas = Array.isArray(lecturas) ? lecturas.slice(indexOfFirstLectura, indexOfLastLectura) : [];
 
-    const isCheckboxChecked = (mes, año) => {
-        // Buscar si la lectura para el mes y año específicos ya está pagada
-        const lectura = lecturasNoPagadas.find(lectura => lectura.lecturas.mes === mes && lectura.lecturas.año === año);
-        return lectura && lectura.pagada === true; // Si está pagada, marca el checkbox
-    };
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
-        <main>
+        <main >
             <ToastContainer />
             <section className="pagos-section">
                 <h1 className="pagos-title">Gestión de Pagos</h1>
@@ -158,21 +161,110 @@ const Pagos = () => {
                         value={searchTerm}
                         onChange={handleSearchChange}
                     />
-                    <label>Cliente:</label>
-                    <select 
-                        className="pagos-cliente" 
-                        name="cliente" 
-                        value={selectedServicio.idservicio || ''}
-                        onChange={handleSelectCliente}
-                    >
-                        {filteredServicios.map(servicio => (
-                            <option key={servicio.idservicio} value={servicio.idservicio}>
-                                {`${servicio.clientes.nombre} ${servicio.clientes.apellidos}, Lote: ${servicio.lotes.ubicacion}`}
-                            </option>
-                        ))}
-                    </select>
-                    <button onClick={handleBuscarLecturas}>Buscar</button>
+                    <button onClick={handleSearchClick}>Buscar</button>
+                    <button onClick={handleReset}>Nuevo</button>
                 </div>
+                
+                 <div className="pagos-resultados">
+                    {filteredServicio ? (
+                        <div className="resultado-item">
+                            <div className="row">
+                                <label>Nombre del Cliente:</label>
+                                <h3>{filteredServicio.clientes.nombre} {filteredServicio.clientes.apellidos}</h3>
+                            </div>
+                            <div className="row">
+                                <label>NIT:</label> 
+                                <h3>{filteredServicio.clientes.nit}</h3>
+                            </div>
+                            <div className="row">
+                                <label>Título:</label>
+                                <h3>{filteredServicio.no_titulo}</h3>
+                            </div>
+                            <div className="row">
+                                <label>No. Contador:</label>
+                                <h3>{filteredServicio.no_contador}</h3>
+                            </div>
+                            <div className="row">
+                                <label>Estado:</label>
+                                <h3>{filteredServicio.estatus_contador}</h3>
+                            </div>
+                            <div className="row">
+                                <label>Lote:</label>
+                                <h3>{filteredServicio.lotes.ubicacion}</h3>
+                            </div>
+                        </div>
+                    ) : (
+                        <p>No se ha seleccionado ningún servicio.</p>  // Texto inicial si no hay selección
+                    )}
+                </div>
+                
+                 {filteredServicio ? (
+                    <div>
+                        <h2>Lecturas del servicio: {filteredServicio.clientes.nombre} {filteredServicio.clientes.apellidos}</h2>
+                        
+                        {/* Mostrar lecturas en una tabla */}
+                        <div className="lecturas-table">
+                            <table className="lecturas-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mes</th>
+                                        <th>Año</th>
+                                        <th>Lectura</th>
+                                        <th>Monto Mora</th>
+                                        <th>Cuota Mensual</th>
+                                        <th>Monto Acumulado</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loadingLecturas ? (
+                                        <tr>
+                                            <td colSpan="7">Cargando lecturas...</td>
+                                        </tr>
+                                    ) : currentLecturas.length > 0 ? (
+                                        currentLecturas.map((lectura) => (
+                                            <tr key={lectura.idlectura}>
+                                                <td>{lectura.mes}</td>
+                                                <td>{lectura.año}</td>
+                                                <td>{lectura.lectura}</td>
+                                                <td>{lectura.monto_mora}</td>
+                                                <td>{lectura.cuota_mensual}</td>
+                                                <td>{lectura.monto_acumulado}</td>
+                                                <td>{lectura.total}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="7">No se encontraron lecturas para este servicio.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+
+                            {/* Paginación */}
+                            <div className="pagination">
+                                <button onClick={() => paginate(1)} disabled={currentPage === 1}>Inicio</button>
+                                <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
+                                {Array.from({ length: Math.ceil(lecturas.length / rowsPerPage) }, (_, index) => (
+                                    <button key={index + 1} onClick={() => paginate(index + 1)}>
+                                        {index + 1}
+                                    </button>
+                                ))}
+                                <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(lecturas.length / rowsPerPage)}>Siguiente</button>
+                                <button onClick={() => paginate(Math.ceil(lecturas.length / rowsPerPage))} disabled={currentPage === Math.ceil(lecturas.length / rowsPerPage)}>Último</button>
+                                <select className="rows-per-page" value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))}>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <p>No se ha seleccionado ningún servicio.</p>
+                )}
+               
                 <h1 className="pagos-title">Selecciona los meses de pago</h1>
                 <div className="pagos-mes">
                     <div className="meses">
@@ -347,12 +439,6 @@ const Pagos = () => {
                         </div>
                         
                     </div>
-                </div>
-                <div className="pagos-data">
-                    <h1>Total Cuotas Q. </h1>
-                    <label>{totalCuotas}</label>  {/* Mostrar el total de cuotas adeudadas */}
-                    <h1>Total Excesos Q. </h1>
-                    <label>{totalExcesos}</label>  {/* Mostrar el total de excesos adeudados */}
                 </div>
             </section>
         </main>
