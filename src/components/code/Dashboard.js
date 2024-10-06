@@ -103,14 +103,16 @@ const Dashboard = () => {
         </div>
         <nav className="menu">
           <h4>MENU</h4>
-          <a 
-            href="#perfil" 
-            className={`menu-item ${activeMenuItem === 'Perfil' ? 'active' : ''}`} 
-            onClick={() => handleMenuClick('Perfil', 'Perfil', 'manage_accounts')}
-          >
-            <span className="material-icons">manage_accounts</span>
-            <span>Perfil</span>
-          </a>
+          {/* 
+              <a 
+                href="#perfil" 
+                className={`menu-item ${activeMenuItem === 'Perfil' ? 'active' : ''}`} 
+                onClick={() => handleMenuClick('Perfil', 'Perfil', 'manage_accounts')}
+              >
+                <span className="material-icons">manage_accounts</span>
+                <span>Perfil</span>
+              </a>
+          */}
           <a 
             href="#clientes" 
             className={`menu-item ${activeMenuItem === 'Clientes' ? 'active' : ''}`} 
@@ -225,6 +227,9 @@ const Dashboard = () => {
             </span>
             <span className="top-bar-button material-icons" onClick={toggleTheme}>
               {theme === 'light' ? 'dark_mode' : 'light_mode'}
+            </span>
+            <span onClick={() => handleMenuClick('Perfil', 'Perfil', 'manage_accounts')} className="top-bar-button material-icons" >
+              manage_accounts
             </span>
             <span onClick={() => handleMenuClick('Configuracion', 'Configuracion', 'settings')} className="top-bar-button material-icons" >
               settings

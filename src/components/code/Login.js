@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../design/Login.css';
 import Logo from '../../assets/paseo.jpg';
 import { useNavigate } from 'react-router-dom';
@@ -15,10 +15,21 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false); // Estado para manejar el modal
 
     const { login } = useAuth();  
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const savedUsuario = localStorage.getItem('usuario');
+        const savedPassword = localStorage.getItem('password');
+        if (savedUsuario && savedPassword) {
+            setUsuario(savedUsuario);
+            setPassword(savedPassword);
+            setRememberMe(true);  // Marca el checkbox si se encontraron credenciales
+        }
+    }, []);
 
     const handleCheckboxChange = () => {
         setRememberMe(!rememberMe);
@@ -30,8 +41,18 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const response = await axios.post(`${API_URL}/login`, { usuario, password });
+
+            if (rememberMe) {
+                localStorage.setItem('usuario', usuario);
+                localStorage.setItem('password', password);
+            } else {
+                // Si no está marcado, eliminar las credenciales guardadas
+                localStorage.removeItem('usuario');
+                localStorage.removeItem('password');
+            }
 
             login({
                 token: response.data.token,
@@ -50,6 +71,8 @@ const Login = () => {
 
         } catch (error) {
             toast.error(error.response?.data?.error || 'Error al iniciar sesión');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -104,12 +127,15 @@ const Login = () => {
                                         checked={rememberMe} 
                                         onChange={handleCheckboxChange} 
                                         className="checkbox-custom"
+                                        disabled={isLoading}
                                     />
                                     Recuérdame
                                 </label>
                                 <a href="#" className="forgot-password" onClick={openPasswordRecoveryModal}>Recuperar la Contraseña</a>
                             </div>
-                            <button type="submit" className="btn-signin">Iniciar Sesión</button>
+                            <button type="submit" className="btn-signin" disabled={isLoading}>
+                                {isLoading ? 'Iniciando Sesión...' : 'Iniciar Sesión'}
+                            </button>
                             <hr />
                         </form>
                     </div>

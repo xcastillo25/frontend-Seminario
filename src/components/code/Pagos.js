@@ -9,6 +9,8 @@ import { API_URL } from '../../config/config';
 const Pagos = () => {
     const [servicios, setServicios] = useState([]);
     const [filteredServicios, setFilteredServicios] = useState([]);
+    const [filteredServicio, setFilteredServicio] = useState(null);
+    const [lecturas, setLecturas] = useState([]); // Inicializamos lecturas como un array vacío
     const [selectedServicio, setSelectedServicio] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
     const [filterColumn, setFilterColumn] = useState('clientes.nombre');
@@ -21,6 +23,7 @@ const Pagos = () => {
     const [selectedYear1, setSelectedYear1] = useState(new Date().getFullYear());
     const [selectedYear2, setSelectedYear2] = useState(new Date().getFullYear() + 1);
     const [years, setYears] = useState([]);
+    const [loadingLecturas, setLoadingLecturas] = useState(false);
 
     useEffect(() => {
         fetchServicios();
@@ -30,6 +33,37 @@ const Pagos = () => {
     useEffect(() => {
         filterServicios();
     }, [searchTerm, filterColumn, servicios]);
+
+    const fetchLecturas = async (idservicio) => {
+        try {
+            setLoadingLecturas(true);
+            const response = await axios.get(`${API_URL}/lecturas-idservicio/${idservicio}`);
+            console.log('Lecturas recibidas:', response.data.lecturas);  // Log para verificar las lecturas recibidas
+            setLecturas(response.data.lecturas || []);  // Aseguramos que lecturas sea siempre un array
+        } catch (error) {
+            handleError(error, 'Error al cargar lecturas');
+        } finally {
+            setLoadingLecturas(false);
+        }
+    };
+    
+
+    const filterServicio = () => {
+        const filtered = servicios.find(servicio => {
+            const valueToFilter = filterColumn.includes('clientes.')
+                ? servicio.clientes[filterColumn.split('.')[1]]
+                : servicio.lotes[filterColumn.split('.')[1]];
+
+            return valueToFilter?.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+        if (filtered) {
+            setFilteredServicio(filtered);
+            fetchLecturas(filtered.idservicio); // Cargar lecturas del servicio filtrado
+        } else {
+            setFilteredServicio(null);
+            setLecturas([]); // Limpiar lecturas si no hay servicio seleccionado
+        }
+    };
 
     const generateYears = () => {
         const startYear = 2020;
@@ -77,6 +111,10 @@ const Pagos = () => {
         setFilterColumn(e.target.value);
     };
 
+    const handleSearchClick = () => {
+        filterServicio();  // Aplica el filtro cuando se presiona el botón de buscar
+    };
+
     const handleError = (error, defaultMessage) => {
         const errorMessage = error.response && error.response.data && error.response.data.message
             ? error.response.data.message
@@ -90,8 +128,20 @@ const Pagos = () => {
         setSelectedServicio(selectedServicio);
     };
 
+    const handleReset = () => {
+        setFilteredServicio(null);  // Restablece el resultado mostrado a null
+        setSearchTerm('');          // Limpia el campo de búsqueda
+    };
+
+    // Asegúrate de que lecturas sea un array antes de usar .slice()
+    const indexOfLastLectura = currentPage * rowsPerPage;
+    const indexOfFirstLectura = indexOfLastLectura - rowsPerPage;
+    const currentLecturas = Array.isArray(lecturas) ? lecturas.slice(indexOfFirstLectura, indexOfLastLectura) : [];
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     return (
-        <main className="pagos-container">
+        <main >
             <ToastContainer />
             <section className="pagos-section">
                 <h1 className="pagos-title">Gestión de Pagos</h1>
@@ -111,21 +161,110 @@ const Pagos = () => {
                         value={searchTerm}
                         onChange={handleSearchChange}
                     />
-                    <label>Cliente:</label>
-                    <select 
-                        className="pagos-cliente" 
-                        name="cliente" 
-                        value={selectedServicio.idservicio || ''}
-                        onChange={handleSelectCliente}
-                    >
-                        {filteredServicios.map(servicio => (
-                            <option key={servicio.idservicio} value={servicio.idservicio}>
-                                {`${servicio.clientes.nombre} ${servicio.clientes.apellidos}, Lote: ${servicio.lotes.ubicacion}`}
-                            </option>
-                        ))}
-                    </select>
-                    <button>Buscar</button>
+                    <button onClick={handleSearchClick}>Buscar</button>
+                    <button onClick={handleReset}>Nuevo</button>
                 </div>
+                
+                 <div className="pagos-resultados">
+                    {filteredServicio ? (
+                        <div className="resultado-item">
+                            <div className="row">
+                                <label>Nombre del Cliente:</label>
+                                <h3>{filteredServicio.clientes.nombre} {filteredServicio.clientes.apellidos}</h3>
+                            </div>
+                            <div className="row">
+                                <label>NIT:</label> 
+                                <h3>{filteredServicio.clientes.nit}</h3>
+                            </div>
+                            <div className="row">
+                                <label>Título:</label>
+                                <h3>{filteredServicio.no_titulo}</h3>
+                            </div>
+                            <div className="row">
+                                <label>No. Contador:</label>
+                                <h3>{filteredServicio.no_contador}</h3>
+                            </div>
+                            <div className="row">
+                                <label>Estado:</label>
+                                <h3>{filteredServicio.estatus_contador}</h3>
+                            </div>
+                            <div className="row">
+                                <label>Lote:</label>
+                                <h3>{filteredServicio.lotes.ubicacion}</h3>
+                            </div>
+                        </div>
+                    ) : (
+                        <p>No se ha seleccionado ningún servicio.</p>  // Texto inicial si no hay selección
+                    )}
+                </div>
+                
+                 {filteredServicio ? (
+                    <div>
+                        <h2>Lecturas del servicio: {filteredServicio.clientes.nombre} {filteredServicio.clientes.apellidos}</h2>
+                        
+                        {/* Mostrar lecturas en una tabla */}
+                        <div className="lecturas-table">
+                            <table className="lecturas-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mes</th>
+                                        <th>Año</th>
+                                        <th>Lectura</th>
+                                        <th>Monto Mora</th>
+                                        <th>Cuota Mensual</th>
+                                        <th>Monto Acumulado</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loadingLecturas ? (
+                                        <tr>
+                                            <td colSpan="7">Cargando lecturas...</td>
+                                        </tr>
+                                    ) : currentLecturas.length > 0 ? (
+                                        currentLecturas.map((lectura) => (
+                                            <tr key={lectura.idlectura}>
+                                                <td>{lectura.mes}</td>
+                                                <td>{lectura.año}</td>
+                                                <td>{lectura.lectura}</td>
+                                                <td>{lectura.monto_mora}</td>
+                                                <td>{lectura.cuota_mensual}</td>
+                                                <td>{lectura.monto_acumulado}</td>
+                                                <td>{lectura.total}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="7">No se encontraron lecturas para este servicio.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+
+                            {/* Paginación */}
+                            <div className="pagination">
+                                <button onClick={() => paginate(1)} disabled={currentPage === 1}>Inicio</button>
+                                <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
+                                {Array.from({ length: Math.ceil(lecturas.length / rowsPerPage) }, (_, index) => (
+                                    <button key={index + 1} onClick={() => paginate(index + 1)}>
+                                        {index + 1}
+                                    </button>
+                                ))}
+                                <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(lecturas.length / rowsPerPage)}>Siguiente</button>
+                                <button onClick={() => paginate(Math.ceil(lecturas.length / rowsPerPage))} disabled={currentPage === Math.ceil(lecturas.length / rowsPerPage)}>Último</button>
+                                <select className="rows-per-page" value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))}>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <p>No se ha seleccionado ningún servicio.</p>
+                )}
+               
                 <h1 className="pagos-title">Selecciona los meses de pago</h1>
                 <div className="pagos-mes">
                     <div className="meses">
