@@ -38,7 +38,6 @@ const Pagos = () => {
         try {
             setLoadingLecturas(true);
             const response = await axios.get(`${API_URL}/lecturas-idservicio/${idservicio}`);
-            console.log('Lecturas recibidas:', response.data.lecturas);  // Log para verificar las lecturas recibidas
             setLecturas(response.data.lecturas || []);  // Aseguramos que lecturas sea siempre un array
         } catch (error) {
             handleError(error, 'Error al cargar lecturas');
@@ -46,7 +45,6 @@ const Pagos = () => {
             setLoadingLecturas(false);
         }
     };
-    
 
     const filterServicio = () => {
         const filtered = servicios.find(servicio => {
@@ -112,8 +110,15 @@ const Pagos = () => {
     };
 
     const handleSearchClick = () => {
-        filterServicio();  // Aplica el filtro cuando se presiona el botón de buscar
+        if (!searchTerm.trim()) {
+            // Si el campo de búsqueda está vacío, muestra un error con toast
+            toast.error("No se ha ingresado ningún dato en el campo de búsqueda");
+            return;
+        }
+        // Si hay datos en el campo de búsqueda, aplica el filtro
+        filterServicio();
     };
+    
 
     const handleError = (error, defaultMessage) => {
         const errorMessage = error.response && error.response.data && error.response.data.message
@@ -207,12 +212,16 @@ const Pagos = () => {
                             <table className="lecturas-data-table">
                                 <thead>
                                     <tr>
-                                        <th>Mes</th>
                                         <th>Año</th>
+                                        <th>Mes</th>
                                         <th>Lectura</th>
+                                        <th>Cuota</th>
+                                        <th>% Mora</th>
                                         <th>Monto Mora</th>
-                                        <th>Cuota Mensual</th>
+                                        <th>Total Mensual</th>
                                         <th>Monto Acumulado</th>
+                                        <th>Exceso</th>
+                                        <th>Monto Exceso</th>
                                         <th>Total</th>
                                     </tr>
                                 </thead>
@@ -222,17 +231,26 @@ const Pagos = () => {
                                             <td colSpan="7">Cargando lecturas...</td>
                                         </tr>
                                     ) : currentLecturas.length > 0 ? (
-                                        currentLecturas.map((lectura) => (
-                                            <tr key={lectura.idlectura}>
-                                                <td>{lectura.mes}</td>
-                                                <td>{lectura.año}</td>
-                                                <td>{lectura.lectura}</td>
-                                                <td>{lectura.monto_mora}</td>
-                                                <td>{lectura.cuota_mensual}</td>
-                                                <td>{lectura.monto_acumulado}</td>
-                                                <td>{lectura.total}</td>
-                                            </tr>
-                                        ))
+                                        currentLecturas.map((lectura) => {
+                                            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                                            const mesNombre = meses[lectura.mes - 1];
+                                            const porcentajeMora = `${(lectura.porcentaje_acumulado * 100).toFixed(0)}%`;
+                                            return (
+                                                <tr key={lectura.idlectura}>
+                                                    <td>{lectura.año}</td>
+                                                    <td>{mesNombre}</td>
+                                                    <td>{lectura.lectura}</td>
+                                                    <td>{lectura.cuota}</td>
+                                                    <td>{porcentajeMora}</td>
+                                                    <td>{lectura.monto_mora}</td>
+                                                    <td>{lectura.cuota_mensual}</td>
+                                                    <td>{lectura.monto_acumulado}</td>
+                                                    <td>{lectura.exceso}</td>
+                                                    <td>{lectura.monto_exceso}</td>
+                                                    <td>{lectura.total}</td>
+                                                </tr>
+                                            );
+                                        })
                                     ) : (
                                         <tr>
                                             <td colSpan="7">No se encontraron lecturas para este servicio.</td>
@@ -260,6 +278,7 @@ const Pagos = () => {
                                 </select>
                             </div>
                         </div>
+
                     </div>
                 ) : (
                     <p>No se ha seleccionado ningún servicio.</p>

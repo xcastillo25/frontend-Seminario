@@ -67,7 +67,7 @@ input:-webkit-autofill {
   height: 1.8rem;
   border-radius: 5px;
   background-color: white;
-  width: 15rem;
+  width: 20rem;
 }
 
 .pagos-busqueda button{
@@ -85,6 +85,87 @@ input:-webkit-autofill {
 .pagos-busqueda button:hover {
   background-color: var(--button-hover-green);
     scale: 1.05;
+}
+
+.pagos-resultados {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagos-resultados .resultado-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+}
+
+.pagos-resultados .resultado-item .row {
+  display: flex;
+  flex-direction: column;
+}
+
+.pagos-resultados .resultado-item .row label {
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.pagos-resultados .resultado-item .row h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+
+.pagos-resultados p {
+  font-size: 1.2rem;
+  color: #777;
+  text-align: center;
+}
+
+.lecturas-table {
+  margin-top: 1rem;
+}
+
+.lecturas-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.lecturas-table th,
+.lecturas-table td {
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.lecturas-table th {
+  background-color: var(--table-header);
+  font-weight: bold;
+  color: var(--table-header-text);
+}
+
+.lecturas-table tr:nth-child(odd) td {
+  background-color: var(--table-cell-odd);
+}
+
+.lecturas-table tr:nth-child(even) td {
+  background-color: var(--table-cell-pair);
+}
+
+.lecturas-table tr:hover td {
+  background-color: var(--table-cell-hover);
+  color: white;
+  cursor: pointer;
 }
 
 .pagos-mes {
