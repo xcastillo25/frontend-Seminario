@@ -42,6 +42,7 @@ input:-webkit-autofill {
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
+  margin-top: 1rem;
   margin-bottom: 1rem;
   align-items: center;
 }
@@ -72,25 +73,58 @@ input:-webkit-autofill {
 
 .pagos-busqueda button{
   height: 2.5rem;
-    width: 8rem;
-    font-size: 1rem;
-    background-color: var(--button-green);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  width: 8rem;
+  font-size: 1rem;
+  background-color: var(--button-green);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .pagos-busqueda button:hover {
   background-color: var(--button-hover-green);
-    scale: 1.05;
+  scale: 1.05;
 }
 
 .pagos-resultados {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom:0.1rem;
+}
+
+.pagos-titulo-tabla{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 0rem;
+}
+
+.pagos-lectura-buttons{
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.pagos-lectura-buttons button{
+  height: 2.5rem;
+  width: 8rem;
+  font-size: 1rem;
+  background-color: var(--button-green);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagos-lectura-buttons button:hover{
+  background-color: var(--button-hover-green);
+  scale: 1.05;
 }
 
 .pagos-resultados .resultado-item {
@@ -122,7 +156,6 @@ input:-webkit-autofill {
   color: #333;
 }
 
-
 .pagos-resultados p {
   font-size: 1.2rem;
   color: #777;
@@ -130,13 +163,13 @@ input:-webkit-autofill {
 }
 
 .lecturas-table {
-  margin-top: 1rem;
+  margin-top: 0rem;
 }
 
 .lecturas-data-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: o;
 }
 
 .lecturas-table th,
@@ -260,4 +293,270 @@ input:-webkit-autofill {
   height: 1.8rem;
   border-radius: 5px;
   background-color: white;
+}
+
+.modal-overlay{
+  display:flex;
+  padding:1rem;
+}
+
+.modal-overlay .modal{
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-overlay .modal .modal-content{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-overlay .modal .modal-content h2{
+  margin-top: 1rem;
+}
+
+.modal-overlay .modal .modal-content label{
+  margin-bottom: 0.5rem;
+}
+
+
+.modal-overlay .modal .modal-content p{
+  font-size: 2.5rem;
+  margin: 0.5rem;
+  font-weight: bold;
+  color: var(--dark-green);
+}
+
+.modal-overlay .modal .modal-content .cambio{
+  font-size: 2rem;
+}
+
+.modal-overlay .modal .modal-content .valor {
+  width: 10rem;
+  font-size: 1.5rem;
+  text-align: center;
+  font-weight: bold;
+  padding-right: 1rem;
+}
+
+.modal-overlay .modal .modal-content .concepto {
+  width: 15rem;
+  font-size: 1.1rem;
+  text-align: center;
+  padding-right: 1rem;
+}
+
+.modal-overlay .modal .modal-content .modal-buttons{
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.modal-overlay .modal .modal-content .modal-buttons button{
+  height: 2.5rem;
+  width: 8rem;
+  font-size: 1rem;
+  background-color: var(--button-green);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-overlay .modal .modal-content .modal-buttons button:hover {
+  background-color: var(--button-hover-green);
+  scale: 1.05;
+}
+
+/* Estilos para el modal de Pago Parcial */
+.modal-overlay.pago-parcial-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+}
+
+.modal-overlay.pago-parcial-modal {
+  display: flex;
+  justify-content: center;  /* Centrar horizontalmente */
+  align-items: center;  /* Centrar verticalmente */
+    /* Fijar en toda la pantalla */
+  top: 0;
+  left: 0;
+  bottom: 5rem;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);  /* Fondo semi-transparente */
+  z-index: 999;  /* Asegurarse de que el modal esté sobre otros elementos */
+}
+
+.modal-overlay.pago-parcial-modal .modal {
+  width: 80%;  /* Ancho del modal */
+  height: 70%;  /* Altura del modal */
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+  padding: 2rem;
+  position: relative;
+  margin-bottom: 3rem;
+  justify-content: flex-start;
+}
+
+
+.modal-overlay.pago-parcial-modal .modal .cliente-info{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2rem;
+  margin: 0;
+  font-size: 1rem;
+  height: 2rem;
+}
+
+.modal-overlay.pago-parcial-modal .modal .cliente-info p{
+  font-size: 1.2rem;
+}
+
+.modal-overlay.pago-parcial-modal .modal .cliente-info .total{
+  font-size: 1.6rem;
+}
+
+
+.modal-overlay.pago-parcial-modal .modal h2 {
+  margin-top:1rem;
+  margin-bottom: 0rem;
+  font-size: 2rem; /* Título más grande */
+  text-align: center;
+  color: var(--dark-green);
+}
+
+.modal-overlay.pago-parcial-modal .modal table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modal-overlay.pago-parcial-modal .modal .modal-content table th, 
+.modal-overlay.pago-parcial-modal .modal .modal-content table td {
+  padding: 1rem;
+  border: 1px solid var(--light-grey); /* Bordes de las celdas */
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.modal-overlay.pago-parcial-modal .modal .modal-content table th {
+  background-color: var(--light-green); /* Color de fondo de los encabezados */
+  font-weight: bold;
+  color: white;
+}
+
+.modal-overlay.pago-parcial-modal .modal .modal-content .modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.modal-overlay.pago-parcial-modal .modal .modal-content .modal-buttons button {
+  height: 3rem;
+  width: 10rem;
+  font-size: 1.2rem;
+  background-color: var(--button-green);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-overlay.pago-parcial-modal .modal .modal-content .modal-buttons button:hover {
+  background-color: var(--button-hover-green);
+  transform: scale(1.05);
+}
+
+.two-cells {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin:0;
+}
+
+.cell-value {
+  margin-right: 2px; /* Espacio entre el valor y el input */
+}
+
+.cell-input {
+  width: 80px; /* Ajustar el tamaño del input */
+  font-size: 1rem;
+  text-align: right;
+}
+
+.cell-input[readonly] {
+  background-color: rgb(231, 142, 142); /* Cambiar el color cuando el input es solo lectura */
+}
+
+.pagoparcial-lecturas-table {
+  margin-top: 1rem;
+  width: 100%;
+  height: 25rem;
+  overflow-y: auto;
+}
+
+.pagoparcial-lecturas-data-table {
+  width: 100;
+  border-collapse: collapse;
+  margin-top: o;
+}
+
+.pagoparcial-lecturas-table th,
+.pagoparcial-lecturas-table td {
+  padding: 12px 15px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.pagoparcial-lecturas-table th {
+  background-color: var(--table-header);
+  font-weight: bold;
+  color: var(--table-header-text);
+}
+
+.pagoparcial-lecturas-table tr:nth-child(odd) td {
+  background-color: var(--table-cell-odd);
+}
+
+.pagoparcial-lecturas-table tr:nth-child(even) td {
+  background-color: var(--table-cell-pair);
+}
+
+.pagoparcial-lecturas-table tr:hover td {
+  background-color: var(--table-cell-hover);
+  color: white;
+  cursor: pointer;
+}
+
+.modal-overlay.pago-parcial-modal .modal .modal-buttons{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.modal-overlay.pago-parcial-modal .modal .modal-buttons button{
+  height: 2.5rem;
+  width: 8rem;
+  font-size: 1rem;
+  background-color: var(--button-green);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-overlay.pago-parcial-modal .modal .modal-buttons  button:hover {
+  background-color: var(--button-hover-green);
+  scale: 1.05;
 }
