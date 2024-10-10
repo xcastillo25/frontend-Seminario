@@ -10,6 +10,7 @@ import { API_URL } from '../../config/config';
 const Perfil = ({ idempleado, setPlataformaVisible }) => {
     const [selectedEmpleado, setSelectedEmpleado] = useState(null); // Estado para almacenar los datos del empleado
     const [loadingSave, setLoadingSave] = useState(false);
+    const [loadingTel, setLoadingTel] = useState(false);
     const [editing, setEditing] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -76,7 +77,7 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
 
     const handleEditarTelefono = async () => {
         if (!validateForm()) return;
-        setLoadingSave(true);
+        setLoadingTel(true);
         try {
             if (selectedEmpleado && selectedEmpleado.idempleado) {
                 await axios.put(`${API_URL}/telefono-empleados/${selectedEmpleado.idempleado}`, selectedEmpleado);
@@ -87,7 +88,7 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
         } catch (error) {
             handleError(error, 'Error al guardar el empleado.');
         } finally {
-            setLoadingSave(false);
+            setLoadingTel(false);
         }
     };
 
@@ -198,7 +199,7 @@ const Perfil = ({ idempleado, setPlataformaVisible }) => {
                     </div>
                     <div className="row-button">
                     <button onClick={handleEditarTelefono} disabled={loadingSave}>
-                            {loadingSave ? 'Guardando...' : 'Cambiar teléfono'}
+                            {loadingTel ? 'Guardando...' : 'Cambiar teléfono'}
                         </button>
                     </div>
                 </div>
