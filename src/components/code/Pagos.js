@@ -185,32 +185,38 @@ const Pagos = () => {
     const fetchLecturasYPagos = async (idservicio) => {
         try {
             console.log('Obteniendo lecturas pagadas y pagos adelantados para el servicio:', idservicio);
-            
+    
             // Realizar ambas solicitudes en paralelo con Promise.all
-            const [lecturasPagadasRes, pagosAdelantadosRes] = await Promise.all([
+            const [lecturasPagadasRes, pagosAdelantadosRes] = await Promise.allSettled([
                 axios.get(`${API_URL}/lecturas-pagadas/${idservicio}`),
                 axios.get(`${API_URL}/pagos-adelantados/${idservicio}`)
             ]);
     
-            // Verificar y manejar las lecturas pagadas
-            if (lecturasPagadasRes.data && lecturasPagadasRes.data.lecturasPagadas) {
-                console.log('Lecturas pagadas:', lecturasPagadasRes.data.lecturasPagadas);
-                setLecturasPagadas(lecturasPagadasRes.data.lecturasPagadas);
-            } else {
+            // Manejo de lecturas pagadas
+            if (lecturasPagadasRes.status === 'fulfilled' && lecturasPagadasRes.value.status === 200) {
+                setLecturasPagadas(lecturasPagadasRes.value.data.lecturasPagadas || []);
+                console.log('Lecturas pagadas:', lecturasPagadasRes.value.data.lecturasPagadas);
+            } else if (lecturasPagadasRes.status === 'fulfilled' && lecturasPagadasRes.value.status === 404) {
+                // No hay lecturas pagadas, lo manejamos como una condición esperada
                 console.log('No se encontraron lecturas pagadas.');
-                setLecturasPagadas([]);  // Si no hay lecturas pagadas, se setea como un array vacío
-            }
-    
-            // Verificar y manejar los pagos adelantados
-            if (pagosAdelantadosRes.data && pagosAdelantadosRes.data.pagosAdelantados) {
-                console.log('Pagos adelantados:', pagosAdelantadosRes.data.pagosAdelantados);
-                setPagosAdelantados(pagosAdelantadosRes.data.pagosAdelantados);
+                setLecturasPagadas([]);  // Establecemos un array vacío si no hay lecturas pagadas
             } else {
-                console.log('No se encontraron pagos adelantados.');
-                setPagosAdelantados([]);  // Si no hay pagos adelantados, se setea como un array vacío
+                console.error('Error al obtener lecturas pagadas:', lecturasPagadasRes.reason);
             }
     
-            // Abrir el modal de pagos adelantados
+            // Manejo de pagos adelantados
+            if (pagosAdelantadosRes.status === 'fulfilled' && pagosAdelantadosRes.value.status === 200) {
+                setPagosAdelantados(pagosAdelantadosRes.value.data.pagosAdelantados || []);
+                console.log('Pagos adelantados:', pagosAdelantadosRes.value.data.pagosAdelantados);
+            } else if (pagosAdelantadosRes.status === 'fulfilled' && pagosAdelantadosRes.value.status === 404) {
+                // No hay pagos adelantados, lo manejamos como una condición esperada
+                console.log('No se encontraron pagos adelantados.');
+                setPagosAdelantados([]);  // Establecemos un array vacío si no hay pagos adelantados
+            } else {
+                console.error('Error al obtener pagos adelantados:', pagosAdelantadosRes.reason);
+            }
+    
+            // Abrir el modal de pagos adelantados si no hay errores
             setShowAdvancePaymentModal(true);
     
         } catch (error) {
@@ -218,6 +224,10 @@ const Pagos = () => {
             toast.error('Error al obtener lecturas pagadas o pagos adelantados');
         }
     };
+    
+    
+    
+    
     
     // Función para abrir el modal al hacer clic en "Pagos Adelantados"
     const handleAdvancePaymentClick = async (idservicio) => {
@@ -357,9 +367,32 @@ const Pagos = () => {
         }
     };
 
-    const handleConceptoPagoChange = (e) => {
-        setConceptoPago(e.target.value);
+    const handleConceptoPagoChange = () => {
+        // Mapear los meses seleccionados a sus nombres
+        const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+        // Convertir los meses seleccionados en un formato manejable y ordenarlos
+        const sortedSelectedMonths = selectedMonths
+            .map(monthStr => {
+                const [year, month] = monthStr.split('-').map(Number);
+                return { year, month };
+            })
+            .sort((a, b) => (a.year - b.year) || (a.month - b.month));
+    
+        // Generar el concepto de pago, uniendo los meses y años seleccionados
+        const conceptoPago = sortedSelectedMonths
+            .map(({ year, month }) => `${mesesNombres[month - 1]} ${year}`) // Formateamos "Mes Año"
+            .join(', '); // Unimos todos los meses seleccionados con comas
+    
+        // Establecer el concepto del pago en el estado
+        setConceptoPago(`Pagos adelantados para ${conceptoPago}`);
     };
+    
+    // Llama a handleConceptoPagoChange en el momento adecuado, por ejemplo, cuando se seleccionan los meses
+    useEffect(() => {
+        handleConceptoPagoChange();
+    }, [selectedMonths]); // Ejecutar cuando los meses seleccionados cambien
+    
 
   
     const handleModalPagarClick = async () => {
@@ -659,6 +692,11 @@ const Pagos = () => {
     
     // Función para comprobar si los meses son consecutivos
     const areConsecutive = (prevMonth, nextMonth) => {
+        // Si no hay mes previo, simplemente aceptamos el próximo mes como válido
+        if (!prevMonth) {
+            return true; // Si no existe un mes anterior, no hay restricción de consecutividad
+        }
+    
         const { year: prevYear, month: prevMonthNum } = prevMonth;
         const { year: nextYear, month: nextMonthNum } = nextMonth;
     
@@ -667,8 +705,10 @@ const Pagos = () => {
         } else if (nextYear === prevYear + 1) {
             return prevMonthNum === 12 && nextMonthNum === 1; // De diciembre a enero del año siguiente
         }
+    
         return false;
     };
+    
     
     
     const handleModalPagoClick = () => {
