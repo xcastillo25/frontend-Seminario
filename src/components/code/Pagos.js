@@ -465,14 +465,24 @@ const Pagos = () => {
     }; 
 
     const isMonthPaid = (year, month) => {
-        // Busca si una lectura pagada ya existe para ese año y mes
-        return lecturasPagadas.some(lectura => lectura.año === year && lectura.mes === month);
+        // Combinamos lecturas pagadas y pagos adelantados en un solo array
+        const combinedPayments = [
+            ...lecturasPagadas.map(lp => ({ año: parseInt(lp.año), mes: parseInt(lp.mes) })), // Convertimos año y mes a enteros
+            ...pagosAdelantados.map(pa => ({ año: parseInt(pa.año), mes: parseInt(pa.mes) })) // Convertimos año y mes a enteros
+        ];
+    
+        console.log('Combinación de pagos (convertido a enteros):', combinedPayments);
+    
+        // Verificamos si existe una lectura pagada o un pago adelantado para ese año y mes
+        return combinedPayments.some(payment => payment.año === parseInt(year) && payment.mes === parseInt(month));
     };
+    
 
     const isAdvancePaymentDone = (year, month) => {
-        // Busca si un pago adelantado ya existe para ese año y mes
+        // Verifica si un pago adelantado ya existe para ese año y mes
         return pagosAdelantados.some(pago => pago.año === year && pago.mes === month);
     };
+    
 
     const handleYearChangeLeft = (newYear) => {
         setSelectedYear1(newYear);
@@ -520,20 +530,31 @@ const Pagos = () => {
     
 
     const getLastPaidMonth = () => {
-        // Encuentra la última lectura pagada (la de mayor año y mes)
-        if (lecturasPagadas.length === 0) return null;
+        // Combinamos lecturas pagadas y pagos adelantados
+        const combinedPayments = [
+            ...lecturasPagadas.map(lp => ({ year: parseInt(lp.año), month: parseInt(lp.mes) })),
+            ...pagosAdelantados.map(pa => ({ year: parseInt(pa.año), month: parseInt(pa.mes) }))
+        ];
     
-        // Ordenar lecturas pagadas por año y mes de forma descendente
-        const sortedLecturas = [...lecturasPagadas].sort((a, b) => {
-            if (a.año !== b.año) return b.año - a.año;
-            return b.mes - a.mes;
+        if (combinedPayments.length === 0) return null;
+    
+        // Ordenar lecturas pagadas y pagos adelantados por año y mes de forma descendente
+        const sortedPayments = combinedPayments.sort((a, b) => {
+            if (a.year !== b.year) return b.year - a.year;
+            return b.month - a.month;
         });
     
-        return { year: sortedLecturas[0].año, month: sortedLecturas[0].mes };
+        // Retornar el último mes pagado o adelantado
+        return { year: sortedPayments[0].year, month: sortedPayments[0].month };
     };
     
     const isMonthSelectable = (year, month) => {
         const lastPaidMonth = getLastPaidMonth();
+    
+        // Si el mes ya ha sido pagado o tiene un pago adelantado, deshabilitar
+        if (isMonthPaid(year, month) || isAdvancePaymentDone(year, month)) {
+            return false;
+        }
     
         // Si no hay lecturas pagadas, todos los meses son seleccionables
         if (!lastPaidMonth) return true;
@@ -603,9 +624,9 @@ const Pagos = () => {
             return false;
         }
     
-        // Obtener el último mes pagado
-        const lastPaidMonth = getLastPaidMonth();
-    
+        // Obtener el último mes pagado (ya sea por adelantado o lecturas pagadas)
+        const lastPaidMonth = getLastPaidMonth(); // Modificar esta función para considerar tanto lecturas pagadas como pagos adelantados
+        
         // Convertir los meses seleccionados en un formato manejable y ordenarlos
         const sortedSelectedMonths = selectedMonths
             .map(monthStr => {
