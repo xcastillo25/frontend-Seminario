@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
 import MotorValidaciones from './MotorValidaciones';
-import { ValidaLetrasAlmacenar, ValidaLetrasyNumerosAlmacenar } from './ValidacionesAlmacenar';
+import { ValidaLetrasAlmacenar, ValidaLotesAlmacenar } from './ValidacionesAlmacenar';
 
 
 const Clientes = () => {
@@ -29,7 +29,7 @@ const Clientes = () => {
     useEffect(() => {
         //Validaciones
         MotorValidaciones.agregarEvento(manzanaRef.current, 'keypress', MotorValidaciones.validaSoloLetras);
-        MotorValidaciones.agregarEvento(loteRef.current, 'keypress', MotorValidaciones.validarNumerosYLetrasKeyPress);
+        MotorValidaciones.agregarEvento(loteRef.current, 'keypress', MotorValidaciones.validaLotesKeyPress);
 
 
         if (manzanaRef.current) {
@@ -37,7 +37,7 @@ const Clientes = () => {
         }
 
         if (loteRef.current) {
-            MotorValidaciones.agregarEvento(loteRef.current, 'blur', MotorValidaciones.validaLetrasYNumerosCompleto);
+            MotorValidaciones.agregarEvento(loteRef.current, 'blur', MotorValidaciones.validaLotesCompleto);
         }
 
         fetchLotes();
@@ -80,7 +80,7 @@ const Clientes = () => {
             return false;
         }
 
-        const resValidaLetrasyNumerosAlmacenar = ValidaLetrasyNumerosAlmacenar(selectedLote.lote, "Lote");
+        const resValidaLetrasyNumerosAlmacenar = ValidaLotesAlmacenar(selectedLote.lote, "Lote");
         if (!resValidaLetrasyNumerosAlmacenar.valido) {
             toast.error(resValidaLetrasyNumerosAlmacenar.mensaje);
             return false;

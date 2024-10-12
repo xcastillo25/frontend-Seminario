@@ -247,7 +247,35 @@ const MotorValidaciones = {
         }
       },
 
-      
+      validaLotesKeyPress: (event) => {
+        const codigoCaracter = event.which ? event.which : event.keyCode;
+        const caracter = String.fromCharCode(codigoCaracter);
+    
+        const caracteresValidos = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’-]+$/;
+    
+        if (!caracteresValidos.test(caracter)) {    
+          event.preventDefault(); 
+        }
+      },
+
+      validaLotesCompleto: (event) => {
+        const input = event.target;
+        const valor = input.value;
+        let resultado = true;
+
+        const formato = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’-]+$/;
+        const match = formato.exec(valor);
+
+        if(!match) {
+            resultado = false;
+        }
+
+        if (!resultado) {
+            input.style.background = "#F6B2B2";
+        } else {
+            input.style.background = "#ffffff";
+        }
+    },
 
 
 

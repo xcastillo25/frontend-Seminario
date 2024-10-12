@@ -13,18 +13,19 @@ import Lotes from './Lotes';
 import Lecturas from './Lecturas';
 import Perfil from './Perfil';
 import ViewPagos from './ViewPagos';
+import Inicio from './Inicio';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
   const [activeMenuItem, setActiveMenuItem] = useState('Overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [theme, setTheme] = useState('light');
-  const [topBarTitle, setTopBarTitle] = useState('Dashboard');
-  const [topBarIcon, setTopBarIcon] = useState('dashboard');
+  const [topBarTitle, setTopBarTitle] = useState('Inicio');
+  const [topBarIcon, setTopBarIcon] = useState('home');
   const { user } = useAuth();
 
 
-  const [plataformaVisible, setPlataformaVisible] = useState('plataformaActividades');
+  const [plataformaVisible, setPlataformaVisible] = useState('plataformaInicio');
   const [asideVisible, setAsideVisible] = useState(true);
   const asideRef = useRef(null);
 
@@ -85,6 +86,8 @@ const Dashboard = () => {
       }
     }else if (menuItem === 'ViewPagos') {
       mostrarPlataforma('plataformaViewPagos');
+    }else if (menuItem === 'Inicio') {
+      mostrarPlataforma('plataformaInicio');
     }
   };
 
@@ -113,6 +116,14 @@ const Dashboard = () => {
                 <span>Perfil</span>
               </a>
           */}
+          <a 
+            href="#inicio" 
+            className={`menu-item ${activeMenuItem === 'Inicio' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Inicio', 'Inicio', 'home')}
+          >
+            <span className="material-icons">home</span>
+            <span>Inicio</span>
+          </a>
           <a 
             href="#clientes" 
             className={`menu-item ${activeMenuItem === 'Clientes' ? 'active' : ''}`} 
@@ -253,6 +264,7 @@ const Dashboard = () => {
             <Perfil idempleado={user.usuario.idempleado} setPlataformaVisible={setPlataformaVisible} />
           )}
           {plataformaVisible === 'plataformaViewPagos' && <ViewPagos setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaInicio' && <Inicio setPlataformaVisible={setPlataformaVisible}/>}
 
         </section> 
       </main>

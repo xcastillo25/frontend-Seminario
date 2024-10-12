@@ -272,22 +272,40 @@ const Servicios = () => {
     }
 
     const validateForm = () => {
-        if
-            (
-            !selectedServicio || !selectedServicio.no_titulo ||
-            !selectedServicio.no_contador || !selectedServicio.estatus_contador ||
-            !selectedServicio.idconfiguracion || !selectedServicio.idcliente || !selectedServicio.idlote ||
-            !selectedServicio.anio_inicio_lectura || !selectedServicio.mes_inicio_lectura
-        ) {
-            toast.error('Todos los campos son obligatorios.');
-            console.log(selectedServicio);
-            return false;
+
+        if (selectedServicio && selectedServicio.idservicio) {
+            if (
+                !selectedServicio ||
+                !selectedServicio.no_titulo || 
+                !selectedServicio.no_contador || 
+                !selectedServicio.idconfiguracion ||
+                !selectedServicio.loteubicacion ||
+                !selectedServicio.idcliente ||
+                !selectedServicio.anio_inicio_lectura || 
+                !selectedServicio.mes_inicio_lectura
+            ) {
+                toast.error('Todos los campos son obligatorios.');
+                return false;
+            }
+        } else {
+            if(
+                !selectedServicio || 
+                !selectedServicio.no_titulo || 
+                !selectedServicio.no_contador ||
+                !selectedServicio.idconfiguracion ||
+                !selectedServicio.loteubicacion  ||
+                !selectedServicio.nombrecliente  ||
+                !selectedServicio.anio_inicio_lectura || 
+                !selectedServicio.mes_inicio_lectura
+            ){
+                toast.error('Todos los campos son obligatorios.');
+                return false;
+            }
         }
-
-
 
         return true;
     };
+    
 
     const validatePago = () => {
         if
@@ -306,14 +324,22 @@ const Servicios = () => {
     };
 
     const handleSave = async () => {
+        // Si es una inserción (no tiene idservicio), asignar "Pagando" como valor por defecto
+        const servicioAguardar = {
+            ...selectedServicio,
+            estatus_contador: selectedServicio?.idservicio ? selectedServicio.estatus_contador : (selectedServicio?.estatus_contador || 'Pagando'),
+        };
+    
         if (!validateForm()) return;
         setLoadingSave(true); 
         try {
-            if (selectedServicio && selectedServicio.idservicio) {
-                await axios.put(`${API_URL}/servicio/${selectedServicio.idservicio}`, selectedServicio);
+            if (servicioAguardar.idservicio) {
+                // Actualización
+                await axios.put(`${API_URL}/servicio/${servicioAguardar.idservicio}`, servicioAguardar);
                 toast.success('Servicio actualizado');
             } else {
-                await axios.post(`${API_URL}/servicio`, selectedServicio);
+                // Inserción
+                await axios.post(`${API_URL}/servicio`, servicioAguardar);
                 toast.success('Servicio creado');
             }
             fetchServicios();
@@ -324,6 +350,7 @@ const Servicios = () => {
             setLoadingSave(false);
         }
     };
+    
 
     const handleSavePagos = async () => {
         if (!validatePago()) return;
@@ -531,14 +558,16 @@ const Servicios = () => {
                     </div>
                     <div className="row">
                         <label className="servicios-label">Estatus:</label>
-                        <input
-                            className="servicios-input"
-                            type="text"
-                            placeholder="Estado actual del servicio"
+                        <select
+                            className="estatus-contador"
                             name="estatus_contador"
                             value={selectedServicio ? selectedServicio.estatus_contador : ''}
                             onChange={handleInputChange}
-                        />
+                        >
+                            <option value="Pagando">Pagando</option>
+                            <option value="Suspendido">Suspendido</option>
+                            <option value="Cortado">Cortado</option>
+                        </select>
                     </div>
                     <div className="row">
                         <label className="servicios-label">Mes Inicio Lectura:</label>
