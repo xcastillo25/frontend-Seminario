@@ -1,0 +1,583 @@
+.cards-wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.card {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 8px; 
+  padding: 0.8rem;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  max-width: 45%;
+  flex-basis: 45%;
+  height: auto;
+  max-height: 450px;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.select-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.select-dropdown {
+  padding: 0.3rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  width: 48%;
+}
+
+.chart-container,
+.pie-chart-container {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chart-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-top: 10px;
+  color: #233125; 
+}
+
+.chart-info p {
+  margin: 0 10px;
+  text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+  .card {
+    flex-basis: 100%;
+    max-width: 100%;
+    max-height: none;
+  }
+
+  .select-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .select-dropdown {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.inicio-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .inicio-section {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color);
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .inicio-title {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    font-weight: bold;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .inicio-data {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+  }
+  
+  .inicio-data .row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+  }
+
+  .inicio-data .row-button {
+    display: flex;
+    align-items: flex-end;
+    justify-content: left;
+  }
+
+  .inicio-data .row-button button {
+    height: 2.5rem;
+    width: 10rem;
+    font-size: 1rem;
+    background-color: var(--button-green);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .inicio-data .row-button button:hover {
+    background-color: var(--button-hover-green);
+    scale: 1.05;
+  }
+  
+  .inicio-label {
+    color: var(--color-label);
+    font-size: 1.1rem;
+  }
+  
+  .inicio-input {
+    border: 1px solid var(--input-border);
+    font-size: 1.1rem;
+    padding: 0 5px;
+    height: 1.8rem;
+    border-radius: 5px;
+  }
+
+  .lock{
+    background-color: rgb(224, 224, 224);
+  }
+  
+  .inicio-data-buttons {
+    display: flex;
+    flex-direction: row;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
+  
+  .inicio-button {
+    height: 2.5rem;
+    width: 8rem;
+    font-size: 1rem;
+    background-color: var(--button-green);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .inicio-button:hover {
+    background-color: var(--button-hover-green);
+    scale: 1.05;
+  }
+  
+  .inicio-buscar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .inicio-select {
+    border: 1px solid var(--input-border);
+    font-size: 1.1rem;
+    padding: 0 5px;
+    height: 1.8rem;
+    border-radius: 5px;
+    background-color: white;
+  }
+  
+  .inicio-table {
+    margin-top: 1rem;
+  }
+  
+  .inicio-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .inicio-table th,
+  .inicio-table td {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    color: var(--text-color);
+    text-align: center;
+  }
+  
+  .inicio-table th {
+    background-color: var(--table-header);
+    font-weight: bold;
+    color: var(--table-header-text);
+  }
+  
+  .inicio-table tr:nth-child(odd) td {
+    background-color: var(--table-cell-odd);
+  }
+  
+  .inicio-table tr:nth-child(even) td {
+    background-color: var(--table-cell-pair);
+  }
+  
+  .inicio-table tr:hover td {
+    background-color: var(--table-cell-hover);
+    color: white;
+    cursor: pointer;
+  }
+  
+  .inicio-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .eliminar-icon-button {
+    background-color: red;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .eliminar-icon {
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+  }
+  
+  .eliminar-icon:hover {
+    transform: scale(1.2);
+  }
+  
+  .status {
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .status.active {
+    background-color: #27ae60; /* Verde para estado activo */
+  }
+  
+  .status.inactive {
+    background-color: #e74c3c; /* Rojo para estado inactivo */
+  }
+  
+  /* Paginador */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .pagination button {
+    background-color: var(--button-green);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .pagination button:hover {
+    background-color: var(--button-hover-green);
+  }
+  
+  .pagination button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+  }
+  
+  /* Modal de confirmación */
+  .usuario-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .usuario-modal .modal-content {
+    width: 80%;
+    max-width: 50rem;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal h3 {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin: 0.5;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .usuario-confirm-button {
+    background-color: var(--dark-green);
+    color: white;
+    border: none;
+    padding: 0px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 3rem;
+    font-size: 1.1rem;
+  }
+  
+  .usuario-cancel-button {
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+    height: 3rem;
+    padding: 0px 20px;
+  }
+  
+  .usuario-confirm-button:hover,
+  .usuario-cancel-button:hover {
+    opacity: 0.9;
+    scale: 1.05;
+    background-color: #2ecc71;
+  }
+  
+  .confirm-button:active,
+  .cancel-button:active {
+    transform: scale(0.98);
+  }
+  
+  .usuario-icon-button {
+    background-color: #3498db;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 5px;
+  }
+  
+  .usuario-icon {
+    color: white;
+    font-size: 1.5rem;
+  }
+  
+  .usuario-icon-button:hover {
+    background-color: #2980b9;
+  }
+  
+  .usuario-modal-data {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .modal-body .row {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .inicio-data-password{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .inicio-data-password .row-password{
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .inicio-label-password{
+    margin-bottom: 1rem;
+  }
+
+  .inicio-data-password .row-password .password{
+    display: flex;
+    width: 100%;
+    border: 1px solid var(--input-border);
+    font-size: 1.1rem;
+    height: 1.8rem;
+    border-radius: 5px;
+    gap: 1rem;
+  }
+
+  .inicio-data-password .row-password .password input{
+    width: 100%;
+    border: none;
+    padding: 0 5px;
+    height: 100%;
+    background: none;
+  }
+  
+  .modal-label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .modal-input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+  }
+  
+  .confirm-button {
+    background-color: #27ae60;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-right: 0.5rem;
+  }
+  
+  .confirm-button:hover {
+    background-color: #2ecc71;
+  }
+  
+  .cancel-button {
+    background-color: #e74c3c;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .cancel-button:hover {
+    background-color: #c0392b;
+  }
+  
+  /* Tabla de usuarios en el modal */
+  .modal-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .modal-data-table th,
+  .modal-data-table td {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--text-color);
+  }
+  
+  .modal-data-table th {
+    background-color: var(--table-header);
+    font-weight: bold;
+    color: var(--table-header-text);
+  }
+  
+  .modal-data-table tr:nth-child(odd) td {
+    background-color: var(--table-cell-odd);
+  }
+  
+  .modal-data-table tr:nth-child(even) td {
+    background-color: var(--table-cell-pair);
+  }
+  
+  .modal-data-table tr:hover td {
+    background-color: var(--table-cell-hover);
+    color: white;
+    cursor: pointer;
+  }
+  
+  .reset-password-button {
+    background-color: #3498db;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  
+  .reset-password-button:hover {
+    background-color: #2980b9;
+  }
+  
+  .password-container {
+    position: relative;
+  }
+  
+  .password-toggle-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+
+  .inicio-buttons{
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .inicio-buttons button{
+    height: 2.5rem;
+    width: 7rem;
+    font-size: 1rem;
+    background-color: var(--button-green);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+   }
+    
+.inicio-buttons button:hover {
+    background-color: var(--button-hover-green);
+    scale: 1.05;
+}
+

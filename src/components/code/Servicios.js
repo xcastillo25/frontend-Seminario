@@ -281,13 +281,10 @@ const Servicios = () => {
                 !selectedServicio.idconfiguracion ||
                 !selectedServicio.loteubicacion ||
                 !selectedServicio.idcliente ||
-                !selectedServicio.estatus_contador ||
                 !selectedServicio.anio_inicio_lectura || 
                 !selectedServicio.mes_inicio_lectura
             ) {
                 toast.error('Todos los campos son obligatorios.');
-                console.log(selectedServicio)
-                console.log(selectedCliente)
                 return false;
             }
         } else {
@@ -295,17 +292,13 @@ const Servicios = () => {
                 !selectedServicio || 
                 !selectedServicio.no_titulo || 
                 !selectedServicio.no_contador ||
-                !selectedServicio.idconfiguracion || 
-                !selectedLote || 
-                !selectedLote.idlote ||
-                !selectedCliente || 
-                !selectedCliente.idcliente ||
+                !selectedServicio.idconfiguracion ||
+                !selectedServicio.loteubicacion  ||
+                !selectedServicio.nombrecliente  ||
                 !selectedServicio.anio_inicio_lectura || 
                 !selectedServicio.mes_inicio_lectura
             ){
                 toast.error('Todos los campos son obligatorios.');
-                console.log(selectedServicio)
-                console.log(selectedCliente)
                 return false;
             }
         }
@@ -331,14 +324,22 @@ const Servicios = () => {
     };
 
     const handleSave = async () => {
+        // Si es una inserción (no tiene idservicio), asignar "Pagando" como valor por defecto
+        const servicioAguardar = {
+            ...selectedServicio,
+            estatus_contador: selectedServicio?.idservicio ? selectedServicio.estatus_contador : (selectedServicio?.estatus_contador || 'Pagando'),
+        };
+    
         if (!validateForm()) return;
         setLoadingSave(true); 
         try {
-            if (selectedServicio && selectedServicio.idservicio) {
-                await axios.put(`${API_URL}/servicio/${selectedServicio.idservicio}`, selectedServicio);
+            if (servicioAguardar.idservicio) {
+                // Actualización
+                await axios.put(`${API_URL}/servicio/${servicioAguardar.idservicio}`, servicioAguardar);
                 toast.success('Servicio actualizado');
             } else {
-                await axios.post(`${API_URL}/servicio`, selectedServicio);
+                // Inserción
+                await axios.post(`${API_URL}/servicio`, servicioAguardar);
                 toast.success('Servicio creado');
             }
             fetchServicios();
@@ -349,6 +350,7 @@ const Servicios = () => {
             setLoadingSave(false);
         }
     };
+    
 
     const handleSavePagos = async () => {
         if (!validatePago()) return;
