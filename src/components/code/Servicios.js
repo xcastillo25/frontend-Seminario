@@ -62,7 +62,7 @@ const Servicios = () => {
     ];
 
     const currentYear = (new Date().getFullYear())+1;
-    const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
+    const years = Array.from({ length: 2 }, (_, i) => currentYear - i);
 
 
     const fetchServicios = async () => {
@@ -110,6 +110,15 @@ const Servicios = () => {
         }
     };
 
+
+    const convertirFechaParaInput = (fecha) => {
+        const date = new Date(fecha);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Añadir cero si es necesario
+        const day = String(date.getDate()).padStart(2, '0'); // Añadir cero si es necesario
+    
+        return `${year}-${month}-${day}`;
+    };
 
     const handleSelectServicio = (servicio) => {
         setSelectedServicio(servicio);
@@ -305,8 +314,23 @@ const Servicios = () => {
     };
     
 
+    const validatePago = () => {
+        if
+            (
+            !selectedPago || !selectedPago.nombre || !selectedPago.concepto ||
+            !selectedPago.fecha || !selectedPago.total|| !selectedPago.pagado
+        ) {
+            toast.error('Todos los campos son obligatorios.');
+            console.log(selectedServicio);
+            return false;
+        }
+
+
+
+        return true;
+    };
+
     const handleSave = async () => {
-        console.log('ser',selectedServicio)
         if (!validateForm()) return;
         setLoadingSave(true); 
         try {
@@ -327,7 +351,7 @@ const Servicios = () => {
     };
 
     const handleSavePagos = async () => {
-        //if (!validateForm()) return;
+        if (!validatePago()) return;
         setLoadingSavePagos(true); 
         try {
             if (selectedPago && selectedPago.idpago) {
@@ -622,8 +646,7 @@ const Servicios = () => {
                                 <th>Cliente</th>
                                 <th>No. Titulo</th>
                                 <th>No. Contador</th>
-                                <th>Mes Inicio</th>
-                                <th>Año Inicio</th>
+                                <th>Fecha Inicio</th>
                                 <th>Pago</th>
                                 <th>Estatus</th>
                                 <th>Estado</th>
@@ -638,8 +661,7 @@ const Servicios = () => {
                                     <td>{servicio.nombrecliente}</td>
                                     <td>{servicio.no_titulo}</td>
                                     <td>{servicio.no_contador}</td>
-                                    <td>{meses.find(mes => mes.value === servicio.mes_inicio_lectura)?.label}</td>
-                                    <td>{servicio.anio_inicio_lectura}</td>
+                                    <td>{(meses.find(mes => mes.value === servicio.mes_inicio_lectura)?.label)+' '+servicio.anio_inicio_lectura}</td>
 
                                     <td>
                                         <button className="status active" onClick={(e) => { e.stopPropagation(); handleShowPagos(servicio); }}>
@@ -903,7 +925,7 @@ const Servicios = () => {
                                             className="servicios-input"
                                             type="date"
                                             name="fecha"
-                                            value={selectedPago.fecha ? selectedPago.fecha: ''}
+                                            value={selectedPago.fecha ? convertirFechaParaInput(selectedPago.fecha): ''}
                                             onChange={handleInputChangePago}
                                         />
                                     </div> 
@@ -965,7 +987,7 @@ const Servicios = () => {
                                                 <tr key={pago.idpago} onClick={() => handleSelectPago(pago)}>
                                                     <td>{pago.nombre}</td>
                                                     <td>{pago.concepto}</td>
-                                                    <td>{pago.fecha}</td>
+                                                    <td>{new Date(pago.fecha).toLocaleDateString()}</td>
                                                     <td>{pago.total}</td>
                                                     <td>{pago.pendiente}</td>
                                                     <td>{pago.pagado}</td>
