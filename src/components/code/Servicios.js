@@ -643,11 +643,9 @@ const Servicios = () => {
                     <table className="servicios-data-table">
                         <thead>
                             <tr>
-                                <th>Configuracion</th>
                                 <th>Lote</th>
                                 <th>Cliente</th>
                                 <th>No. Titulo</th>
-                                <th>No. Contador</th>
                                 <th>Fecha Inicio</th>
                                 <th>Pago</th>
                                 <th>Estatus</th>
@@ -658,12 +656,10 @@ const Servicios = () => {
                         <tbody>
                             {currentServicios.map((servicio) => (
                                 <tr key={servicio.idservicio} onClick={() => handleSelectServicio(servicio)}>
-                                    <td>{servicio.servicio}</td>
                                     <td>{servicio.loteubicacion}</td>
                                     <td>{servicio.nombrecliente}</td>
                                     <td>{servicio.no_titulo}</td>
-                                    <td>{servicio.no_contador}</td>
-                                    <td>{(meses.find(mes => mes.value === servicio.mes_inicio_lectura)?.label)+' '+servicio.anio_inicio_lectura}</td>
+                                        <td>{(meses.find(mes => mes.value === servicio.mes_inicio_lectura)?.label)+' '+servicio.anio_inicio_lectura}</td>
 
                                     <td>
                                         <button className="status active" onClick={(e) => { e.stopPropagation(); handleShowPagos(servicio); }}>

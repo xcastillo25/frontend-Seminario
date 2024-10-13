@@ -101,6 +101,9 @@ input:-webkit-autofill {
 
 .empleados-data-table {
   width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  overflow-x: auto;
   border-collapse: collapse;
   margin-top: 20px;
 }
@@ -112,6 +115,9 @@ input:-webkit-autofill {
   text-align: left;
   color: var(--text-color);
   text-align: center;
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .empleados-table th {

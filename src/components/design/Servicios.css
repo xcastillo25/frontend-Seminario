@@ -112,6 +112,8 @@ input:-webkit-autofill {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: fixed; /* Hace que las columnas se distribuyan equitativamente */
+    overflow-x: auto;
   }
   
   .servicios-table th,
@@ -121,6 +123,9 @@ input:-webkit-autofill {
     text-align: left;
     color: var(--text-color);
     text-align: center;
+    overflow: hidden; /* Evita que el contenido desborde las celdas */
+    text-overflow: ellipsis; /* Muestra puntos suspensivos si el contenido es demasiado largo */
+    white-space: nowrap;
   }
   
   .servicios-table th {
