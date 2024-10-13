@@ -198,7 +198,7 @@ const Dashboard = () => {
           </a>
           
         </nav>
-{/* 
+
         <div className="community">
           <h4>Reportes</h4>
           <a 
@@ -226,7 +226,6 @@ const Dashboard = () => {
             <span>Historial Lecturas</span>
           </a>
         </div>
-*/}
 
       </aside>
       <main className="main-content">

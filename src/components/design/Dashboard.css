@@ -59,10 +59,12 @@ body {
 .dashboard-wrapper {
   display: flex;
   background-color: var(--medium-green);
+  overflow-x: hidden;
 }
 
 .sidebar {
   width: var(--sidebar-width);
+  flex-shrink: 0; 
   background-color: var(--medium-green);
   padding: 20px;
   display: flex;
