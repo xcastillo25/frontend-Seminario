@@ -24,7 +24,7 @@ const Dashboard = () => {
   const [topBarTitle, setTopBarTitle] = useState('Inicio');
   const [topBarIcon, setTopBarIcon] = useState('home');
   const { user } = useAuth();
-
+  const permisos = user.usuario
 
   const [plataformaVisible, setPlataformaVisible] = useState('plataformaInicio');
   const [asideVisible, setAsideVisible] = useState(true);
@@ -119,78 +119,78 @@ const Dashboard = () => {
             <span className="material-icons">home</span>
             <span>Inicio</span>
           </a>
-          <a 
+          { permisos.clientes && (<a 
             href="#clientes" 
             className={`menu-item ${activeMenuItem === 'Clientes' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Clientes', 'Clientes', 'person')}
           >
             <span className="material-icons">person</span>
             <span>Clientes</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.empleados &&(<a 
             href="#empleados" 
             className={`menu-item ${activeMenuItem === 'Empleados' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Empleados', 'Empleados', 'group')}
           >
             <span className="material-icons">group</span>
             <span>Empleados</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.lotes &&(<a 
             href="#lotes" 
             className={`menu-item ${activeMenuItem === 'Lotes' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Lotes', 'Lotes', 'map')}
           >
             <span className="material-icons">map</span>
             <span>Lotes</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.servicios &&(<a 
             href="#servicios" 
             className={`menu-item ${activeMenuItem === 'Servicios' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Servicios', 'Servicios', 'build')}
           >
             <span className="material-icons">build</span>
             <span>Servicios</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.roles && (<a 
             href="#roles" 
             className={`menu-item ${activeMenuItem === 'Roles' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Roles', 'Roles', 'admin_panel_settings')}
           >
             <span className="material-icons">admin_panel_settings</span>
             <span>Roles</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.usuarios &&(<a 
             href="#usuarios" 
             className={`menu-item ${activeMenuItem === 'Usuarios' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Usuarios', 'Usuarios', 'account_circle')}
           >
             <span className="material-icons">account_circle</span>
             <span>Usuarios</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.pagos &&(<a 
             href="#pagos" 
             className={`menu-item ${activeMenuItem === 'Pagos' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Pagos', 'Pagos', 'payment')}
           >
             <span className="material-icons">payment</span>
             <span>Pagos</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.lecturas &&(<a 
             href="#lecturas" 
             className={`menu-item ${activeMenuItem === 'Lecturas' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Lecturas', 'Lecturas', 'table_rows')}
           >
             <span className="material-icons">table_rows</span>
             <span>Lecturas</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.historial_pagos &&(<a 
             href="#ViewPagos" 
             className={`menu-item ${activeMenuItem === 'ViewPagos' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('ViewPagos', 'ViewPagos', 'request_quote')}
           >
             <span className="material-icons">request_quote</span>
             <span>View Pagos</span>
-          </a>
+          </a>)}
         </nav>
 
         <div className="community">
@@ -238,9 +238,9 @@ const Dashboard = () => {
             <span onClick={() => handleMenuClick('Perfil', 'Perfil', 'manage_accounts')} className="top-bar-button material-icons" >
               manage_accounts
             </span>
-            <span onClick={() => handleMenuClick('Configuracion', 'Configuracion', 'settings')} className="top-bar-button material-icons" >
+            {permisos.configuracion &&(<span onClick={() => handleMenuClick('Configuracion', 'Configuracion', 'settings')} className="top-bar-button material-icons" >
               settings
-            </span>
+            </span>)}
             <span className="top-bar-button material-icons" onClick={logout}>
               logout
             </span>
