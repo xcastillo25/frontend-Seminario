@@ -454,6 +454,48 @@ const Servicios = () => {
         
     ;
     
+    const getPaginationRange = (currentPage, totalPages) => {
+        const totalNumbersToShow = 3; // Total de páginas a mostrar antes del '...'
+        const totalButtons = 5; // Total de botones (páginas + ...)
+        let pages = [];
+    
+        if (totalPages <= totalButtons) {
+            // Mostrar todas las páginas si el número total es menor o igual al número de botones permitidos
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Mostrar las primeras páginas, "...", la página actual y las últimas páginas
+            let startPage = Math.max(1, currentPage - Math.floor(totalNumbersToShow / 2));
+            let endPage = Math.min(totalPages, currentPage + Math.floor(totalNumbersToShow / 2));
+    
+            // Mostrar primeras páginas
+            if (startPage > 2) {
+                pages.push(1, 2, '...');
+            } else {
+                startPage = 1;
+                endPage = Math.min(totalNumbersToShow, totalPages);
+            }
+    
+            // Rango de páginas centrales
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+    
+            // Mostrar últimas páginas
+            if (endPage < totalPages - 1) {
+                pages.push('...', totalPages);
+            } else if (endPage < totalPages) {
+                pages.push(totalPages);
+            }
+        }
+    
+        return pages;
+    };
+
+    const paginationRange = getPaginationRange(currentPage, Math.ceil(filteredServicios.length / rowsPerPage));
+    const paginationRangeLote = getPaginationRange(currentPage, Math.ceil(filteredLotes.length / rowsPerPage));
+    const paginationRangeCliente = getPaginationRange(currentPage, Math.ceil(filteredCliente.length / rowsPerPage));
 
     const indexOfLastPost = currentPage * rowsPerPage;
     const indexOfFirstPost = indexOfLastPost - rowsPerPage;
@@ -684,13 +726,24 @@ const Servicios = () => {
                     <div className="pagination">
                         <button onClick={() => paginate(1)} disabled={currentPage === 1}>Inicio</button>
                         <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
-                        {Array.from({ length: Math.ceil(filteredServicios.length / rowsPerPage) }, (_, index) => (
-                            <button key={index + 1} onClick={() => paginate(index + 1)}>
-                                {index + 1}
-                            </button>
-                        ))}
+
+                        {paginationRange.map((page, index) =>
+                            page === '...' ? (
+                                <span key={index} className="pagination-dots">...</span>
+                            ) : (
+                                <button
+                                    key={index}
+                                    onClick={() => paginate(page)}
+                                    className={currentPage === page ? 'active' : ''}
+                                >
+                                    {page}
+                                </button>
+                            )
+                        )}
+
                         <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(filteredServicios.length / rowsPerPage)}>Siguiente</button>
                         <button onClick={() => paginate(Math.ceil(filteredServicios.length / rowsPerPage))} disabled={currentPage === Math.ceil(filteredServicios.length / rowsPerPage)}>Último</button>
+
                         <select className="rows-per-page" value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
                             <option value="5">5</option>
                             <option value="10">10</option>
@@ -774,15 +827,29 @@ const Servicios = () => {
                                     <div className="pagination">
                                         <button onClick={() => paginateLotes(1)} disabled={currentPageLotes === 1}>Inicio</button>
                                         <button onClick={() => paginateLotes(currentPageLotes - 1)} disabled={currentPageLotes === 1}>Anterior</button>
-                                        {Array.from({ length: Math.ceil(filteredLotes.length / rowsPerPageLotes) }, (_, index) => (
-                                            <button key={index + 1} onClick={() => paginateLotes(index + 1)}>
-                                                {index + 1}
-                                            </button>
-                                        ))}
+
+                                        {paginationRangeLote.map((page, index) =>
+                                            page === '...' ? (
+                                                <span key={index} className="pagination-dots">...</span>
+                                            ) : (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => paginateLotes(page)}
+                                                    className={currentPageLotes === page ? 'active' : ''}
+                                                >
+                                                    {page}
+                                                </button>
+                                            )
+                                        )}
+
                                         <button onClick={() => paginateLotes(currentPageLotes + 1)} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPageLotes)}>Siguiente</button>
                                         <button onClick={() => paginateLotes(Math.ceil(filteredLotes.length / rowsPerPageLotes))} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPageLotes)}>Último</button>
+
                                         <select className="rows-per-page" value={rowsPerPageLotes} onChange={(e) => setRowsPerPageLotes(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
                                             <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="20">20</option>
+                                            <option value="50">50</option>
                                         </select>
                                     </div>
                                 </div>
@@ -864,15 +931,29 @@ const Servicios = () => {
                                     <div className="pagination">
                                         <button onClick={() => paginateClientes(1)} disabled={currentPageClientes === 1}>Inicio</button>
                                         <button onClick={() => paginateClientes(currentPageClientes - 1)} disabled={currentPageClientes === 1}>Anterior</button>
-                                        {Array.from({ length: Math.ceil(filteredCliente.length / rowsPerPageClientes) }, (_, index) => (
-                                            <button key={index + 1} onClick={() => paginateClientes(index + 1)}>
-                                                {index + 1}
-                                            </button>
-                                        ))}
+
+                                        {paginationRangeCliente.map((page, index) =>
+                                            page === '...' ? (
+                                                <span key={index} className="pagination-dots">...</span>
+                                            ) : (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => paginateClientes(page)}
+                                                    className={currentPageClientes === page ? 'active' : ''}
+                                                >
+                                                    {page}
+                                                </button>
+                                            )
+                                        )}
+
                                         <button onClick={() => paginateClientes(currentPageClientes + 1)} disabled={currentPageClientes === Math.ceil(filteredCliente.length / rowsPerPageClientes)}>Siguiente</button>
                                         <button onClick={() => paginateClientes(Math.ceil(filteredCliente.length / rowsPerPageClientes))} disabled={currentPageClientes === Math.ceil(filteredCliente.length / rowsPerPageClientes)}>Último</button>
+
                                         <select className="rows-per-page" value={rowsPerPageClientes} onChange={(e) => setRowsPerPageClientes(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
                                             <option value="5">5</option>
+                                            <option value="10">10</option>
+                                            <option value="20">20</option>
+                                            <option value="50">50</option>
                                         </select>
                                     </div>
                                 </div>
@@ -887,10 +968,8 @@ const Servicios = () => {
             )}
             {showPagoModal && (
                 <div className='servicio-modal' style={{zIndex: 1100}}>
-                    <div className='modal-content-pagos'>
+                    <div className='modal-content'>
                         <h3>Gestion de pagos relacionados al servicio</h3>
-                        <div className='modal-body'>
-                            <div className='modal-section'>
                                 <div className='servicios-data' >
                                     <div className="row">
                                         <label className="servicios-label">Tipo de pago:</label>
@@ -963,7 +1042,7 @@ const Servicios = () => {
                                         />
                                     </div>    
                                 </div>
-                                <div className='servicios-data-buttons'>
+                                <div className='servicios-data-buttons-servicio'>
                                         <button className="servicios-button" onClick={handleSavePagos} disabled={loadingSavePagos}>
                                             {loadingSavePagos ? (selectedPago && selectedPago.idpago ? 'Actualizando...' : 'Agregando...') : (selectedPago && selectedPago.idpago ? 'Actualizar' : 'Guardar')}
                                         </button>
@@ -997,10 +1076,7 @@ const Servicios = () => {
                                                </tr>
                                             ))}
                                         </tbody>
-                                    </table>
-
-                                </div>
-                            </div>   
+                                    </table> 
                         </div>
                         <div className='pagination'>
                             <button onClick={() => {setShowPagoModal(false); setSelectedPago(null); setSelectedServicio(null)}} className='lote-cancel-button'>Cerrar</button>

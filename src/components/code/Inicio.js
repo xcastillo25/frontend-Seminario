@@ -357,6 +357,7 @@ const Inicio = () => {
                 <div className="cards-wrapper">
                     {/* Primera Gráfica de Barras */}
                     <div className="card">
+                        <h4>Resumen de Lecturas Mensuales</h4>
                         <div className="select-row">
                             <select
                                 value={selectedYear}
@@ -403,6 +404,7 @@ const Inicio = () => {
 
                     {/* Nueva Gráfica de Pagos */}
                     <div className="card">
+                        <h4>Resumen de Pagos Mensuales</h4>
                         <div className="select-row">
                             <select
                                 value={newSelectedYear}
@@ -450,6 +452,7 @@ const Inicio = () => {
 
                     {/* Gráfica de Pie */}
                     <div className="card">
+                        <h4>Resumen de Estado de Servicios</h4>
                         <div className="pie-chart-container">
                             {pieData ? (
                                 <Pie

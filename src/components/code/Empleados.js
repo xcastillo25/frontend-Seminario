@@ -30,6 +30,7 @@ const Empleados = () => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     //ReferenciasValidaciones
     const telefonoRef = useRef(null);
@@ -146,17 +147,22 @@ const Empleados = () => {
     };
 
     const confirmDelete = async () => {
-        setLoadingSave(true);
+        setDeleting(true);
         try {
             await axios.delete(`${API_URL}/empleados/${empleadoToDelete}`);
             toast.success('Empleado eliminado');
             fetchEmpleados();
             clearForm();
         } catch (error) {
-            handleError(error, 'Error al eliminar el empleado.');
+            if (error.response && error.response.status === 409) {
+                // Si el servidor responde con un conflicto (status 409), significa que hay relaciones de claves foráneas
+                toast.error('No se puede eliminar el empleado porque tiene registros relacionados.');
+            } else {
+                handleError(error, 'No se puede eliminar este Empleado.');
+            }
         } finally {
             setShowModal(false);
-            setLoadingSave(false);
+            setDeleting(false);
         }
     };
 
@@ -379,6 +385,47 @@ const Empleados = () => {
         setIsUpdating(true);
     };
 
+    const getPaginationRange = (currentPage, totalPages) => {
+        const totalNumbersToShow = 3; // Total de páginas a mostrar antes del '...'
+        const totalButtons = 5; // Total de botones (páginas + ...)
+        let pages = [];
+    
+        if (totalPages <= totalButtons) {
+            // Mostrar todas las páginas si el número total es menor o igual al número de botones permitidos
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Mostrar las primeras páginas, "...", la página actual y las últimas páginas
+            let startPage = Math.max(1, currentPage - Math.floor(totalNumbersToShow / 2));
+            let endPage = Math.min(totalPages, currentPage + Math.floor(totalNumbersToShow / 2));
+    
+            // Mostrar primeras páginas
+            if (startPage > 2) {
+                pages.push(1, 2, '...');
+            } else {
+                startPage = 1;
+                endPage = Math.min(totalNumbersToShow, totalPages);
+            }
+    
+            // Rango de páginas centrales
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+    
+            // Mostrar últimas páginas
+            if (endPage < totalPages - 1) {
+                pages.push('...', totalPages);
+            } else if (endPage < totalPages) {
+                pages.push(totalPages);
+            }
+        }
+    
+        return pages;
+    };
+
+    const paginationRange = getPaginationRange(currentPage, Math.ceil(filteredEmpleados.length / rowsPerPage));
+
     return (
         <main className="empleados-container">
             <ToastContainer />
@@ -525,13 +572,24 @@ const Empleados = () => {
                     <div className="pagination">
                         <button onClick={() => paginate(1)} disabled={currentPage === 1}>Inicio</button>
                         <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
-                        {Array.from({ length: Math.ceil(filteredEmpleados.length / rowsPerPage) }, (_, index) => (
-                            <button key={index + 1} onClick={() => paginate(index + 1)}>
-                                {index + 1}
-                            </button>
-                        ))}
+
+                        {paginationRange.map((page, index) =>
+                            page === '...' ? (
+                                <span key={index} className="pagination-dots">...</span>
+                            ) : (
+                                <button
+                                    key={index}
+                                    onClick={() => paginate(page)}
+                                    className={currentPage === page ? 'active' : ''}
+                                >
+                                    {page}
+                                </button>
+                            )
+                        )}
+
                         <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(filteredEmpleados.length / rowsPerPage)}>Siguiente</button>
                         <button onClick={() => paginate(Math.ceil(filteredEmpleados.length / rowsPerPage))} disabled={currentPage === Math.ceil(filteredEmpleados.length / rowsPerPage)}>Último</button>
+
                         <select className="rows-per-page" value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
                             <option value="5">5</option>
                             <option value="10">10</option>
@@ -548,7 +606,13 @@ const Empleados = () => {
                         <span className="material-icons modal-icon">warning</span>
                         <h3>¿Estás seguro que deseas eliminar este registro?</h3>
                         <div className="modal-buttons">
-                            <button onClick={confirmDelete} className="confirm-button" disabled={loadingSave}>Eliminar</button>
+                            <button 
+                                onClick={confirmDelete} 
+                                className="confirm-button" 
+                                disabled={deleting}  // Deshabilitar el botón mientras se está eliminando
+                            >
+                                {deleting ? 'Eliminando...' : 'Eliminar'}
+                            </button>
                             <button onClick={cancelDelete} className="cancel-button" disabled={loadingSave}>Cancelar</button>
                         </div>
                     </div>

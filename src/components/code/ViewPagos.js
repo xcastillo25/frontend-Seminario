@@ -58,7 +58,7 @@ const PagosTable = () => {
     const currentRows = filteredPagos.slice(indexOfFirstRow, indexOfLastRow);
 
     return (
-        <div className="pagos-container">
+        <div>
             <section className="pagos-section">
                 <h1 className="pagos-title">Historial de Pagos</h1>
                 <div className="search-filters">

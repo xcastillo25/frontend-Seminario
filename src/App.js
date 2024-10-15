@@ -3,12 +3,17 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './components/code/ContextAuth.js';
 
 import Dashboard from './components/code/Dashboard';
-// import AdminDashboard from './components/code/AdminDashboard';
 import Login from './components/code/Login';
-// import AdminLogin from './components/code/AdminLogin';
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Si el estado de autenticación está en proceso de carga, puedes mostrar un loader
+  if (isLoading) {
+    return <div>Loading...</div>; // O tu componente de carga
+  }
+
+  // Si el usuario no está autenticado, redirigir al login
   return isAuthenticated ? children : <Navigate to="/session" replace />;
 }
 
@@ -18,9 +23,17 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+            {/* Ruta raíz redirige a la sesión */}
             <Route path="/" element={<Navigate to="/session" replace />} />
-            {/* <Route path="/home" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
-            <Route path="/home" element={<Dashboard />} />
+            
+            {/* Ruta protegida */}
+            <Route path="/home" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Ruta pública */}
             <Route path="/session" element={<Login />} />
           </Routes>
         </div>
