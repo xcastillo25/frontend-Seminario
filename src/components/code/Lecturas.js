@@ -57,7 +57,7 @@ const LecturasTable = () => {
     const currentRows = filteredLecturas.slice(indexOfFirstRow, indexOfLastRow);
 
     return (
-        <div className="lecturas-container">
+        <div >
             <section className="lecturas-section">
                 <h1 className="lecturas-title">Lecturas</h1>
                 <div className="search-filters">
