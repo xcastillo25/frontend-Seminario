@@ -1042,7 +1042,7 @@ const Servicios = () => {
                                         />
                                     </div>    
                                 </div>
-                                <div className='servicios-data-buttons-servicio'>
+                                <div className='servicios-data-buttons'>
                                         <button className="servicios-button" onClick={handleSavePagos} disabled={loadingSavePagos}>
                                             {loadingSavePagos ? (selectedPago && selectedPago.idpago ? 'Actualizando...' : 'Agregando...') : (selectedPago && selectedPago.idpago ? 'Actualizar' : 'Guardar')}
                                         </button>
