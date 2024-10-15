@@ -452,8 +452,7 @@ input:-webkit-autofill {
   margin:0;
 }
 
-.servicio-modal .modal-conent .servicios-data-buttons-servicio{
-  margin-top:1rem;
-
+.servicios-data-buttons-servicio{
+  gap: 1rem;
 }
 

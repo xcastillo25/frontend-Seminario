@@ -209,7 +209,7 @@ const Dashboard = () => {
             onClick={() => handleMenuClick('Historial Acciones', 'Historial Acciones', 'timeline')}
           >
             <span className="material-icons">timeline</span>
-            <span>Historial Acciones</span>
+            <span>Historial Usuarios</span>
           </a>
           <a 
             href="#historial-lecturas" 
