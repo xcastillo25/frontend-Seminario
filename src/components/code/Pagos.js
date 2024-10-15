@@ -144,22 +144,26 @@ const Pagos = () => {
         }
     };
 
-    const filterServicio = () => {
+    const filterServicio = async () => {
         const filtered = servicios.find(servicio => {
             const valueToFilter = filterColumn.includes('clientes.')
                 ? servicio.clientes[filterColumn.split('.')[1]]
                 : servicio.lotes[filterColumn.split('.')[1]];
-
+    
             return valueToFilter?.toLowerCase().includes(searchTerm.toLowerCase());
         });
+    
+        // Limpiar las lecturas antes de cargar las nuevas
+        setLecturas([]); 
+    
         if (filtered) {
             setFilteredServicio(filtered);
-            fetchLecturas(filtered.idservicio); // Cargar lecturas del servicio filtrado
+            await fetchLecturas(filtered.idservicio); // Cargar lecturas del servicio filtrado
         } else {
             setFilteredServicio(null);
-            setLecturas([]); // Limpiar lecturas si no hay servicio seleccionado
         }
     };
+    
 
     const generateYears = () => {
         const startYear = 2020;
@@ -225,6 +229,16 @@ const Pagos = () => {
         }
     };
     
+    const handlePagoExitoso = async () => {
+        try {
+            // Hacer la llamada a la API para obtener las lecturas actualizadas
+            const response = await axios.get(`${API_URL}/lecturas-idservicio/${selectedServicio.idservicio}`);
+            setLecturas(response.data.lecturas || []);
+        } catch (error) {
+            console.error('Error al actualizar lecturas:', error);
+        }
+    };
+    
     
     
     
@@ -278,15 +292,21 @@ const Pagos = () => {
         setFilterColumn(e.target.value);
     };
 
-    const handleSearchClick = () => {
+    const handleSearchClick = async () => {
         if (!searchTerm.trim()) {
-            // Si el campo de búsqueda está vacío, muestra un error con toast
             toast.error("No se ha ingresado ningún dato en el campo de búsqueda");
             return;
         }
-        // Si hay datos en el campo de búsqueda, aplica el filtro
-        filterServicio();
+    
+        // Limpiar lecturas, pagos y cualquier dato anterior
+        setLecturas([]);
+        setPagos([]);
+        setTotalPago(0);
+        setFilteredServicio(null);
+    
+        await filterServicio(); // Llamar a la función de filtro
     };
+    
     
     const handleError = (error, defaultMessage) => {
         const errorMessage = error.response && error.response.data && error.response.data.message
@@ -464,9 +484,11 @@ const Pagos = () => {
         // Si llegamos aquí, el pago se realizó con éxito
         toast.success('Pago realizado con éxito');
     
+        handleReset();
         // Volver a buscar las lecturas después del pago
         await fetchLecturas(selectedServicio.idservicio);
-    
+        handlePagoExitoso();
+        
         setLoadingPayment(false);  // Desbloquear el botón
         setShowModal(false);  // Cerrar el modal
     };  
@@ -731,7 +753,11 @@ const Pagos = () => {
     };
     
     const handlePagoModalClose = () => {
-        setShowModalPagoAdelantado(false); 
+        setShowModalPagoAdelantado(false);
+        setValorRecibido('');
+        setCambio('0.00');
+        setConceptoPago('');
+
     };
     
     const handlePagoModalClick = async () => {
@@ -781,10 +807,17 @@ const Pagos = () => {
     
             toast.success('Pagos adelantados registrados con éxito');
     
-            // Actualizar el estado o realizar cualquier acción posterior al pago
-            handleReset();
+            setSelectedMonths([]);  // Limpiar los meses seleccionados
+            setTotalToPay(0);       // Reiniciar el total a pagar
+            setDiscount(0);         // Reiniciar el descuento
+            setSelectedQuickOption(null);  // Limpiar la opción de selección rápida (si se usa) 
+            setValorRecibido('');     // Limpiar el valor recibido
+            setCambio('0.00');        // Limpiar el cambio
+            setConceptoPago('');
+
             setShowModalPagoAdelantado(false);
-    
+            await fetchLecturasYPagos(filteredServicio.idservicio);
+            setShowAdvancePaymentModal(true);
         } catch (error) {
             console.error('Error al registrar los pagos adelantados:', error);
             toast.error('Error al registrar los pagos adelantados');
@@ -876,7 +909,6 @@ const Pagos = () => {
                                 <thead>
                                     <tr>
                                         <th>Año</th>
-                                        <th>Mes</th>
                                         <th>Lectura</th>
                                         <th>Cuota</th>
                                         <th>% Mora</th>
@@ -885,7 +917,7 @@ const Pagos = () => {
                                         <th>Monto Acumulado</th>
                                         <th>Exceso</th>
                                         <th>Monto Exceso</th>
-                                        <th>Total Excesos</th>
+                                        {/* <th>Total Excesos</th> */}
                                         <th>Suma Total</th>
                                     </tr>
                                 </thead>
@@ -901,8 +933,7 @@ const Pagos = () => {
                                             const porcentajeMora = `${(lectura.porcentaje_acumulado * 100).toFixed(0)}%`;
                                             return (
                                                 <tr key={lectura.idlectura}>
-                                                    <td>{lectura.año}</td>
-                                                    <td>{mesNombre}</td>
+                                                    <td>{mesNombre} {lectura.año}</td>
                                                     <td>{lectura.lectura}</td>
                                                     <td>{lectura.cuota}</td>
                                                     <td>{porcentajeMora}</td>
@@ -911,7 +942,7 @@ const Pagos = () => {
                                                     <td>{lectura.monto_acumulado}</td>
                                                     <td>{lectura.exceso}</td>
                                                     <td>{lectura.monto_exceso}</td>
-                                                    <td>{lectura.total}</td>
+                                                    {/* <td>{lectura.total}</td> */}
                                                     <td>{lectura.suma_total}</td>
                                                 </tr>
                                             );

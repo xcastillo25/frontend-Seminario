@@ -14,6 +14,7 @@ import Lecturas from './Lecturas';
 import Perfil from './Perfil';
 import ViewPagos from './ViewPagos';
 import Inicio from './Inicio';
+import HistorialServicios from './HistorialServicios';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -42,8 +43,10 @@ const Dashboard = () => {
 
   const logout = () => {
     localStorage.removeItem('token');
-    navigate('/session');
+    localStorage.removeItem('user');
+    navigate('/session', { replace: true });  // Redirige al inicio de sesión y reemplaza el historial
   };
+  
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
@@ -88,6 +91,8 @@ const Dashboard = () => {
       mostrarPlataforma('plataformaViewPagos');
     }else if (menuItem === 'Inicio') {
       mostrarPlataforma('plataformaInicio');
+    }else if (menuItem === 'Historial Servicios') {
+      mostrarPlataforma('plataformaHistorialServicios');
     }
   };
 
@@ -106,16 +111,6 @@ const Dashboard = () => {
         </div>
         <nav className="menu">
           <h4>MENU</h4>
-          {/* 
-              <a 
-                href="#perfil" 
-                className={`menu-item ${activeMenuItem === 'Perfil' ? 'active' : ''}`} 
-                onClick={() => handleMenuClick('Perfil', 'Perfil', 'manage_accounts')}
-              >
-                <span className="material-icons">manage_accounts</span>
-                <span>Perfil</span>
-              </a>
-          */}
           <a 
             href="#inicio" 
             className={`menu-item ${activeMenuItem === 'Inicio' ? 'active' : ''}`} 
@@ -196,7 +191,6 @@ const Dashboard = () => {
             <span className="material-icons">request_quote</span>
             <span>View Pagos</span>
           </a>
-          
         </nav>
 
         <div className="community">
@@ -267,7 +261,7 @@ const Dashboard = () => {
           )}
           {plataformaVisible === 'plataformaViewPagos' && <ViewPagos setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaInicio' && <Inicio setPlataformaVisible={setPlataformaVisible}/>}
-
+          {plataformaVisible === 'plataformaHistorialServicios' && <HistorialServicios setPlataformaVisible={setPlataformaVisible}/>}
         </section> 
       </main>
     </div>

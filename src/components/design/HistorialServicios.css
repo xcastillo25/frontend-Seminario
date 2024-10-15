@@ -1,0 +1,36 @@
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+    box-shadow: 0 0 0 1000px #ffffff inset !important;
+    background-color: #ffffff !important;
+  }
+  
+  .historial-servicios-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .historial-servicios-section {
+      display: flex;
+      flex-direction: column;
+      background-color: var(--background-color);
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .historial-servicios-title {
+        font-size: 1.1rem;
+        color: var(--text-color);
+        font-weight: bold;
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 1rem;
+      }
+
+    .historial-pagos-data {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        width: 100%;
+    }
