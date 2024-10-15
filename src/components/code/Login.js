@@ -62,7 +62,17 @@ const Login = () => {
                     nombre: response.data.nombre,
                     apellidos: response.data.apellidos,
                     foto: response.data.foto,
-                    rol: response.data.rol  
+                    rol: response.data.rol,
+                    clientes: response.data.clientes,
+                    empleados: response.data.empleados,
+                    lotes: response.data.lotes,
+                    servicios: response.data.servicios,
+                    roles: response.data.roles,
+                    usuarios: response.data.usuarios,
+                    pagos: response.data.pagos,
+                    lecturas: response.data.lecturas,
+                    configuracion: response.data.configuracion,
+                    historial_pagos: response.data.historial_pagos   
                 }
             });
 
