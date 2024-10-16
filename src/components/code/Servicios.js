@@ -34,16 +34,17 @@ const Servicios = () => {
     const [loadingToggle, setLoadingToggle] = useState(false);
     const [loadingSavePagos, setLoadingSavePagos] = useState(false);
     const [loadingTogglePagos, setLoadingTogglePagos] = useState(false);
-    const [configuraciones, setConfiguraciones] =useState([]);
-    const [lotes, setLotes] =useState([]);
-    const [pagos, setPagos] =useState([]);
-    const [clientes, setClientes] =useState([]);
+    const [configuraciones, setConfiguraciones] = useState([]);
+    const [lotes, setLotes] = useState([]);
+    const [pagos, setPagos] = useState([]);
+    const [clientes, setClientes] = useState([]);
     const [selectedLote, setSelectedLote] = useState(null);
     const [selectedPago, setSelectedPago] = useState(null);
     const [isLoteSelected, setIsLoteSelected] = useState(false);
     const [selectedCliente, setSelectedCliente] = useState(null);
     const [isClienteSelected, setIsClienteSelected] = useState(false);
     const [currentPago, setCurrentPago] = useState(null)
+
 
     useEffect(() => {
         fetchServicios();
@@ -61,7 +62,7 @@ const Servicios = () => {
         { value: 10, label: 'Octubre' }, { value: 11, label: 'Noviembre' }, { value: 12, label: 'Diciembre' }
     ];
 
-    const currentYear = (new Date().getFullYear())+1;
+    const currentYear = (new Date().getFullYear()) + 1;
     const years = Array.from({ length: 2 }, (_, i) => currentYear - i);
 
 
@@ -116,7 +117,7 @@ const Servicios = () => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Añadir cero si es necesario
         const day = String(date.getDate()).padStart(2, '0'); // Añadir cero si es necesario
-    
+
         return `${year}-${month}-${day}`;
     };
 
@@ -132,9 +133,9 @@ const Servicios = () => {
 
     const handleSelectLote = (lote) => {
         const existe = filteredServicios.find(
-            (servicio) => servicio.idlote === lote.idlote  
+            (servicio) => servicio.idlote === lote.idlote
         )
-        if(existe){
+        if (existe) {
             toast.error('Este lote ya esta ligado a un servicio, seleccione otro');
             return;
         }
@@ -154,7 +155,7 @@ const Servicios = () => {
 
     const seleccionarLote = () => {
         const lote = selectedLote;
-        if(lote){
+        if (lote) {
             setSelectedServicio({
                 ...selectedServicio,
                 idlote: lote.idlote,
@@ -162,7 +163,7 @@ const Servicios = () => {
             })
             setShowLotesModal(false);
             setSelectedLote(null);
-        }else{
+        } else {
             toast.error('Por favor seleccione un lote antes de continuar')
         }
     }
@@ -170,15 +171,15 @@ const Servicios = () => {
 
     const seleccionarCliente = () => {
         const cliente = selectedCliente;
-        if(cliente){
+        if (cliente) {
             setSelectedServicio({
                 ...selectedServicio,
-                nombrecliente: cliente.nombre+' '+cliente.apellidos,
+                nombrecliente: cliente.nombre + ' ' + cliente.apellidos,
                 idcliente: cliente.idcliente
             })
             setShowClientesModal(false);
             setSelectedCliente(null);
-        }else{
+        } else {
             toast.error('Por favor seleccione un cliente antes de continuar')
         }
     }
@@ -199,42 +200,42 @@ const Servicios = () => {
         setEditing(true);
     };
 
-    
+
     const handleInputChangePago4 = (e) => {
         setSelectedPago({
             ...selectedPago,
             [e.target.name]: e.target.value,
-            pendiente: e.target.value - (selectedPago.pagado?selectedPago.pagado:0)
+            pendiente: e.target.value - (selectedPago.pagado ? selectedPago.pagado : 0)
         });
         setEditing(true);
     };
-    
+
     const handleInputChangePago3 = (e) => {
         setSelectedPago({
             ...selectedPago,
             [e.target.name]: e.target.value,
-            pendiente: (selectedPago.total - e.target.value)!==0 ? (selectedPago.total - e.target.value) : '0'
+            pendiente: (selectedPago.total - e.target.value) !== 0 ? (selectedPago.total - e.target.value) : '0'
         });
         setEditing(true);
     };
-    
+
     const handleInputChangePago2 = (e) => {
         const pago = selectedPago;
-        if(!pago.idpago){
+        if (!pago.idpago) {
             let total = null;
-            if (e.target.value==='Instalación'){
-                const existe = filteredPagos.find((pago) => pago.nombre==='Instalación')
-                if (existe){
+            if (e.target.value === 'Instalación') {
+                const existe = filteredPagos.find((pago) => pago.nombre === 'Instalación')
+                if (existe) {
                     toast.error('Ya existe un pago de instalación, puede seleccionarlo en la lista si desea actualizarlo');
-                    
+
                     return;
                 }
                 total = selectedServicio.cuota_instalacion;
-            }else if(e.target.value==='Conexión'){
-                const existe = filteredPagos.find((pago) => pago.nombre==='Conexión')
-                if (existe){
+            } else if (e.target.value === 'Conexión') {
+                const existe = filteredPagos.find((pago) => pago.nombre === 'Conexión')
+                if (existe) {
                     toast.error('Ya existe un pago de conexión, puede seleccionarlo en la lista si desea actualizarlo');
-                    
+
                     return;
                 }
                 total = selectedServicio.cuota_conexion;
@@ -247,11 +248,11 @@ const Servicios = () => {
             });
             setEditing(true);
             return;
-        }else{
+        } else {
             toast.error('No se puede cambiar el tipo de pago de un pago que ya ha sido creado')
         }
     };
-    
+
 
     const handleShowLotes = () => {
         setShowLotesModal(true);
@@ -261,7 +262,7 @@ const Servicios = () => {
         setShowClientesModal(true);
     }
 
-    const handleShowPagos = (servicio) =>{
+    const handleShowPagos = (servicio) => {
         setSelectedServicio(servicio);
         setSearchTermPagos(servicio.idservicio);
         setSelectedPago({
@@ -276,28 +277,28 @@ const Servicios = () => {
         if (selectedServicio && selectedServicio.idservicio) {
             if (
                 !selectedServicio ||
-                !selectedServicio.no_titulo || 
-                !selectedServicio.no_contador || 
+                !selectedServicio.no_titulo ||
+                !selectedServicio.no_contador ||
                 !selectedServicio.idconfiguracion ||
                 !selectedServicio.loteubicacion ||
                 !selectedServicio.idcliente ||
-                !selectedServicio.anio_inicio_lectura || 
+                !selectedServicio.anio_inicio_lectura ||
                 !selectedServicio.mes_inicio_lectura
             ) {
                 toast.error('Todos los campos son obligatorios.');
                 return false;
             }
         } else {
-            if(
-                !selectedServicio || 
-                !selectedServicio.no_titulo || 
+            if (
+                !selectedServicio ||
+                !selectedServicio.no_titulo ||
                 !selectedServicio.no_contador ||
                 !selectedServicio.idconfiguracion ||
-                !selectedServicio.loteubicacion  ||
-                !selectedServicio.nombrecliente  ||
-                !selectedServicio.anio_inicio_lectura || 
+                !selectedServicio.loteubicacion ||
+                !selectedServicio.nombrecliente ||
+                !selectedServicio.anio_inicio_lectura ||
                 !selectedServicio.mes_inicio_lectura
-            ){
+            ) {
                 toast.error('Todos los campos son obligatorios.');
                 return false;
             }
@@ -305,13 +306,13 @@ const Servicios = () => {
 
         return true;
     };
-    
+
 
     const validatePago = () => {
         if
             (
             !selectedPago || !selectedPago.nombre || !selectedPago.concepto ||
-            !selectedPago.fecha || !selectedPago.total|| !selectedPago.pagado
+            !selectedPago.fecha || !selectedPago.total || !selectedPago.pagado
         ) {
             toast.error('Todos los campos son obligatorios.');
             console.log(selectedServicio);
@@ -329,9 +330,9 @@ const Servicios = () => {
             ...selectedServicio,
             estatus_contador: selectedServicio?.idservicio ? selectedServicio.estatus_contador : (selectedServicio?.estatus_contador || 'Pagando'),
         };
-    
+
         if (!validateForm()) return;
-        setLoadingSave(true); 
+        setLoadingSave(true);
         try {
             if (servicioAguardar.idservicio) {
                 // Actualización
@@ -350,11 +351,11 @@ const Servicios = () => {
             setLoadingSave(false);
         }
     };
-    
+
 
     const handleSavePagos = async () => {
         if (!validatePago()) return;
-        setLoadingSavePagos(true); 
+        setLoadingSavePagos(true);
         try {
             if (selectedPago && selectedPago.idpago) {
                 await axios.put(`${API_URL}/pagoser/${selectedPago.idpago}`, selectedPago);
@@ -368,7 +369,7 @@ const Servicios = () => {
         } catch (error) {
             handleError(error, 'Error al guardar el Pago.');
         } finally {
-            setLoadingSavePagos(false); 
+            setLoadingSavePagos(false);
         }
     };
 
@@ -424,7 +425,7 @@ const Servicios = () => {
         setSelectedPago({
             idservicio: selectedServicio.idservicio
         });
-        setLoadingTogglePagos(false); 
+        setLoadingTogglePagos(false);
         setEditingPagos(false);
     };
 
@@ -450,52 +451,55 @@ const Servicios = () => {
     );
 
     const filteredPagos = pagos.filter((pago) =>
-        pago.idservicio===searchTermPagos)
-        
-    ;
-    
-    const getPaginationRange = (currentPage, totalPages) => {
-        const totalNumbersToShow = 3; // Total de páginas a mostrar antes del '...'
-        const totalButtons = 5; // Total de botones (páginas + ...)
-        let pages = [];
-    
-        if (totalPages <= totalButtons) {
-            // Mostrar todas las páginas si el número total es menor o igual al número de botones permitidos
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i);
-            }
-        } else {
-            // Mostrar las primeras páginas, "...", la página actual y las últimas páginas
-            let startPage = Math.max(1, currentPage - Math.floor(totalNumbersToShow / 2));
-            let endPage = Math.min(totalPages, currentPage + Math.floor(totalNumbersToShow / 2));
-    
-            // Mostrar primeras páginas
-            if (startPage > 2) {
-                pages.push(1, 2, '...');
-            } else {
-                startPage = 1;
-                endPage = Math.min(totalNumbersToShow, totalPages);
-            }
-    
-            // Rango de páginas centrales
-            for (let i = startPage; i <= endPage; i++) {
-                pages.push(i);
-            }
-    
-            // Mostrar últimas páginas
-            if (endPage < totalPages - 1) {
-                pages.push('...', totalPages);
-            } else if (endPage < totalPages) {
-                pages.push(totalPages);
-            }
-        }
-    
-        return pages;
-    };
+        pago.idservicio === searchTermPagos);
 
-    const paginationRange = getPaginationRange(currentPage, Math.ceil(filteredServicios.length / rowsPerPage));
-    const paginationRangeLote = getPaginationRange(currentPage, Math.ceil(filteredLotes.length / rowsPerPage));
-    const paginationRangeCliente = getPaginationRange(currentPage, Math.ceil(filteredCliente.length / rowsPerPage));
+    
+
+        const getPaginationRange = (currentPage, totalPages) => {
+            const totalNumbersToShow = 3; // Mostrar 3 páginas en el centro (incluyendo la actual)
+            const totalButtons = 5; // Total de botones de paginación (páginas + ...)
+            let pages = [];
+    
+            if (totalPages <= totalButtons) {
+                // Mostrar todas las páginas si el total es menor o igual al número permitido de botones
+                for (let i = 1; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                // Mostrar siempre la primera página
+                pages.push(1);
+    
+                // Si la página actual es mayor que 4, mostrar el '...'
+                if (currentPage > totalNumbersToShow) {
+                    pages.push('...');
+                }
+    
+                // Definir el rango de páginas centrales usando `totalNumbersToShow`
+                let startPage = Math.max(2, currentPage - Math.floor(totalNumbersToShow / 2)); // Comenzar antes de la actual
+                let endPage = Math.min(totalPages - 1, currentPage + Math.floor(totalNumbersToShow / 2)); // Terminar después de la actual
+    
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+    
+                // Si estamos a más de `totalNumbersToShow` páginas del final, mostrar el '...'
+                if (endPage < totalPages - 1) {
+                    pages.push('...');
+                }
+    
+                // Mostrar siempre la última página
+                if (endPage < totalPages) {
+                    pages.push(totalPages);
+                }
+            }
+    
+            return pages;
+        };
+        
+
+    const paginationRangeServicios = getPaginationRange(currentPage, Math.ceil(filteredServicios.length / rowsPerPage));
+    const paginationRangeLotes = getPaginationRange(currentPageLotes, Math.ceil(filteredLotes.length / rowsPerPage));
+    const paginationRangeCliente = getPaginationRange(currentPageClientes, Math.ceil(filteredCliente.length / rowsPerPage));
 
     const indexOfLastPost = currentPage * rowsPerPage;
     const indexOfFirstPost = indexOfLastPost - rowsPerPage;
@@ -546,8 +550,8 @@ const Servicios = () => {
                                 onChange={handleInputChange}
                                 readOnly
                             />
-                            <button 
-                                className="btn-select" 
+                            <button
+                                className="btn-select"
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); handleShowLotes() }}
                             >
@@ -701,7 +705,7 @@ const Servicios = () => {
                                     <td>{servicio.loteubicacion}</td>
                                     <td>{servicio.nombrecliente}</td>
                                     <td>{servicio.no_titulo}</td>
-                                        <td>{(meses.find(mes => mes.value === servicio.mes_inicio_lectura)?.label)+' '+servicio.anio_inicio_lectura}</td>
+                                    <td>{(meses.find(mes => mes.value === servicio.mes_inicio_lectura)?.label) + ' ' + servicio.anio_inicio_lectura}</td>
 
                                     <td>
                                         <button className="status active" onClick={(e) => { e.stopPropagation(); handleShowPagos(servicio); }}>
@@ -727,7 +731,7 @@ const Servicios = () => {
                         <button onClick={() => paginate(1)} disabled={currentPage === 1}>Inicio</button>
                         <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
 
-                        {paginationRange.map((page, index) =>
+                        {paginationRangeServicios.map((page, index) =>
                             page === '...' ? (
                                 <span key={index} className="pagination-dots">...</span>
                             ) : (
@@ -828,7 +832,7 @@ const Servicios = () => {
                                         <button onClick={() => paginateLotes(1)} disabled={currentPageLotes === 1}>Inicio</button>
                                         <button onClick={() => paginateLotes(currentPageLotes - 1)} disabled={currentPageLotes === 1}>Anterior</button>
 
-                                        {paginationRangeLote.map((page, index) =>
+                                        {paginationRangeLotes.map((page, index) =>
                                             page === '...' ? (
                                                 <span key={index} className="pagination-dots">...</span>
                                             ) : (
@@ -842,8 +846,8 @@ const Servicios = () => {
                                             )
                                         )}
 
-                                        <button onClick={() => paginateLotes(currentPageLotes + 1)} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPageLotes)}>Siguiente</button>
-                                        <button onClick={() => paginateLotes(Math.ceil(filteredLotes.length / rowsPerPageLotes))} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPageLotes)}>Último</button>
+                                        <button onClick={() => paginateLotes(currentPageLotes + 1)} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPage)}>Siguiente</button>
+                                        <button onClick={() => paginateLotes(Math.ceil(filteredLotes.length / rowsPerPage))} disabled={currentPageLotes === Math.ceil(filteredLotes.length / rowsPerPage)}>Último</button>
 
                                         <select className="rows-per-page" value={rowsPerPageLotes} onChange={(e) => setRowsPerPageLotes(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
                                             <option value="5">5</option>
@@ -855,7 +859,7 @@ const Servicios = () => {
                                 </div>
                                 <div className='pagination'>
                                     <button onClick={() => seleccionarLote()} className='lote-confirm-buttonn'>Seleccionar</button>
-                                    <button onClick={() => {setShowLotesModal(false); setSelectedLote(null)}} className='lote-cancel-button'>Cancelar</button>
+                                    <button onClick={() => { setShowLotesModal(false); setSelectedLote(null) }} className='lote-cancel-button'>Cancelar</button>
                                 </div>
                             </div>
                         </div>
@@ -929,7 +933,7 @@ const Servicios = () => {
                                         </tbody>
                                     </table>
                                     <div className="pagination">
-                                        <button onClick={() => paginateClientes(1)} disabled={currentPageClientes === 1}>Inicio</button>
+                                    <button onClick={() => paginateClientes(1)} disabled={currentPageClientes === 1}>Inicio</button>
                                         <button onClick={() => paginateClientes(currentPageClientes - 1)} disabled={currentPageClientes === 1}>Anterior</button>
 
                                         {paginationRangeCliente.map((page, index) =>
@@ -946,8 +950,8 @@ const Servicios = () => {
                                             )
                                         )}
 
-                                        <button onClick={() => paginateClientes(currentPageClientes + 1)} disabled={currentPageClientes === Math.ceil(filteredCliente.length / rowsPerPageClientes)}>Siguiente</button>
-                                        <button onClick={() => paginateClientes(Math.ceil(filteredCliente.length / rowsPerPageClientes))} disabled={currentPageClientes === Math.ceil(filteredCliente.length / rowsPerPageClientes)}>Último</button>
+                                        <button onClick={() => paginateClientes(currentPageClientes + 1)} disabled={currentPageClientes === Math.ceil(filteredLotes.length / rowsPerPage)}>Siguiente</button>
+                                        <button onClick={() => paginateClientes(Math.ceil(filteredLotes.length / rowsPerPage))} disabled={currentPageClientes === Math.ceil(filteredLotes.length / rowsPerPage)}>Último</button>
 
                                         <select className="rows-per-page" value={rowsPerPageClientes} onChange={(e) => setRowsPerPageClientes(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
                                             <option value="5">5</option>
@@ -959,7 +963,7 @@ const Servicios = () => {
                                 </div>
                                 <div className='pagination'>
                                     <button onClick={() => seleccionarCliente()} className='lote-confirm-buttonn'>Seleccionar</button>
-                                    <button onClick={() => {setShowClientesModal(false); setSelectedCliente(null)}} className='lote-cancel-button'>Cancelar</button>
+                                    <button onClick={() => { setShowClientesModal(false); setSelectedCliente(null) }} className='lote-cancel-button'>Cancelar</button>
                                 </div>
                             </div>
                         </div>
@@ -967,121 +971,121 @@ const Servicios = () => {
                 </div>
             )}
             {showPagoModal && (
-                <div className='servicio-modal' style={{zIndex: 1100}}>
+                <div className='servicio-modal' style={{ zIndex: 1100 }}>
                     <div className='modal-content'>
                         <h3>Gestion de pagos relacionados al servicio</h3>
-                                <div className='servicios-data' >
-                                    <div className="row">
-                                        <label className="servicios-label">Tipo de pago:</label>
-                                        <select
-                                            className='servicios-select'
-                                            name='nombre'
-                                            value={selectedPago.nombre ? selectedPago.nombre: ''}
-                                            onChange={handleInputChangePago2}
-                                        >
-                                            <option value=''>Selecciona una configuracion</option>
-                                            <option  value='Instalación'>Instalación</option>
-                                            <option value='Conexión'>Conexión</option>
-                                            <option value='Otro'>Otro</option>
-                                        </select>
-                                    </div>
-                                    <div className="row">
-                                        <label className="servicios-label">Concepto:</label>
-                                        <input
-                                            className="servicios-input"
-                                            type="text"
-                                            placeholder="Concepto de pago"
-                                            name="concepto"
-                                            value={selectedPago.concepto ? selectedPago.concepto: ''}
-                                            onChange={handleInputChangePago}
-                                        />
-                                    </div>
-                                    <div className="row">
-                                        <label className="servicios-label">Fecha:</label>
-                                        <input
-                                            className="servicios-input"
-                                            type="date"
-                                            name="fecha"
-                                            value={selectedPago.fecha ? convertirFechaParaInput(selectedPago.fecha): ''}
-                                            onChange={handleInputChangePago}
-                                        />
-                                    </div> 
-                                    <div className="row">
-                                        <label className="servicios-label">Total a Pagar:</label>
-                                        <input
-                                            className="servicios-input"
-                                            type="text"
-                                            placeholder="Cantidad total a pagar"
-                                            name="total"
-                                            value={selectedPago.total ? selectedPago.total: ''}
-                                            onChange={handleInputChangePago4}
-                                            readOnly = {selectedPago.nombre==='Otro'?false:true}
-                                        />
-                                    </div> 
-                                    <div className="row">
-                                        <label className="servicios-label">Pendiente:</label>
-                                        <input
-                                            className="servicios-input"
-                                            type="text"
-                                            placeholder="Cantidad pendiente"
-                                            name="pendiente"
-                                            value={selectedPago.pendiente ? selectedPago.pendiente: ''}
-                                            onChange={handleInputChangePago}
-                                            readOnly 
-                                        />
-                                    </div>  
-                                    <div className="row">
-                                        <label className="servicios-label">Pagado:</label>
-                                        <input
-                                            className="servicios-input"
-                                            type="text"
-                                            placeholder="Cantidad ya pagada"
-                                            name="pagado"
-                                            value={selectedPago.pagado ? selectedPago.pagado: ''}
-                                            onChange={handleInputChangePago3}
-                                        />
-                                    </div>    
-                                </div>
-                                <div className='servicios-data-buttons'>
-                                        <button className="servicios-button" onClick={handleSavePagos} disabled={loadingSavePagos}>
-                                            {loadingSavePagos ? (selectedPago && selectedPago.idpago ? 'Actualizando...' : 'Agregando...') : (selectedPago && selectedPago.idpago ? 'Actualizar' : 'Guardar')}
-                                        </button>
-                                        <button className="servicios-button" onClick={clearFormPagos} disabled={loadingSavePagos}>Nuevo</button>
-                                </div>  
-                                <h3>Datos Existentes</h3>
-                                <div className='servicios-table'>
-                                    <table className='servicios-data-table'>
-                                        <thead>
-                                            <th>Tipo de pago</th>
-                                            <th>Concepto</th>
-                                            <th>Fecha</th>
-                                            <th>Total</th>
-                                            <th>Pendiente</th>
-                                            <th>Pagado</th>
-                                        </thead>
-                                        <tbody>
-                                            {filteredPagos.map((pago) => (
-                                                <tr key={pago.idpago} onClick={() => handleSelectPago(pago)}>
-                                                    <td>{pago.nombre}</td>
-                                                    <td>{pago.concepto}</td>
-                                                    <td>{new Date(pago.fecha).toLocaleDateString()}</td>
-                                                    <td>{pago.total}</td>
-                                                    <td>{pago.pendiente}</td>
-                                                    <td>{pago.pagado}</td>
-                                                </tr>
-                                            ))}
-                                            {Array.from({ length: 5-filteredPagos.length }, (_, index) => (
-                                               <tr key={`empty-${index}`} className="empty-row">
-                                                  <td colSpan="6">&nbsp;</td>
-                                               </tr>
-                                            ))}
-                                        </tbody>
-                                    </table> 
+                        <div className='servicios-data' >
+                            <div className="row">
+                                <label className="servicios-label">Tipo de pago:</label>
+                                <select
+                                    className='servicios-select'
+                                    name='nombre'
+                                    value={selectedPago.nombre ? selectedPago.nombre : ''}
+                                    onChange={handleInputChangePago2}
+                                >
+                                    <option value=''>Selecciona una configuracion</option>
+                                    <option value='Instalación'>Instalación</option>
+                                    <option value='Conexión'>Conexión</option>
+                                    <option value='Otro'>Otro</option>
+                                </select>
+                            </div>
+                            <div className="row">
+                                <label className="servicios-label">Concepto:</label>
+                                <input
+                                    className="servicios-input"
+                                    type="text"
+                                    placeholder="Concepto de pago"
+                                    name="concepto"
+                                    value={selectedPago.concepto ? selectedPago.concepto : ''}
+                                    onChange={handleInputChangePago}
+                                />
+                            </div>
+                            <div className="row">
+                                <label className="servicios-label">Fecha:</label>
+                                <input
+                                    className="servicios-input"
+                                    type="date"
+                                    name="fecha"
+                                    value={selectedPago.fecha ? convertirFechaParaInput(selectedPago.fecha) : ''}
+                                    onChange={handleInputChangePago}
+                                />
+                            </div>
+                            <div className="row">
+                                <label className="servicios-label">Total a Pagar:</label>
+                                <input
+                                    className="servicios-input"
+                                    type="text"
+                                    placeholder="Cantidad total a pagar"
+                                    name="total"
+                                    value={selectedPago.total ? selectedPago.total : ''}
+                                    onChange={handleInputChangePago4}
+                                    readOnly={selectedPago.nombre === 'Otro' ? false : true}
+                                />
+                            </div>
+                            <div className="row">
+                                <label className="servicios-label">Pendiente:</label>
+                                <input
+                                    className="servicios-input"
+                                    type="text"
+                                    placeholder="Cantidad pendiente"
+                                    name="pendiente"
+                                    value={selectedPago.pendiente ? selectedPago.pendiente : ''}
+                                    onChange={handleInputChangePago}
+                                    readOnly
+                                />
+                            </div>
+                            <div className="row">
+                                <label className="servicios-label">Pagado:</label>
+                                <input
+                                    className="servicios-input"
+                                    type="text"
+                                    placeholder="Cantidad ya pagada"
+                                    name="pagado"
+                                    value={selectedPago.pagado ? selectedPago.pagado : ''}
+                                    onChange={handleInputChangePago3}
+                                />
+                            </div>
+                        </div>
+                        <div className='servicios-data-buttons'>
+                            <button className="servicios-button" onClick={handleSavePagos} disabled={loadingSavePagos}>
+                                {loadingSavePagos ? (selectedPago && selectedPago.idpago ? 'Actualizando...' : 'Agregando...') : (selectedPago && selectedPago.idpago ? 'Actualizar' : 'Guardar')}
+                            </button>
+                            <button className="servicios-button" onClick={clearFormPagos} disabled={loadingSavePagos}>Nuevo</button>
+                        </div>
+                        <h3>Datos Existentes</h3>
+                        <div className='servicios-table'>
+                            <table className='servicios-data-table'>
+                                <thead>
+                                    <th>Tipo de pago</th>
+                                    <th>Concepto</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Pendiente</th>
+                                    <th>Pagado</th>
+                                </thead>
+                                <tbody>
+                                    {filteredPagos.map((pago) => (
+                                        <tr key={pago.idpago} onClick={() => handleSelectPago(pago)}>
+                                            <td>{pago.nombre}</td>
+                                            <td>{pago.concepto}</td>
+                                            <td>{new Date(pago.fecha).toLocaleDateString()}</td>
+                                            <td>{pago.total}</td>
+                                            <td>{pago.pendiente}</td>
+                                            <td>{pago.pagado}</td>
+                                        </tr>
+                                    ))}
+                                    {Array.from({ length: 5 - filteredPagos.length }, (_, index) => (
+                                        <tr key={`empty-${index}`} className="empty-row">
+                                            <td colSpan="6">&nbsp;</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                         <div className='pagination'>
-                            <button onClick={() => {setShowPagoModal(false); setSelectedPago(null); setSelectedServicio(null)}} className='lote-cancel-button'>Cerrar</button>
-                            
-                        </div>                           
+                            <button onClick={() => { setShowPagoModal(false); setSelectedPago(null); setSelectedServicio(null) }} className='lote-cancel-button'>Cerrar</button>
+
+                        </div>
                     </div>
                 </div>
             )}

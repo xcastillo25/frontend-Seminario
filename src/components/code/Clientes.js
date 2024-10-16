@@ -207,37 +207,39 @@ const Clientes = () => {
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     const getPaginationRange = (currentPage, totalPages) => {
-        const totalNumbersToShow = 3; // Total de páginas a mostrar antes del '...'
-        const totalButtons = 5; // Total de botones (páginas + ...)
+        const totalNumbersToShow = 3; // Total de números de páginas a mostrar en el centro
+        const totalButtons = 5; // Total de botones de paginación (páginas + ...)
         let pages = [];
     
         if (totalPages <= totalButtons) {
-            // Mostrar todas las páginas si el número total es menor o igual al número de botones permitidos
+            // Mostrar todas las páginas si el total es menor o igual al número permitido de botones
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
-            // Mostrar las primeras páginas, "...", la página actual y las últimas páginas
-            let startPage = Math.max(1, currentPage - Math.floor(totalNumbersToShow / 2));
-            let endPage = Math.min(totalPages, currentPage + Math.floor(totalNumbersToShow / 2));
+            // Mostrar siempre la primera página
+            pages.push(1);
     
-            // Mostrar primeras páginas
-            if (startPage > 2) {
-                pages.push(1, 2, '...');
-            } else {
-                startPage = 1;
-                endPage = Math.min(totalNumbersToShow, totalPages);
+            // Si la página actual es mayor a 4, mostrar el '...'
+            if (currentPage > 4) {
+                pages.push('...');
             }
     
-            // Rango de páginas centrales
+            // Definir las páginas centrales, dependiendo de si estamos al principio o al final
+            let startPage = Math.max(2, currentPage - 1);
+            let endPage = Math.min(totalPages - 1, currentPage + 1);
+    
             for (let i = startPage; i <= endPage; i++) {
                 pages.push(i);
             }
     
-            // Mostrar últimas páginas
+            // Si estamos a más de 2 páginas del final, mostrar el '...'
             if (endPage < totalPages - 1) {
-                pages.push('...', totalPages);
-            } else if (endPage < totalPages) {
+                pages.push('...');
+            }
+    
+            // Mostrar siempre la última página
+            if (endPage < totalPages) {
                 pages.push(totalPages);
             }
         }
