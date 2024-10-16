@@ -195,70 +195,60 @@ const Roles = () => {
                             onChange={handleInputChange}
                         />
                     </div>
-                    <div className="row">
-                    <label className="roles-label">Permisos: 
-                        <input type="checkbox" 
-                            id='todos' 
-                            name="todos"  
-                            onChange={handleInputChange3}
-                            checked={selectedRol?selectedRol.todos:false} 
-                        />
-                        <label for="todos">Todos</label>
-                    </label>
-                    
-                        <div style={{ display: 'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr'}}>
-                            <form>
-                                <div>
-                                    <input type="checkbox" id='opcion1' name="clientes"  onChange={handleInputChange2} checked={selectedRol?selectedRol.clientes:false}/>
-                                    <label for="opcion1">Clientes</label>
-                                </div>
+                    <div className="row-checkbox">
+                        <label>Permisos:</label>
+                        <div className="check">
+                            <div className="rows">
+                                <input type="checkbox" id='todos' name="todos"  onChange={handleInputChange3}
+                            checked={selectedRol?selectedRol.todos:false} />
+                                <label for="todos">Todos</label>
+                            </div>
+                            <div className="rows">
+                                <input type="checkbox" id='opcion1' name="clientes"  onChange={handleInputChange2} checked={selectedRol?selectedRol.clientes:false}/>
+                                <label for="opcion1">Clientes</label>
+                            </div>
 
-                                <div>
-                                    <input type="checkbox" id="opcion2" name="empleados" onChange={handleInputChange2} checked={selectedRol?selectedRol.empleados:false}/>
-                                    <label for="opcion2">Empleados</label>
-                                </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion2" name="empleados" onChange={handleInputChange2} checked={selectedRol?selectedRol.empleados:false}/>
+                                <label for="opcion2">Empleados</label>
+                            </div>
 
-                                <div>
-                                    <input type="checkbox" id="opcion3" name="lotes" onChange={handleInputChange2} checked={selectedRol?selectedRol.lotes:false}/>
-                                    <label for="opcion3">Lotes</label>
-                                </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion3" name="lotes" onChange={handleInputChange2} checked={selectedRol?selectedRol.lotes:false}/>
+                                <label for="opcion3">Lotes</label>
+                            </div>
 
-                                <div>
-                                    <input type="checkbox" id="opcion4" name="servicios" onChange={handleInputChange2} checked={selectedRol?selectedRol.servicios:false}/>
-                                    <label for="opcion4">Servicios</label>
-                                </div>
-                            </form>
-                            <form>
-                                <div>
-                                    <input type="checkbox" id="opcion5" name="roles" onChange={handleInputChange2} checked={selectedRol?selectedRol.roles:false}/>
-                                    <label for="opcion5">Roles</label>
-                                </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion4" name="servicios" onChange={handleInputChange2} checked={selectedRol?selectedRol.servicios:false}/>
+                                <label for="opcion4">Servicios</label>
+                            </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion5" name="roles" onChange={handleInputChange2} checked={selectedRol?selectedRol.roles:false}/>
+                                <label for="opcion5">Roles</label>
+                            </div>
 
-                                <div>
-                                    <input type="checkbox" id="opcion6" name="usuarios" onChange={handleInputChange2} checked={selectedRol?selectedRol.usuarios:false}/>
-                                    <label for="opcion6">Usuarios</label> 
-                                </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion6" name="usuarios" onChange={handleInputChange2} checked={selectedRol?selectedRol.usuarios:false}/>
+                                <label for="opcion6">Usuarios</label> 
+                            </div>
 
-                                <div>
-                                    <input type="checkbox" id="opcion7" name="pagos" onChange={handleInputChange2} checked={selectedRol?selectedRol.pagos:false}/>
-                                    <label for="opcion7">Pagos</label>
-                                </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion7" name="pagos" onChange={handleInputChange2} checked={selectedRol?selectedRol.pagos:false}/>
+                                <label for="opcion7">Pagos</label>
+                            </div>
 
-                                <div>
-                                    <input type="checkbox" id="opcion8" name="lecturas" onChange={handleInputChange2} checked={selectedRol?selectedRol.lecturas:false}/>
-                                    <label for="opcion8">Lecturas</label>
-                                </div>
-                            </form>
-                            <form>
-                                <div>
-                                    <input type="checkbox" id="opcion9" name="configuracion" onChange={handleInputChange2} checked={selectedRol?selectedRol.configuracion:false}/>
-                                    <label for="opcion9">Configuración</label>
-                                </div>
-                                <div>
-                                    <input type="checkbox" id="opcion10" name="historial_pagos" onChange={handleInputChange2} checked={selectedRol?selectedRol.historial_pagos:false}/>
-                                    <label for="opcion10">Historial de pagos</label>
-                                </div>
-                            </form>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion8" name="lecturas" onChange={handleInputChange2} checked={selectedRol?selectedRol.lecturas:false}/>
+                                <label for="opcion8">Lecturas</label>
+                            </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion9" name="configuracion" onChange={handleInputChange2} checked={selectedRol?selectedRol.configuracion:false}/>
+                                <label for="opcion9">Configuración</label>
+                            </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion10" name="historial_pagos" onChange={handleInputChange2} checked={selectedRol?selectedRol.historial_pagos:false}/>
+                                <label for="opcion10">Historial de pagos</label>
+                            </div>
                         </div>
                     </div>
                 </div>
