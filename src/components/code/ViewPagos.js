@@ -45,13 +45,58 @@ const PagosTable = () => {
         const monthMatch = searchMonth ? pago.mes.toLowerCase() === searchMonth.toLowerCase() : true;
         const searchMatch = searchTerm
             ? Object.values(pago).some(val =>
-                  val?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-              )
+                val?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+            )
             : true;
         return yearMatch && monthMatch && searchMatch;
     });
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+
+    const getPaginationRange = (currentPage, totalPages) => {
+        const totalNumbersToShow = 3; // Mostrar 3 páginas en el centro (incluyendo la actual)
+        const totalButtons = 5; // Total de botones de paginación (páginas + ...)
+        let pages = [];
+
+        if (totalPages <= totalButtons) {
+            // Mostrar todas las páginas si el total es menor o igual al número permitido de botones
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Mostrar siempre la primera página
+            pages.push(1);
+
+            // Si la página actual es mayor que 4, mostrar el '...'
+            if (currentPage > totalNumbersToShow) {
+                pages.push('...');
+            }
+
+            // Definir el rango de páginas centrales usando `totalNumbersToShow`
+            let startPage = Math.max(2, currentPage - Math.floor(totalNumbersToShow / 2)); // Comenzar antes de la actual
+            let endPage = Math.min(totalPages - 1, currentPage + Math.floor(totalNumbersToShow / 2)); // Terminar después de la actual
+
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+
+            // Si estamos a más de `totalNumbersToShow` páginas del final, mostrar el '...'
+            if (endPage < totalPages - 1) {
+                pages.push('...');
+            }
+
+            // Mostrar siempre la última página
+            if (endPage < totalPages) {
+                pages.push(totalPages);
+            }
+        }
+
+        return pages;
+    };
+
+
+    const paginationRange = getPaginationRange(currentPage, Math.ceil(filteredPagos.length / rowsPerPage));
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -119,11 +164,24 @@ const PagosTable = () => {
                 <div className="pagination">
                     <button onClick={() => paginate(1)} disabled={currentPage === 1}>Inicio</button>
                     <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
-                    {Array.from({ length: Math.ceil(filteredPagos.length / rowsPerPage) }, (_, index) => (
+                    {paginationRange.map((page, index) =>
+                        page === '...' ? (
+                            <span key={index} className="pagination-dots">...</span>
+                        ) : (
+                            <button
+                                key={index}
+                                onClick={() => paginate(page)}
+                                className={currentPage === page ? 'active' : ''}
+                            >
+                                {page}
+                            </button>
+                        )
+                    )}
+                    {/* {Array.from({ length: Math.ceil(filteredPagos.length / rowsPerPage) }, (_, index) => (
                         <button key={index + 1} onClick={() => paginate(index + 1)}>
                             {index + 1}
                         </button>
-                    ))}
+                    ))} */}
                     <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(filteredPagos.length / rowsPerPage)}>Siguiente</button>
                     <button onClick={() => paginate(Math.ceil(filteredPagos.length / rowsPerPage))} disabled={currentPage === Math.ceil(filteredPagos.length / rowsPerPage)}>Último</button>
                     <select className="rows-per-page" value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))}>

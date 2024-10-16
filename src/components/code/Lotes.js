@@ -64,7 +64,7 @@ const Lotes = () => {
 
         setSelectedLote({
             ...selectedLote,
-            [name]: name === 'manzana' || name === 'lote'? value.toUpperCase() : value,
+            [name]: name === 'manzana' || name === 'lote' ? value.toUpperCase() : value,
         });
         setEditing(true);
     };
@@ -177,43 +177,48 @@ const Lotes = () => {
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     const getPaginationRange = (currentPage, totalPages) => {
-        const totalNumbersToShow = 3; // Total de páginas a mostrar antes del '...'
-        const totalButtons = 5; // Total de botones (páginas + ...)
+        const totalNumbersToShow = 3; // Mostrar 3 páginas en el centro (incluyendo la actual)
+        const totalButtons = 5; // Total de botones de paginación (páginas + ...)
         let pages = [];
-    
+
         if (totalPages <= totalButtons) {
-            // Mostrar todas las páginas si el número total es menor o igual al número de botones permitidos
+            // Mostrar todas las páginas si el total es menor o igual al número permitido de botones
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
-            // Mostrar las primeras páginas, "...", la página actual y las últimas páginas
-            let startPage = Math.max(1, currentPage - Math.floor(totalNumbersToShow / 2));
-            let endPage = Math.min(totalPages, currentPage + Math.floor(totalNumbersToShow / 2));
-    
-            // Mostrar primeras páginas
-            if (startPage > 2) {
-                pages.push(1, 2, '...');
-            } else {
-                startPage = 1;
-                endPage = Math.min(totalNumbersToShow, totalPages);
+            // Mostrar siempre la primera página
+            pages.push(1);
+
+            // Si la página actual es mayor que 4, mostrar el '...'
+            if (currentPage > totalNumbersToShow) {
+                pages.push('...');
             }
-    
-            // Rango de páginas centrales
+
+            // Definir el rango de páginas centrales usando `totalNumbersToShow`
+            let startPage = Math.max(2, currentPage - Math.floor(totalNumbersToShow / 2)); // Comenzar antes de la actual
+            let endPage = Math.min(totalPages - 1, currentPage + Math.floor(totalNumbersToShow / 2)); // Terminar después de la actual
+
             for (let i = startPage; i <= endPage; i++) {
                 pages.push(i);
             }
-    
-            // Mostrar últimas páginas
+
+            // Si estamos a más de `totalNumbersToShow` páginas del final, mostrar el '...'
             if (endPage < totalPages - 1) {
-                pages.push('...', totalPages);
-            } else if (endPage < totalPages) {
+                pages.push('...');
+            }
+
+            // Mostrar siempre la última página
+            if (endPage < totalPages) {
                 pages.push(totalPages);
             }
         }
-    
+
         return pages;
     };
+
+
+
 
     const paginationRange = getPaginationRange(currentPage, Math.ceil(filteredLotes.length / rowsPerPage));
     return (
@@ -361,9 +366,9 @@ const Lotes = () => {
                         <span className="material-icons modal-icon">warning</span>
                         <h3>¿Estás seguro que deseas eliminar este registro?</h3>
                         <div className="modal-buttons">
-                            <button 
-                                onClick={confirmDelete} 
-                                className="confirm-button" 
+                            <button
+                                onClick={confirmDelete}
+                                className="confirm-button"
                                 disabled={deleting}  // Deshabilitar el botón mientras se está eliminando
                             >
                                 {deleting ? 'Eliminando...' : 'Eliminar'}
