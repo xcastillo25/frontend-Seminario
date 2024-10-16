@@ -29,8 +29,8 @@ input:-webkit-autofill {
   }
   
   .roles-data {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
     width: 100%;
   }
@@ -40,6 +40,34 @@ input:-webkit-autofill {
     flex-direction: column;
     gap: 0.4rem;
     width: 100%;
+  }
+
+  .roles-data .row-checkbox {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+  }
+
+  .roles-data .row-checkbox .check{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .roles-data .row-checkbox .check .rows{
+    display: flex;
+    gap: 5px;
+    margin: 0.4rem;
+    align-items: center;
+  }
+
+  .roles-data .row-checkbox .check .rows input{
+    accent-color: var(--dark-green);
+    width: 1rem;
+    height: 1rem;
   }
   
   .roles-label {
@@ -53,6 +81,7 @@ input:-webkit-autofill {
     padding: 0 5px;
     height: 1.8rem;
     border-radius: 5px;
+    width: 25rem;
   }
   
   .roles-data-buttons {
@@ -274,3 +303,4 @@ input:-webkit-autofill {
     transform: scale(0.98);
   }
   
+

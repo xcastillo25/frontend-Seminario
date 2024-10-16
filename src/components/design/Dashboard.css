@@ -69,9 +69,10 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   border-right: 1px solid var(--border-color);
   transition: width 0.3s ease;
+  height: 100vh;
 }
 
 .sidebar.collapsed {
