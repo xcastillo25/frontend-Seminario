@@ -13,8 +13,6 @@ const PagosTable = () => {
 
     // Obtener el mes actual (indexado desde 0, por eso sumamos 1)
     useEffect(() => {
-        const currentMonth = new Date().toLocaleString('es-ES', { month: 'long' });
-        setSearchMonth(currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1)); // Mes actual capitalizado
         fetchPagos();
     }, []);
 
@@ -40,9 +38,16 @@ const PagosTable = () => {
         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
 
+    const meses = [
+        { value: 1, label: 'Enero' }, { value: 2, label: 'Febrero' }, { value: 3, label: 'Marzo' },
+        { value: 4, label: 'Abril' }, { value: 5, label: 'Mayo' }, { value: 6, label: 'Junio' },
+        { value: 7, label: 'Julio' }, { value: 8, label: 'Agosto' }, { value: 9, label: 'Septiembre' },
+        { value: 10, label: 'Octubre' }, { value: 11, label: 'Noviembre' }, { value: 12, label: 'Diciembre' }
+    ];
+
     const filteredPagos = pagos.filter((pago) => {
         const yearMatch = searchYear ? pago.año.toString() === searchYear : true;
-        const monthMatch = searchMonth ? pago.mes.toLowerCase() === searchMonth.toLowerCase() : true;
+        const monthMatch = searchMonth ? pago.mes === searchMonth : true;
         const searchMatch = searchTerm
             ? Object.values(pago).some(val =>
                 val?.toString().toLowerCase().includes(searchTerm.toLowerCase())
@@ -115,8 +120,8 @@ const PagosTable = () => {
                     </select>
                     <select className="search-select" value={searchMonth} onChange={handleSearchMonthChange}>
                         <option value="">Seleccionar Mes</option>
-                        {monthNames.map((month) => (
-                            <option key={month} value={month}>{month}</option>
+                        {meses.map((mes) => (
+                            <option key={mes.value} value={mes.value}>{mes.label}</option>
                         ))}
                     </select>
                     <input
@@ -130,12 +135,10 @@ const PagosTable = () => {
                 <table className="pagos-table">
                     <thead>
                         <tr>
-                            <th>ID Pago</th>
-                            <th>Servicio</th>
+                            <th>Lote</th>
                             <th>Mes</th>
                             <th>Año</th>
                             <th>Fecha</th>
-                            <th>Concepto</th>
                             <th>Total</th>
                             <th>Estatus de Pago</th>
                         </tr>
@@ -144,12 +147,10 @@ const PagosTable = () => {
                         {currentRows.length > 0 ? (
                             currentRows.map((pago) => (
                                 <tr key={pago.idpago}>
-                                    <td>{pago.idpago}</td>
-                                    <td>{pago.idservicio}</td>
+                                    <td>{pago.ubicacion}</td>
                                     <td>{pago.mes}</td>
                                     <td>{pago.año}</td>
                                     <td>{new Date(pago.fecha).toLocaleDateString()}</td>
-                                    <td>{pago.concepto}</td>
                                     <td>{pago.total}</td>
                                     <td>{pago.activo ? 'Activo' : 'Inactivo'}</td>
                                 </tr>
