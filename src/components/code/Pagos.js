@@ -37,7 +37,8 @@ const Pagos = () => {
     const [pagosAdelantados, setPagosAdelantados] = useState([]);;
     const [selectedMonths, setSelectedMonths] = useState([]);
     const [totalToPay, setTotalToPay] = useState(0);
-    const [discount, setDiscount] = useState(0); // Estado para almacenar el descuento
+    const [discount, setDiscount] = useState(0);
+    const [showModalPagoParcial, setShowModalPagoParcial] = useState(false);
 
     useEffect(() => {
         fetchServicios();
@@ -106,6 +107,9 @@ const Pagos = () => {
         return pago ? pago[field] || '' : ''; // Si existe el pago, devolvemos el valor del campo
     };
     
+    const handleModalPagoParcialClose = () => {
+        setShowModalPagoParcial(false);
+    };
 
     // Función para actualizar la lectura con el pago ingresado
     const updateLecturaPago = (lecturaId, field, value) => {
@@ -262,7 +266,6 @@ const Pagos = () => {
     
     
     
-    
     // Función para abrir el modal al hacer clic en "Pagos Adelantados"
     const handleAdvancePaymentClick = async (idservicio) => {
         try {
@@ -286,6 +289,7 @@ const Pagos = () => {
             toast.error('Error al obtener lecturas pagadas o pagos adelantados');
         }
     }; 
+    
 
     const filterServicios = () => {
         let filtered = servicios;
@@ -382,22 +386,76 @@ const Pagos = () => {
         setShowModal(true);          // Abre el modal para realizar el pago
     };
     
+    const generateConceptoPagoParcial = () => {
+        const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     
+        // Ordenar los meses seleccionados en orden cronológico
+        const sortedSelectedMonths = selectedMonths
+            .map(monthStr => {
+                const [year, month] = monthStr.split('-').map(Number);
+                return { year, month };
+            })
+            .sort((a, b) => (a.year - b.year) || (a.month - b.month)); // Ordenar por año y mes
     
+        // Crear el concepto concatenando los meses y años
+        const conceptoPago = sortedSelectedMonths
+            .map(({ year, month }) => `${mesesNombres[month - 1]} ${year}`) // Formatear "Mes Año"
+            .join(', '); // Unir con comas
     
-    const handlePagoParcialPagarClick = () => {
-        const totalParcial = pagos.reduce((acc, pago) => {
-            const cuota = parseFloat(pago.cuotaPago) || 0;
-            const mora = parseFloat(pago.moraPago) || 0;
-            const exceso = parseFloat(pago.excesoPago) || 0;
-            return acc + cuota + mora + exceso;
-        }, 0);
-
-        setMontoPagar(totalParcial); // Establece el monto a pagar para el Pago Parcial
-        //setShowPagoParcialModal(false); // Cierra el modal de Pago Parcial
-        setShowModal(true); // Abre el modal de pagos
+        return `Pagos adelantados para ${conceptoPago}`;
     };
-
+    
+    
+    
+    const handlePagoParcialPagarClick = async () => {
+        // Validar que se haya ingresado un valor recibido
+        if (!valorRecibido || parseFloat(valorRecibido) <= 0) {
+            toast.error('Debe ingresar un monto válido para realizar el pago');
+            return;
+        }
+    
+        // Construir el array de lecturas a actualizar con los pagos parciales
+        const lecturasParaActualizar = lecturas.map((lectura) => ({
+            idlectura: lectura.idlectura,
+            mes: lectura.mes,
+            año: lectura.año,
+            pagoCuota: parseFloat(getPagoForLectura(lectura.idlectura, 'cuotaPago')) || 0,
+            pagoMora: parseFloat(getPagoForLectura(lectura.idlectura, 'moraPago')) || 0,
+            pagoExceso: parseFloat(getPagoForLectura(lectura.idlectura, 'excesoPago')) || 0,
+        }));
+    
+        try {
+            // Llamada al controlador actualizarLecturasParciales
+            const response = await axios.put(`${API_URL}/lectura-parcial-pagada`, { lecturas: lecturasParaActualizar });
+    
+            if (response.status === 200) {
+                toast.success('Pagos parciales actualizados correctamente');
+                
+                // Registrar cada pago parcial en tblpagos
+                for (const lectura of lecturasParaActualizar) {
+                    await axios.post(`${API_URL}/pagos`, {
+                        idlectura: lectura.idlectura,
+                        mes: lectura.mes,
+                        año: lectura.año,
+                        fecha: new Date(),
+                        concepto: 'Pago Parcial',
+                        cuota: lectura.pagoCuota,
+                        mora: lectura.pagoMora,
+                        exceso: lectura.pagoExceso,
+                        total: lectura.pagoCuota + lectura.pagoMora + lectura.pagoExceso,
+                    });
+                }
+            }
+    
+            setShowPagoParcialModal(false);
+            handlePagoExitoso(); // Función que actualiza la vista de lecturas
+        } catch (error) {
+            console.error('Error al procesar el pago parcial:', error);
+            toast.error('Error al procesar el pago parcial');
+        }
+    };
+    
+    
     
     const handleModalClose = () => {
         setShowModal(false);
@@ -1098,17 +1156,19 @@ const Pagos = () => {
                                     <thead>
                                         <tr>
                                             <th>Año</th>
-                                            <th>Mes</th>
                                             <th>Lectura</th>
-                                            <th>Exceso</th>
                                             <th>Cuota</th>
+                                            <th>% Mora</th>
                                             <th>Monto Mora</th>
+                                            <th>Nueva Mora</th>
+                                            <th>Total Mensual</th>
+                                            <th>Monto Acumulado</th>
                                             <th>Monto Exceso</th>
                                             <th>Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {lecturas.map((lectura) => {
+                                        {lecturas.map((lectura, index) => {
                                             const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
                                             const mesNombre = meses[lectura.mes - 1];
 
@@ -1117,13 +1177,54 @@ const Pagos = () => {
                                             const excesoPago = parseFloat(getPagoForLectura(lectura.idlectura, 'excesoPago')) || 0;
                                             const totalFila = cuotaPago + moraPago + excesoPago;
 
+                                            const totalMensual = parseFloat(lectura.cuota_mensual) - cuotaPago - moraPago;
+
+                       
+
+                                            const handleCuotaInputChange = (e, idlectura) => {
+                                                const nuevaCuotaIngresada = parseFloat(e.target.value) || 0;
+                                                const nuevaMoraCalculada = calcularNuevaMora(lectura.cuota, nuevaCuotaIngresada, lectura.porcentaje_acumulado);
+                                                
+                                                const updatedLecturas = lecturas.map(lect => {
+                                                    if (lect.idlectura === idlectura) {
+                                                        return {
+                                                            ...lect, // Mantener todos los valores anteriores
+                                                            cuotaIngresada: nuevaCuotaIngresada,  // Actualizar la cuota ingresada
+                                                            nuevaMora: nuevaMoraCalculada  // Actualizar solo la nueva mora calculada
+                                                        };
+                                                    }
+                                                    return lect;
+                                                });
+                                            
+                                                setLecturas(updatedLecturas);  // Actualizar el estado con la nueva mora recalculada
+                                            };
+                                            
+                                            
+                                            const calcularNuevaMora = (cuotaOriginal, cuotaIngresada, porcentajeAcumulado) => {
+                                                const nuevaCuota = cuotaOriginal - cuotaIngresada;
+                                                const moraBase = nuevaCuota * (porcentajeAcumulado / 100);
+                                                const iva = moraBase * 0.12;
+                                                return moraBase + iva;
+                                            };
+                                            
+
+                                            const cuotaIngresada = lectura.cuotaIngresada || 0;  // Valor por defecto para cuota ingresada
+                                            const nuevaMora = lectura.nuevaMora !== undefined ? lectura.nuevaMora : calcularNuevaMora(lectura.cuota, cuotaIngresada, lectura.porcentaje_acumulado);  // Recalcular si no existe aún
+
+                                            // Calcular monto acumulado desde abajo hacia arriba
+                                            let montoAcumulado = totalMensual;
+                                            if (index < lecturas.length - 1) {
+                                                const filaAnterior = lecturas[index + 1];
+                                                montoAcumulado += filaAnterior.montoAcumulado;
+                                            }
+
+                                            // Asignar el monto acumulado calculado a la fila actual
+                                            lectura.montoAcumulado = montoAcumulado;
+
                                             return (
                                                 <tr key={lectura.idlectura}>
-                                                    <td>{lectura.año}</td>
-                                                    <td>{mesNombre}</td>
+                                                    <td>{mesNombre} {lectura.año}</td>
                                                     <td>{lectura.lectura}</td>
-                                                    <td>{lectura.exceso}</td>
-
                                                     <td>
                                                         <div className="two-cells">
                                                             <span className="cell-value">{lectura.cuota}</span>
@@ -1131,17 +1232,26 @@ const Pagos = () => {
                                                                 type="text"
                                                                 className="cell-input"
                                                                 placeholder="Pago Cuota"
-                                                                value={getPagoForLectura(lectura.idlectura, 'cuotaPago') || ''} 
-                                                                onChange={(e) => handleInputValidation(e, lectura.cuota, lectura.idlectura, 'cuotaPago')}
+                                                                value={cuotaIngresada || ''} 
+                                                                onChange={(e) => {
+                                                                    const valorIngresado = parseFloat(e.target.value) || 0;
+                                                                    
+                                                                    // Validar que el valor no sea mayor al de la cuota original
+                                                                    if (valorIngresado > lectura.cuota) {
+                                                                        return;  // No actualizar el estado si el valor es mayor
+                                                                    }
+                                                                    
+                                                                    handleCuotaInputChange(e, lectura.idlectura);
+                                                                }}
                                                                 readOnly={lectura.cuota === 0}
                                                                 style={{ backgroundColor: lectura.cuota === 0 ? 'lightgrey' : 'white' }}
                                                             />
                                                         </div>
                                                     </td>
-
+                                                    <td>{lectura.porcentaje_acumulado}</td>
                                                     <td>
                                                         <div className="two-cells">
-                                                            <span className="cell-value">{lectura.monto_mora}</span>
+                                                            <span className="cell-value">{lectura.monto_mora}</span> {/* Este es el valor original de monto_mora */}
                                                             <input
                                                                 type="text"
                                                                 className="cell-input"
@@ -1153,7 +1263,29 @@ const Pagos = () => {
                                                             />
                                                         </div>
                                                     </td>
-
+                                                    <td>{parseFloat(nuevaMora).toFixed(2)}</td> {/* Asegurarse que nuevaMora sea un número antes de aplicar toFixed */}
+                                                    <td>
+                                                        <div className="two-cells">
+                                                            <span className="cell-value">{lectura.cuota_mensual}</span>
+                                                            <input
+                                                                type="text"
+                                                                className="cell-input"
+                                                                value={totalMensual.toFixed(2)}
+                                                                readOnly
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="two-cells">
+                                                            <span className="cell-value">{lectura.monto_acumulado}</span>
+                                                            <input
+                                                                type="text"
+                                                                className="cell-input"
+                                                                value={montoAcumulado.toFixed(2)}
+                                                                readOnly
+                                                            />
+                                                        </div>
+                                                    </td>
                                                     <td>
                                                         <div className="two-cells">
                                                             <span className="cell-value">{lectura.monto_exceso}</span>
@@ -1179,12 +1311,68 @@ const Pagos = () => {
                         )}
 
                         <div className="modal-buttons">
-                            <button onClick={handlePagoParcialPagarClick}>Pagar</button>
+                            <button onClick={() => {
+                                const concepto = generateConceptoPagoParcial(); 
+                                setConceptoPago(concepto);
+                                setTotalToPay(totalPago);
+                                setShowPagoParcialModal(false);
+                                setShowModalPagoParcial(true);
+                            }}>
+                                Pagar
+                            </button>
                             <button onClick={handlePagoParcialModalClose}>Cerrar</button>
                         </div>
                     </div>
                 </div>
             )}
+
+
+
+
+            {showModalPagoParcial && (
+                <div className="modal-overlay" onClick={handleModalClose}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content">
+                            <h2>Pago Parcial</h2>
+                            <label>Monto a Pagar:</label>
+                            <p>Q.{totalToPay.toFixed(2)}</p> {/* Muestra el total parcial calculado */}
+                            
+                            <label>Valor Recibido:</label>
+                            <input
+                                type="text"
+                                value={valorRecibido}
+                                onChange={handleValorRecibidoChange}
+                                placeholder="Q.0.00"
+                                className="valor"
+                                inputMode="decimal"
+                            />
+
+                            <label>Cambio:</label>
+                            <p className="cambio">Q.{cambio}</p> {/* Muestra el cambio calculado */}
+                            
+                            <label>Concepto del Pago:</label>
+                            <input
+                                type="text"
+                                value={conceptoPago}
+                                onChange={handleConceptoPagoChange}
+                                placeholder="Pago parcial"
+                                className="concepto"
+                            />
+
+                            <div className="modal-buttons">
+                                <button 
+                                    onClick={handlePagoParcialPagarClick} 
+                                    disabled={loadingPayment}
+                                >
+                                    {loadingPayment ? 'Pagando...' : 'Pagar'}
+                                </button>
+                                <button onClick={handleModalPagoParcialClose}>Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {showAdvancePaymentModal && (
                 <div className="modal-overlay-pagos-adelantados" onClick={handleModalClose}>

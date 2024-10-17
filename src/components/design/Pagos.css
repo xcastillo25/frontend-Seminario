@@ -399,8 +399,8 @@ input:-webkit-autofill {
 }
 
 .modal-overlay.pago-parcial-modal .modal {
-  width: 80%;  /* Ancho del modal */
-  height: 70%;  /* Altura del modal */
+  width: 85%;  /* Ancho del modal */
+  height: 85%;  /* Altura del modal */
   background-color: white;
   border-radius: 10px;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
