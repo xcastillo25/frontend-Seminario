@@ -38,6 +38,7 @@ const Inicio = () => {
     const [selectedMonth, setSelectedMonth] = useState('');
     const [realizadas, setRealizadas] = useState(0);
     const [pendientes, setPendientes] = useState(0);
+    const [chartDataStatus, setChartDataStatus] = useState('loading'); // 'loading', 'success', 'noData', 'error'
 
     // Estados para la nueva gráfica de barras
     const [newChartData, setNewChartData] = useState(null);
@@ -47,6 +48,7 @@ const Inicio = () => {
     const [newMonths, setNewMonths] = useState([]);
     const [newSelectedYear, setNewSelectedYear] = useState('');
     const [newSelectedMonth, setNewSelectedMonth] = useState('');
+    const [newChartDataStatus, setNewChartDataStatus] = useState('loading');
 
     // Estados para almacenar los totales de la nueva gráfica
     const [totalCuotas, setTotalCuotas] = useState(0);
@@ -56,6 +58,7 @@ const Inicio = () => {
     // Estados para la gráfica de pie
     const [pieData, setPieData] = useState(null);
     const [serviceSummary, setServiceSummary] = useState({});
+    const [pieDataStatus, setPieDataStatus] = useState('loading');
 
     const defaultMonths = [
         { label: 'Enero', value: 1 },
@@ -74,54 +77,72 @@ const Inicio = () => {
 
     // Función para obtener datos de la gráfica de pie
     const fetchPieData = async () => {
+        setPieDataStatus('loading');
         try {
             const response = await axios.get(`${API_URL}/mostrarResumenServicios`);
             const serviceData = response.data.data[0];
 
-            const pieChartData = {
-                labels: ['Pagando', 'Cortado', 'Suspendido'],
-                datasets: [
-                    {
-                        label: 'Estado de Servicios',
-                        data: [serviceData.totalPagando, serviceData.totalCortado, serviceData.totalSuspendido],
-                        backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56'],
-                        hoverBackgroundColor: ['#36A2EB', '#FF6384', '#FFCE56']
-                    }
-                ]
-            };
+            if (serviceData) {
+                const pieChartData = {
+                    labels: ['Pagando', 'Cortado', 'Suspendido'],
+                    datasets: [
+                        {
+                            label: 'Estado de Servicios',
+                            data: [serviceData.totalPagando, serviceData.totalCortado, serviceData.totalSuspendido],
+                            backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56'],
+                            hoverBackgroundColor: ['#36A2EB', '#FF6384', '#FFCE56']
+                        }
+                    ]
+                };
 
-            setPieData(pieChartData);
-            setServiceSummary(serviceData);
+                setPieData(pieChartData);
+                setServiceSummary(serviceData);
+                setPieDataStatus('success');
+            } else {
+                setPieData(null);
+                setServiceSummary({});
+                setPieDataStatus('noData');
+            }
         } catch (error) {
+            setPieDataStatus('error');
             toast.error('Error al obtener los datos de los servicios');
         }
     };
 
     // Función para obtener datos de la primera gráfica de barras
     const fetchData = async () => {
+        setChartDataStatus('loading');
         try {
             const response = await axios.get(`${API_URL}/mostrarResumenLecturas`);
             let data = response.data.data;
 
-            const uniqueYears = [...new Set(data.map(item => item.anio))];
-            const uniqueMonths = [...new Set(data.map(item => item.mes))];
+            if (data && data.length > 0) {
+                const uniqueYears = [...new Set(data.map(item => item.anio))];
+                const uniqueMonths = [...new Set(data.map(item => item.mes))];
 
-            setYears(uniqueYears);
-            setMonths(defaultMonths.filter(month => uniqueMonths.includes(month.value)));
-            setAvailableData(data);
+                setYears(uniqueYears);
+                setMonths(defaultMonths.filter(month => uniqueMonths.includes(month.value)));
+                setAvailableData(data);
 
-            const maxItem = data.reduce((max, item) => {
-                if (item.anio > max.anio || (item.anio === max.anio && item.mes > max.mes)) {
-                    return item;
+                const maxItem = data.reduce((max, item) => {
+                    if (item.anio > max.anio || (item.anio === max.anio && item.mes > max.mes)) {
+                        return item;
+                    }
+                    return max;
+                }, data[0]);
+
+                if (!selectedYear && !selectedMonth) {
+                    setSelectedYear(maxItem.anio.toString());
+                    setSelectedMonth(maxItem.mes.toString());
                 }
-                return max;
-            }, data[0]);
 
-            if (!selectedYear && !selectedMonth) {
-                setSelectedYear(maxItem.anio.toString());
-                setSelectedMonth(maxItem.mes.toString());
+                setChartDataStatus('success');
+            } else {
+                setChartDataStatus('noData');
+                toast.info('No se encontraron datos de lecturas.');
             }
         } catch (error) {
+            setChartDataStatus('error');
             toast.error('Error al obtener los datos de las lecturas');
         }
     };
@@ -134,15 +155,15 @@ const Inicio = () => {
 
         if (filteredData.length > 0) {
             const meses = filteredData.map(item => `${item.mes}/${item.anio}`);
-            const realizadas = filteredData.map(item => item.lecturasRealizadas);
-            const pendientes = filteredData.map(item => item.lecturasPendientes);
+            const realizadasData = filteredData.map(item => item.lecturasRealizadas);
+            const pendientesData = filteredData.map(item => item.lecturasPendientes);
 
             const totalLecturas = filteredData.map(item => item.lecturasRealizadas + item.lecturasPendientes);
-            const realizadasPorcentaje = realizadas.map((r, i) => ((r / totalLecturas[i]) * 100).toFixed(2));
-            const pendientesPorcentaje = pendientes.map((p, i) => ((p / totalLecturas[i]) * 100).toFixed(2));
+            const realizadasPorcentaje = realizadasData.map((r, i) => ((r / totalLecturas[i]) * 100).toFixed(2));
+            const pendientesPorcentaje = pendientesData.map((p, i) => ((p / totalLecturas[i]) * 100).toFixed(2));
 
-            setRealizadas(realizadas.reduce((a, b) => a + b, 0));
-            setPendientes(pendientes.reduce((a, b) => a + b, 0));
+            setRealizadas(realizadasData.reduce((a, b) => a + b, 0));
+            setPendientes(pendientesData.reduce((a, b) => a + b, 0));
 
             setChartData({
                 labels: meses,
@@ -213,39 +234,51 @@ const Inicio = () => {
                     }
                 },
             });
+
+            setChartDataStatus('success');
         } else {
             setChartData(null);
             setRealizadas(0);
             setPendientes(0);
+            setChartDataStatus('noData');
             toast.info('No hay datos disponibles para el mes y año seleccionados.');
         }
     };
 
     // Función para obtener datos de la nueva gráfica de barras
     const fetchNewChartData = async () => {
+        setNewChartDataStatus('loading');
         try {
             const response = await axios.get(`${API_URL}/mostrarResumenPagos`);
             let data = response.data.data;
 
-            const uniqueYears = [...new Set(data.map(item => parseInt(item.año)))];
-            const uniqueMonths = [...new Set(data.map(item => parseInt(item.mes)))];
+            if (data && data.length > 0) {
+                const uniqueYears = [...new Set(data.map(item => parseInt(item.año)))];
+                const uniqueMonths = [...new Set(data.map(item => parseInt(item.mes)))];
 
-            setNewYears(uniqueYears);
-            setNewMonths(defaultMonths.filter(month => uniqueMonths.includes(month.value)));
-            setNewAvailableData(data);
+                setNewYears(uniqueYears);
+                setNewMonths(defaultMonths.filter(month => uniqueMonths.includes(month.value)));
+                setNewAvailableData(data);
 
-            const maxItem = data.reduce((max, item) => {
-                if (parseInt(item.año) > parseInt(max.año) || (parseInt(item.año) === parseInt(max.año) && parseInt(item.mes) > parseInt(max.mes))) {
-                    return item;
+                const maxItem = data.reduce((max, item) => {
+                    if (parseInt(item.año) > parseInt(max.año) || (parseInt(item.año) === parseInt(max.año) && parseInt(item.mes) > parseInt(max.mes))) {
+                        return item;
+                    }
+                    return max;
+                }, data[0]);
+
+                if (!newSelectedYear && !newSelectedMonth) {
+                    setNewSelectedYear(maxItem.año.toString());
+                    setNewSelectedMonth(maxItem.mes.toString());
                 }
-                return max;
-            }, data[0]);
 
-            if (!newSelectedYear && !newSelectedMonth) {
-                setNewSelectedYear(maxItem.año.toString());
-                setNewSelectedMonth(maxItem.mes.toString());
+                setNewChartDataStatus('success');
+            } else {
+                setNewChartDataStatus('noData');
+                toast.info('No se encontraron datos de pagos.');
             }
         } catch (error) {
+            setNewChartDataStatus('error');
             toast.error('Error al obtener los datos de los pagos');
         }
     };
@@ -323,11 +356,14 @@ const Inicio = () => {
                     }
                 },
             });
+
+            setNewChartDataStatus('success');
         } else {
             setNewChartData(null);
             setTotalCuotas(0);
             setTotalMoras(0);
             setTotalExcesos(0);
+            setNewChartDataStatus('noData');
             toast.info('No hay datos disponibles para el mes y año seleccionados.');
         }
     };
@@ -387,13 +423,14 @@ const Inicio = () => {
                         </div>
 
                         <div className="chart-container">
-                            {chartData ? (
+                            {chartDataStatus === 'loading' && <p>Cargando gráfica...</p>}
+                            {chartDataStatus === 'noData' && <p>No se encontraron datos para mostrar.</p>}
+                            {chartDataStatus === 'error' && <p>Error al cargar los datos.</p>}
+                            {chartDataStatus === 'success' && chartData && (
                                 <Bar
                                     data={chartData}
                                     options={chartOptions}
                                 />
-                            ) : (
-                                <p>Cargando gráfica...</p>
                             )}
                         </div>
                         <div className="chart-info">
@@ -434,13 +471,14 @@ const Inicio = () => {
                         </div>
 
                         <div className="chart-container">
-                            {newChartData ? (
+                            {newChartDataStatus === 'loading' && <p>Cargando gráfica...</p>}
+                            {newChartDataStatus === 'noData' && <p>No se encontraron datos para mostrar.</p>}
+                            {newChartDataStatus === 'error' && <p>Error al cargar los datos.</p>}
+                            {newChartDataStatus === 'success' && newChartData && (
                                 <Bar
                                     data={newChartData}
                                     options={newChartOptions}
                                 />
-                            ) : (
-                                <p>Cargando gráfica...</p>
                             )}
                         </div>
                         <div className="chart-info">
@@ -454,7 +492,10 @@ const Inicio = () => {
                     <div className="card">
                         <h4>Resumen de Estado de Servicios</h4>
                         <div className="pie-chart-container">
-                            {pieData ? (
+                            {pieDataStatus === 'loading' && <p>Cargando gráfica...</p>}
+                            {pieDataStatus === 'noData' && <p>No se encontraron datos para mostrar.</p>}
+                            {pieDataStatus === 'error' && <p>Error al cargar los datos.</p>}
+                            {pieDataStatus === 'success' && pieData && (
                                 <Pie
                                     data={pieData}
                                     options={{
@@ -471,8 +512,6 @@ const Inicio = () => {
                                         }
                                     }}
                                 />
-                            ) : (
-                                <p>Cargando gráfica...</p>
                             )}
                         </div>
                         <div className="chart-info">
