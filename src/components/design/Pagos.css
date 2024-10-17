@@ -106,12 +106,13 @@ input:-webkit-autofill {
 
 .pagos-lectura-buttons{
   display: flex;
+  align-items: center;
   flex-direction: row;
   gap: 0.5rem;
 }
 
 .pagos-lectura-buttons button{
-  height: 2.5rem;
+  height: 3rem;
   width: 8rem;
   font-size: 1rem;
   background-color: var(--button-green);
@@ -125,6 +126,12 @@ input:-webkit-autofill {
 .pagos-lectura-buttons button:hover{
   background-color: var(--button-hover-green);
   scale: 1.05;
+}
+
+.pagos-lectura-buttons label{
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--dark-green)
 }
 
 .pagos-resultados .resultado-item {

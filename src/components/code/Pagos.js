@@ -44,6 +44,26 @@ const Pagos = () => {
         generateYears();
     }, []);
 
+    const generateConceptoPago = () => {
+        const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+        // Ordenar los meses seleccionados en orden cronológico
+        const sortedSelectedMonths = selectedMonths
+            .map(monthStr => {
+                const [year, month] = monthStr.split('-').map(Number);
+                return { year, month };
+            })
+            .sort((a, b) => (a.year - b.year) || (a.month - b.month)); // Ordenar por año y mes
+    
+        // Crear el concepto concatenando los meses y años
+        const conceptoPago = sortedSelectedMonths
+            .map(({ year, month }) => `${mesesNombres[month - 1]} ${year}`) // Formatear "Mes Año"
+            .join(', '); // Unir con comas
+    
+        return `Pagos adelantados para ${conceptoPago}`;
+    };
+    
+
     useEffect(() => {
         // Inicializar los pagos con los datos de lecturas
         setPagos(
@@ -332,32 +352,38 @@ const Pagos = () => {
             return;
         }
     
-        // Ordenar las lecturas por fecha (de más reciente a más antigua)
-        const lecturasOrdenadas = [...lecturas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        // Obtener todas las lecturas visibles en la tabla, usando `currentLecturas` que ya tienes paginadas
+        const lecturasMostradas = currentLecturas;  // Aquí usas las lecturas actualmente visibles en la tabla
     
-        // Obtener la suma total de la primera fila (más reciente)
-        const montoPagar = parseFloat(lecturasOrdenadas[0].suma_total) || 0;
+        // Si no hay lecturas visibles, salimos
+        if (lecturasMostradas.length === 0) {
+            toast.error("No hay lecturas visibles para realizar el pago");
+            return;
+        }
     
-        // Obtener el mes y el año de cada lectura
+        // Obtener la suma total de la primera fila visible (más reciente) 
+        const montoPagar = parseFloat(lecturasMostradas[0].suma_total) || 0;  // Primera fila de la tabla visible
+    
+        // Generar un array de textos como "Octubre 2024", "Noviembre 2024", etc., desde la más antigua a la más nueva
         const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-        
-        // Crear un array con los meses y años
-        const mesesYaños = lecturasOrdenadas.map(lectura => {
-            const mesNombre = meses[lectura.mes - 1]; // Convertimos el número del mes a su nombre en letras
-            return `${mesNombre} ${lectura.año}`;  // Devolvemos el mes y el año en formato "Mes Año"
+    
+        // Revertimos el array de lecturas mostradas para tener de más antiguo a más nuevo
+        const mesesTexto = [...lecturasMostradas].reverse().map(lectura => {
+            const mesNombre = meses[lectura.mes - 1];
+            return `${mesNombre} ${lectura.año}`;
         });
     
-        // Unimos los meses y años en una sola cadena, separados por comas
-        const mesesTexto = mesesYaños.join(', ');
-    
-        // Establecer el concepto del pago
-        const concepto = `Pago del servicio de agua de los meses de ${mesesTexto}`;
+        // Concatenar los meses y años en una sola cadena, separados por comas
+        const concepto = `Pago del servicio de agua del mes de ${mesesTexto.join(', ')}`;
     
         // Actualizar el estado del concepto y el monto a pagar
-        setMontoPagar(montoPagar);
-        setConceptoPago(concepto);
-        setShowModal(true);  // Abre el modal para realizar el pago
+        setMontoPagar(montoPagar);  // La cantidad de la primera fila visible (más nueva)
+        setConceptoPago(concepto);   // Concepto con los meses de más antiguo a más nuevo
+        setShowModal(true);          // Abre el modal para realizar el pago
     };
+    
+    
+    
     
     const handlePagoParcialPagarClick = () => {
         const totalParcial = pagos.reduce((acc, pago) => {
@@ -377,15 +403,19 @@ const Pagos = () => {
         setShowModal(false);
         setShowAdvancePaymentModal(false);
     };
+    
 
     const handleValorRecibidoChange = (e) => {
         const value = e.target.value;
         const regex = /^\d*\.?\d*$/; // Validar solo números y punto decimal
+        const totalConDescuento = totalToPay - discount; // Total con el descuento aplicado
+    
         if (regex.test(value)) {
             setValorRecibido(value);
-            setCambio((parseFloat(value || 0) - montoPagar).toFixed(2));
+            setCambio((parseFloat(value || 0) - totalConDescuento).toFixed(2)); // Restar el total con descuento
         }
     };
+    
 
     const handleConceptoPagoChange = () => {
         // Mapear los meses seleccionados a sus nombres
@@ -433,6 +463,8 @@ const Pagos = () => {
             toast.error('Debe ingresar un concepto para realizar el pago');
             return;
         }
+        setCambio('0.00'); 
+        setValorRecibido('');
     
         setLoadingPayment(true);  // Bloquear el botón y mostrar "Pagando..."
         let montoDisponible = parseFloat(valorRecibido);
@@ -504,6 +536,18 @@ const Pagos = () => {
     const indexOfLastLectura = currentPage * rowsPerPage;
     const indexOfFirstLectura = indexOfLastLectura - rowsPerPage;
     const currentLecturas = Array.isArray(lecturas) ? lecturas.slice(indexOfFirstLectura, indexOfLastLectura) : [];
+
+    useEffect(() => {
+        // Sumar la columna total_mensual + monto_exceso para todas las lecturas visibles
+        const totalSum = currentLecturas.reduce((acc, lectura) => {
+            const totalMensual = parseFloat(lectura.cuota_mensual) || 0;
+            const montoExceso = parseFloat(lectura.monto_exceso) || 0;
+            return acc + totalMensual + montoExceso;
+        }, 0);
+        
+        // Actualizar el estado montoPagar con la suma
+        setMontoPagar(totalSum);
+    }, [currentLecturas]);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -741,7 +785,8 @@ const Pagos = () => {
     
         // Si la validación es correcta, calculamos el total menos el descuento
         const totalConDescuento = totalToPay - discount;
-    
+        const concepto = generateConceptoPago();
+        setConceptoPago(concepto);
         // Pasamos el monto al modal de pago adelantado y lo mostramos
         openAdvancePaymentModal(totalConDescuento);
     };
@@ -761,14 +806,16 @@ const Pagos = () => {
     };
     
     const handlePagoModalClick = async () => {
-        // Validar que se haya ingresado un valor
+        const totalConDescuento = totalToPay - discount;  // Total con el descuento aplicado
+    
+        // Validar que se haya ingresado un valor válido
         if (!valorRecibido || parseFloat(valorRecibido) <= 0) {
             toast.error('Debe ingresar un monto válido para realizar el pago');
             return;
         }
     
-        // Validar que el valor recibido sea suficiente para cubrir el monto total a pagar
-        if (parseFloat(valorRecibido) < totalToPay) {
+        // Validar que el valor recibido sea suficiente para cubrir el monto total a pagar (con el descuento)
+        if (parseFloat(valorRecibido) < totalConDescuento) {
             toast.error('El monto ingresado no cubre el total a pagar');
             return;
         }
@@ -782,7 +829,7 @@ const Pagos = () => {
         setLoadingPayment(true);  // Bloquear el botón y mostrar "Pagando..."
     
         try {
-            // Iterar sobre los meses seleccionados
+            // Iterar sobre los meses seleccionados para registrar los pagos adelantados
             for (let i = 0; i < selectedMonths.length; i++) {
                 const [year, month] = selectedMonths[i].split('-').map(Number);
                 const isLastMonth = i === selectedMonths.length - 1; // Verificar si es el último mes seleccionado
@@ -806,18 +853,18 @@ const Pagos = () => {
             }
     
             toast.success('Pagos adelantados registrados con éxito');
-    
+            
+            // Limpiar estados
             setSelectedMonths([]);  // Limpiar los meses seleccionados
             setTotalToPay(0);       // Reiniciar el total a pagar
             setDiscount(0);         // Reiniciar el descuento
-            setSelectedQuickOption(null);  // Limpiar la opción de selección rápida (si se usa) 
-            setValorRecibido('');     // Limpiar el valor recibido
-            setCambio('0.00');        // Limpiar el cambio
-            setConceptoPago('');
-
-            setShowModalPagoAdelantado(false);
-            await fetchLecturasYPagos(filteredServicio.idservicio);
-            setShowAdvancePaymentModal(true);
+            setValorRecibido('');   // Limpiar el valor recibido
+            setCambio('0.00');      // Limpiar el cambio
+            setConceptoPago('');    // Limpiar el concepto
+    
+            setShowModalPagoAdelantado(false);  // Cerrar el modal
+            await fetchLecturasYPagos(filteredServicio.idservicio); // Actualizar lecturas y pagos
+            setShowAdvancePaymentModal(true);  // Volver a abrir el modal de pagos adelantados
         } catch (error) {
             console.error('Error al registrar los pagos adelantados:', error);
             toast.error('Error al registrar los pagos adelantados');
@@ -901,7 +948,7 @@ const Pagos = () => {
                             <button onClick={() => handleAdvancePaymentClick(filteredServicio.idservicio)}>
                                 Pagos Adelantados
                             </button>
-
+                            <label>Total: Q. {montoPagar.toFixed(2)}</label>
                         </div>
                         {/* Mostrar lecturas en una tabla */}
                         <div className="lecturas-table">
@@ -918,7 +965,7 @@ const Pagos = () => {
                                         <th>Exceso</th>
                                         <th>Monto Exceso</th>
                                         {/* <th>Total Excesos</th> */}
-                                        <th>Suma Total</th>
+                                        {/* <th>Suma Total</th> */}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -930,7 +977,7 @@ const Pagos = () => {
                                         currentLecturas.map((lectura) => {
                                             const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
                                             const mesNombre = meses[lectura.mes - 1];
-                                            const porcentajeMora = `${(lectura.porcentaje_acumulado * 100).toFixed(0)}%`;
+                                            const porcentajeMora = `${(lectura.porcentaje_acumulado * 1).toFixed(0)}%`;
                                             return (
                                                 <tr key={lectura.idlectura}>
                                                     <td>{mesNombre} {lectura.año}</td>
@@ -943,7 +990,7 @@ const Pagos = () => {
                                                     <td>{lectura.exceso}</td>
                                                     <td>{lectura.monto_exceso}</td>
                                                     {/* <td>{lectura.total}</td> */}
-                                                    <td>{lectura.suma_total}</td>
+                                                    {/* <td>{lectura.suma_total}</td> */}
                                                 </tr>
                                             );
                                         })
@@ -987,6 +1034,7 @@ const Pagos = () => {
             
             {showModal && (
                 <div className="modal-overlay" onClick={handleModalClose}>
+                    
                     <div className="modal" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-content">
                             <h2>Pagos</h2>

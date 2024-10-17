@@ -283,7 +283,8 @@ const Servicios = () => {
                 !selectedServicio.loteubicacion ||
                 !selectedServicio.idcliente ||
                 !selectedServicio.anio_inicio_lectura ||
-                !selectedServicio.mes_inicio_lectura
+                !selectedServicio.mes_inicio_lectura ||
+                !selectedServicio.lectura_inicial
             ) {
                 toast.error('Todos los campos son obligatorios.');
                 return false;
@@ -297,7 +298,8 @@ const Servicios = () => {
                 !selectedServicio.loteubicacion ||
                 !selectedServicio.nombrecliente ||
                 !selectedServicio.anio_inicio_lectura ||
-                !selectedServicio.mes_inicio_lectura
+                !selectedServicio.mes_inicio_lectura ||
+                !selectedServicio.lectura_inicial
             ) {
                 toast.error('Todos los campos son obligatorios.');
                 return false;
@@ -647,7 +649,17 @@ const Servicios = () => {
                             ))}
                         </select>
                     </div>
-
+                    <div className="row">
+                        <label className="servicios-label">Lectura Inicial:</label>
+                        <input
+                            className="servicios-input"
+                            type="text"
+                            placeholder="Lectura Inicial"
+                            name="lectura_inicial"
+                            value={selectedServicio ? selectedServicio.lectura_inicial : ''}
+                            onChange={handleInputChange}
+                        />
+                    </div>
                 </div>
                 <div className="servicios-data-buttons">
                     <button className="servicios-button" onClick={handleSave} disabled={loadingSave}>
