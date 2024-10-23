@@ -53,6 +53,15 @@ const Pagos = () => {
         generateYears();
     }, []);
 
+    useEffect(() => {
+        if (showModalPagoParcial) {
+            // Limpiar el campo cambio y otros al abrir el modal
+            setCambioParcial(0);
+            setValorRecibidoParcial(''); // Limpiar el campo valor recibido
+            setConceptoPago(''); // Limpiar el concepto
+        }
+    }, [showModalPagoParcial]);
+
     const generateConceptoPago = () => {
         const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     
@@ -126,6 +135,9 @@ const Pagos = () => {
     
     const handleModalPagoParcialClose = () => {
         setShowModalPagoParcial(false);
+        setCambioParcial(0); // Limpiar el campo cambio
+        setValorRecibidoParcial(''); // Limpiar el campo valor recibido
+        setConceptoPago(''); // Limpiar el concepto
     };
 
     // Función para actualizar la lectura con el pago ingresado
@@ -414,6 +426,8 @@ const Pagos = () => {
         return `Pagos parciales para ${conceptoPago}`;
     };    
     
+    // Función para calcular la nueva mora
+    // Función para calcular la nueva mora
     const calcularNuevaMora = (cuotaOriginal, cuotaIngresada, porcentajeAcumulado) => {
         const nuevaCuota = cuotaOriginal - cuotaIngresada;
         const moraBase = nuevaCuota * (porcentajeAcumulado / 100);
@@ -421,46 +435,52 @@ const Pagos = () => {
         return moraBase + iva;
     };
 
-    const actualizarLectura = async (lectura, cuotaIngresada, moraIngresada, excesoIngresado) => {
+    const actualizarLectura = async (lectura, cuotaIngresada, moraIngresada, excesoIngresado, montoAcumulado) => {
         // Verificar si el exceso ha sido pagado completamente
         let nuevoExceso = lectura.monto_exceso - excesoIngresado;
         if (nuevoExceso < 0) nuevoExceso = 0; // Asegurarse de que el exceso nunca sea negativo
     
         let excesoPagado = nuevoExceso === 0; // Solo marcar como pagado si el nuevo exceso es exactamente 0
     
-        // Si la cuota y la mora pagadas son iguales a las originales, se marcan como pagadas
-        const cuotaRestante = lectura.cuota - cuotaIngresada; // Restar lo pagado de la cuota original
-        const moraRestante = lectura.monto_mora - moraIngresada; // Restar lo pagado de la mora original
+        // Calcular la nueva mora usando la función calcularNuevaMora
+        const nuevaMora = calcularNuevaMora(lectura.cuota, cuotaIngresada, lectura.porcentaje_acumulado);
     
-        // Si se ha pagado completamente la cuota o mora, ajustamos el estado de pagado
-        const cuotaPagada = cuotaRestante <= 0;
-        const moraPagada = moraRestante <= 0;
+        // Calcular el valor restante para cuota
+        const cuotaRestante = lectura.cuota - cuotaIngresada;
+        const moraRestante = nuevaMora; // Ahora usamos la nueva mora calculada
     
         // Asegurar que los valores de cuota y mora restantes no sean negativos
         let nuevaCuota = cuotaRestante > 0 ? cuotaRestante : 0;
-        let nuevaMora = moraRestante > 0 ? moraRestante : 0;
+    
+        // Cálculo de totalMensual (si no lo tienes calculado previamente, lo puedes agregar aquí)
+        const totalMensual = parseFloat(lectura.cuota_mensual) - cuotaIngresada - moraIngresada;
+    
+        // Asegúrate de que suma_total se calcule correctamente y no concatenando valores como strings
+        const sumaTotal = parseFloat(totalMensual) + nuevoExceso + nuevaMora; // Incluimos la nueva mora en suma total
+    
+        // Asignar mora_pagada dependiendo del valor de nuevaMora
+        const moraPagada = nuevaMora === 0;
     
         // Construir el cuerpo de la actualización por lectura
         const lecturaParaActualizar = {
-            monto_mora: moraPagada ? 0 : nuevaMora, // Si mora pagada, asignamos 0, si no, la nueva mora recalculada
-            monto_acumulado: parseFloat(lectura.monto_acumulado) || 0,
+            monto_mora: nuevaMora, // Nueva mora recalculada
+            monto_acumulado: montoAcumulado, // Monto acumulado
             cuota: nuevaCuota, // Aquí se guarda la cuota restante, no la ingresada
-            cuota_mensual: parseFloat(totalMensual) || 0,
-            monto_exceso: nuevoExceso, // Actualizar con el nuevo exceso calculado
-            exceso: lectura.exceso, // Monto original de exceso
-            mora_pagada: moraPagada,
+            cuota_mensual: totalMensual, // Aquí guardamos el totalMensual calculado
+            monto_exceso: nuevoExceso, // Nuevo exceso calculado
+            mora_pagada: moraPagada, // Si la nueva mora es 0, entonces mora_pagada = true
             exceso_pagado: excesoPagado, // True si el exceso es exactamente 0
-            porcentaje_acumulado: cuotaPagada ? 0 : lectura.porcentaje_acumulado, // Si se paga la cuota, reiniciar el porcentaje acumulado
-            total: cuotaIngresada + moraIngresada + excesoIngresado,
-            suma_total: parseFloat(lectura.cuota_mensual) + nuevoExceso,
-            lectura_pagada: cuotaPagada // Marcar como pagada si la cuota fue completamente cubierta
+            porcentaje_acumulado: nuevaCuota === 0 ? 0 : lectura.porcentaje_acumulado,
+            total: cuotaIngresada + moraIngresada + excesoIngresado, // Suma de lo que se pagó en esta transacción
+            suma_total: sumaTotal, // Aquí se asegura que el valor es un número válido
+            lectura_pagada: nuevaCuota === 0 // Marcar como pagada si la cuota fue completamente cubierta
         };
     
         // Realizar la solicitud PUT para actualizar la lectura
         await axios.put(`${API_URL}/lectura-parcial/${lectura.idlectura}`, lecturaParaActualizar);
     };
     
-    
+
     const registrarPago = async (lectura, cuotaIngresada, moraIngresada, excesoIngresado) => {
         // Registrar el pago para la lectura
         await axios.post(`${API_URL}/pagos`, {
@@ -495,13 +515,23 @@ const Pagos = () => {
                 const moraIngresada = parseFloat(getPagoForLectura(lectura.idlectura, 'moraPago')) || 0;
                 const excesoIngresado = parseFloat(getPagoForLectura(lectura.idlectura, 'excesoPago')) || 0;
     
+                // Calcular el nuevo Monto Acumulado basado en lo que se muestra en la tabla
+                const montoAcumuladoActual = parseFloat(lectura.montoAcumulado);
+    
+                await registrarPago(lectura, cuotaIngresada, moraIngresada, excesoIngresado);
+    
+                // Actualizar la lectura, incluyendo el nuevo valor del monto_acumulado
+                await actualizarLectura(lectura, cuotaIngresada, moraIngresada, excesoIngresado, montoAcumuladoActual);
+                
                 // Solo actualizar las lecturas que tienen pagos (cuota, mora, exceso mayores a 0)
-                if (cuotaIngresada > 0 || moraIngresada > 0 || excesoIngresado > 0) {
-                    // 1. Registrar el pago
-                    await registrarPago(lectura, cuotaIngresada, moraIngresada, excesoIngresado);
-                    // 2. Actualizar la lectura
-                    await actualizarLectura(lectura, cuotaIngresada, moraIngresada, excesoIngresado);                    
-                }
+                // if (cuotaIngresada > 0 || moraIngresada > 0 || excesoIngresado > 0) {
+                //     // Registrar el pago
+                //     await registrarPago(lectura, cuotaIngresada, moraIngresada, excesoIngresado);
+    
+                //     // Actualizar la lectura, incluyendo el nuevo valor del monto_acumulado
+                //     await actualizarLectura(lectura, cuotaIngresada, moraIngresada, excesoIngresado, montoAcumuladoActual);
+                // }
+
             }
     
             toast.success('Pagos parciales actualizados correctamente');
@@ -1282,6 +1312,7 @@ const Pagos = () => {
                                         <th>Cuota</th>
                                         <th>% Mora</th>
                                         <th>Monto Mora</th>
+                                        <th>Nueva Mora</th>
                                         <th>Total Mensual</th>
                                         <th>Monto Acumulado</th>
                                         <th>Monto Exceso</th>
@@ -1347,6 +1378,7 @@ const Pagos = () => {
                                                             />
                                                         </div>
                                                     </td>
+                                                    <td>Nueva mora</td>
                                                     <td>
                                                         <div className="two-cells">
                                                             <span className="cell-value">{lectura.cuota_mensual}</span>
