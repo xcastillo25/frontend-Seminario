@@ -53,6 +53,7 @@ input:-webkit-autofill {
     padding: 0 5px;
     height: 1.8rem;
     border-radius: 5px;
+    width: 99%;
   }
   
   .configuracion-data-buttons {
