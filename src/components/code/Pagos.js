@@ -109,7 +109,6 @@ const Pagos = () => {
     
         // Expresión regular para validar números decimales
         const regex = /^\d*\.?\d{0,2}$/; // Limitar a 2 decimales
-
     
         // Si el valor es solo un punto ".", lo convertimos en "0."
         if (value === '.') {
@@ -125,9 +124,24 @@ const Pagos = () => {
                         : pago
                 )
             );
+    
+            // Calcular la nueva mora cada vez que se escribe algo en el campo de cuota
+            const lectura = lecturas.find((l) => l.idlectura === idlectura);
+            if (lectura) {
+                const nuevaMora = calcularNuevaMora(lectura.cuota, parseFloat(value) || 0, lectura.porcentaje_acumulado);
+                setPagos((prevPagos) =>
+                    prevPagos.map((pago) =>
+                        pago.idlectura === idlectura
+                            ? { ...pago, nuevaMora }  // Actualizamos la nueva mora en el estado
+                            : pago
+                    )
+                );
+            }
         }
     };
     
+    
+
     const getPagoForLectura = (idlectura, field) => {
         const pago = pagos.find((p) => p.idlectura === idlectura); // Buscamos el pago correspondiente
         return pago ? pago[field] || '' : ''; // Si existe el pago, devolvemos el valor del campo
@@ -502,6 +516,13 @@ const Pagos = () => {
         if (!valorRecibidoParcial || parseFloat(valorRecibidoParcial) <= 0) {
             toast.error('Debe ingresar un monto válido para realizar el pago');
             return;
+        }
+
+        const valorRecibidoNum = parseFloat(valorRecibidoParcial) || 0;
+
+        if (valorRecibidoNum < totalToPay) {
+            toast.error('El valor recibido no cubre el total a pagar.'); // Muestra un mensaje de error si no es suficiente
+            return; // Detener el pago si el valor es insuficiente
         }
     
         setLoadingPayment(true); // Establece el estado de cargando en true
@@ -981,13 +1002,13 @@ const Pagos = () => {
         const totalConDescuento = totalToPay - discount;  // Total con el descuento aplicado
     
         // Validar que se haya ingresado un valor válido
-        if (!valorRecibido || parseFloat(valorRecibido) <= 0) {
+        if (!valorRecibidoAdelantado || parseFloat(valorRecibidoAdelantado) <= 0) {
             toast.error('Debe ingresar un monto válido para realizar el pago');
             return;
         }
     
         // Validar que el valor recibido sea suficiente para cubrir el monto total a pagar (con el descuento)
-        if (parseFloat(valorRecibido) < totalConDescuento) {
+        if (parseFloat(valorRecibidoAdelantado) < totalConDescuento) {
             toast.error('El monto ingresado no cubre el total a pagar');
             return;
         }
@@ -1073,18 +1094,37 @@ const Pagos = () => {
             toast.error('No se ha ingresado ninguna cantidad para pagar.'); // Muestra un mensaje de error
             return; // Salir de la función si el total es 0
         }
-        
+    
+        // Validación: Verificar que si se ha ingresado una cantidad en cuota, también se haya ingresado en mora (si la mora es mayor a 0)
+        for (const lectura of lecturas) {
+            const cuotaPago = parseFloat(getPagoForLectura(lectura.idlectura, 'cuotaPago')) || 0;
+            const moraActual = parseFloat(lectura.monto_mora) || 0;
+            const moraPago = parseFloat(getPagoForLectura(lectura.idlectura, 'moraPago')) || 0;
+    
+            // Si se ingresó un valor en cuota y la mora actual es mayor a 0, verificar que también haya un valor en mora
+            if (cuotaPago > 0 && moraActual > 0) {
+                // Verificar que el monto ingresado en mora sea igual al monto_mora original
+                if (moraPago === 0) {
+                    toast.error(`Debe ingresar un monto en el campo de mora para la lectura de ${lectura.año} ${lectura.mes}.`);
+                    return; // Salir de la función si no se ingresó un valor en mora
+                } else if (moraPago !== moraActual) {
+                    toast.error(`El monto ingresado en mora para ${lectura.año} ${lectura.mes} debe ser igual a Q.${moraActual.toFixed(2)}.`);
+                    return; // Salir de la función si el valor ingresado en mora no es igual al monto_mora original
+                }
+            }
+        }
+    
         // Establecer el concepto del pago parcial antes de cerrar el primer modal
         const conceptoGenerado = generateConceptoPagoParcial(); // Usar la función que ya tienes para generar el concepto
         setConceptoPago(conceptoGenerado);
-    
-        // Cerrar el primer modal de Pago Parcial
-        // setShowPagoParcialModal(false);
     
         // Abrir el segundo modal para efectuar el pago, asegurando que los valores de total y concepto estén disponibles
         setTotalToPay(totalPago); // Establecer el total a pagar parcial
         setShowModalPagoParcial(true);
     };
+    
+    
+       
       
     return (
         <main>
@@ -1330,10 +1370,11 @@ const Pagos = () => {
                                             const totalFila = cuotaPago + moraPago + excesoPago;
                                             const cuotaIngresada = lectura.cuotaIngresada || 0;  // Valor por defecto para cuota ingresada
                                             
-                                            const nuevaMora = lectura.nuevaMora !== undefined ? lectura.nuevaMora : calcularNuevaMora(lectura.cuota, cuotaIngresada, lectura.porcentaje_acumulado);  // Recalcular si no existe aún
-                                            const totalMensual = parseFloat(lectura.cuota_mensual) - cuotaPago - moraPago;
+                                            //const nuevaMora = lectura.nuevaMora !== undefined ? lectura.nuevaMora : calcularNuevaMora(lectura.cuota, cuotaIngresada, lectura.porcentaje_acumulado);  // Recalcular si no existe aún
+                                            const nuevaMora = calcularNuevaMora(lectura.cuota, cuotaPago, lectura.porcentaje_acumulado); 
+                                            const totalMensual = parseFloat(lectura.cuota_mensual) - cuotaPago - moraPago + nuevaMora;
 
-                                            let montoAcumulado = totalMensual;
+                                            let montoAcumulado = totalMensual + nuevaMora;
                                             if (index < lecturas.length - 1) {
                                                 const filaAnterior = lecturas[index + 1];
                                                 montoAcumulado += filaAnterior.montoAcumulado;
@@ -1343,7 +1384,8 @@ const Pagos = () => {
                                             lectura.montoAcumulado = montoAcumulado;
                                             // La función de cálculo de mora
                                             // Definir primero la función calcularNuevaMora
-                                            
+                                            console.log("Valor de Nueva Mora para lectura", lectura.idlectura, ":", nuevaMora);
+
                                             return (
                                                 <tr key={lectura.idlectura}>
                                                     <td>{mesNombre} {lectura.año}</td>
@@ -1378,7 +1420,7 @@ const Pagos = () => {
                                                             />
                                                         </div>
                                                     </td>
-                                                    <td>Nueva mora</td>
+                                                    <td>{nuevaMora.toFixed(2)}</td>
                                                     <td>
                                                         <div className="two-cells">
                                                             <span className="cell-value">{lectura.cuota_mensual}</span>
