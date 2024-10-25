@@ -376,7 +376,7 @@ input:-webkit-autofill {
 }
 
 /* Estilos para el modal de Pago Parcial */
-.modal-overlay.pago-parcial-modal {
+.modal-overlay .pago-parcial-modal {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -384,7 +384,7 @@ input:-webkit-autofill {
   background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
 }
 
-.modal-overlay.pago-parcial-modal {
+.modal-overlay .pago-parcial-modal {
   display: flex;
   justify-content: center;  /* Centrar horizontalmente */
   align-items: center;  /* Centrar verticalmente */
@@ -399,15 +399,15 @@ input:-webkit-autofill {
 }
 
 .modal-overlay.pago-parcial-modal .modal {
-  width: 85%;  /* Ancho del modal */
+  width: 92%;  /* Ancho del modal */
   height: 85%;  /* Altura del modal */
   background-color: white;
   border-radius: 10px;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-  padding: 2rem;
+  padding: 1rem;
   position: relative;
   margin-bottom: 3rem;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .modal-overlay.pago-parcial-modal .modal .cliente-info{
