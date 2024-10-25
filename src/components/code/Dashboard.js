@@ -10,19 +10,23 @@ import Pagos from './Pagos'
 import Usuarios from './Usuarios';
 import Servicios from './Servicios';  
 import Lotes from './Lotes';
+import Lecturas from './Lecturas';
 import Perfil from './Perfil';
+import ViewPagos from './ViewPagos';
+import Inicio from './Inicio';
+import HistorialServicios from './HistorialServicios';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
   const [activeMenuItem, setActiveMenuItem] = useState('Overview');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [theme, setTheme] = useState('light');
-  const [topBarTitle, setTopBarTitle] = useState('Dashboard');
-  const [topBarIcon, setTopBarIcon] = useState('dashboard');
+  const [topBarTitle, setTopBarTitle] = useState('Inicio');
+  const [topBarIcon, setTopBarIcon] = useState('home');
   const { user } = useAuth();
+  const permisos = user.usuario
 
-
-  const [plataformaVisible, setPlataformaVisible] = useState('plataformaActividades');
+  const [plataformaVisible, setPlataformaVisible] = useState('plataformaInicio');
   const [asideVisible, setAsideVisible] = useState(true);
   const asideRef = useRef(null);
 
@@ -39,8 +43,10 @@ const Dashboard = () => {
 
   const logout = () => {
     localStorage.removeItem('token');
-    navigate('/session');
+    localStorage.removeItem('user');
+    navigate('/session', { replace: true });  // Redirige al inicio de sesión y reemplaza el historial
   };
+  
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
@@ -68,17 +74,25 @@ const Dashboard = () => {
       mostrarPlataforma('plataformaPagos');
     } else if (menuItem === 'Usuarios'){
       mostrarPlataforma('plataformaUsuarios')
-      } else if (menuItem === 'Servicios'){
+    } else if (menuItem === 'Servicios'){
       mostrarPlataforma('plataformaServicios')
     }else if (menuItem === 'Lotes'){
-      mostrarPlataforma('plataformaLotes')
-    } else if (menuItem === 'Perfil') {
+    mostrarPlataforma('plataformaLotes')
+    }else if (menuItem === 'Lecturas'){
+      mostrarPlataforma('plataformaLecturas')
+    }else if (menuItem === 'Perfil') {
       const idempleado = user?.usuario?.idempleado;  // Verifica si existe idempleado
       if (idempleado) {
         mostrarPlataforma('plataformaPerfil');
       } else {
         console.error('El idempleado no está definido');
       }
+    }else if (menuItem === 'ViewPagos') {
+      mostrarPlataforma('plataformaViewPagos');
+    }else if (menuItem === 'Inicio') {
+      mostrarPlataforma('plataformaInicio');
+    }else if (menuItem === 'Historial Servicios') {
+      mostrarPlataforma('plataformaHistorialServicios');
     }
   };
 
@@ -98,71 +112,87 @@ const Dashboard = () => {
         <nav className="menu">
           <h4>MENU</h4>
           <a 
-            href="#perfil" 
-            className={`menu-item ${activeMenuItem === 'Perfil' ? 'active' : ''}`} 
-            onClick={() => handleMenuClick('Perfil', 'Perfil', 'manage_accounts')}
+            href="#inicio" 
+            className={`menu-item ${activeMenuItem === 'Inicio' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Inicio', 'Inicio', 'home')}
           >
-            <span className="material-icons">manage_accounts</span>
-            <span>Perfil</span>
+            <span className="material-icons">home</span>
+            <span>Inicio</span>
           </a>
-          <a 
+          { permisos.clientes && (<a 
             href="#clientes" 
             className={`menu-item ${activeMenuItem === 'Clientes' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Clientes', 'Clientes', 'person')}
           >
             <span className="material-icons">person</span>
             <span>Clientes</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.empleados &&(<a 
             href="#empleados" 
             className={`menu-item ${activeMenuItem === 'Empleados' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Empleados', 'Empleados', 'group')}
           >
             <span className="material-icons">group</span>
             <span>Empleados</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.lotes &&(<a 
             href="#lotes" 
             className={`menu-item ${activeMenuItem === 'Lotes' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Lotes', 'Lotes', 'map')}
           >
             <span className="material-icons">map</span>
             <span>Lotes</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.servicios &&(<a 
             href="#servicios" 
             className={`menu-item ${activeMenuItem === 'Servicios' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Servicios', 'Servicios', 'build')}
           >
             <span className="material-icons">build</span>
             <span>Servicios</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.roles && (<a 
             href="#roles" 
             className={`menu-item ${activeMenuItem === 'Roles' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Roles', 'Roles', 'admin_panel_settings')}
           >
             <span className="material-icons">admin_panel_settings</span>
             <span>Roles</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.usuarios &&(<a 
             href="#usuarios" 
             className={`menu-item ${activeMenuItem === 'Usuarios' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Usuarios', 'Usuarios', 'account_circle')}
           >
             <span className="material-icons">account_circle</span>
             <span>Usuarios</span>
-          </a>
-          <a 
+          </a>)}
+          {permisos.pagos &&(<a 
             href="#pagos" 
             className={`menu-item ${activeMenuItem === 'Pagos' ? 'active' : ''}`} 
             onClick={() => handleMenuClick('Pagos', 'Pagos', 'payment')}
           >
             <span className="material-icons">payment</span>
             <span>Pagos</span>
-          </a>
-          
+          </a>)}
+          {permisos.lecturas &&(<a 
+            href="#lecturas" 
+            className={`menu-item ${activeMenuItem === 'Lecturas' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('Lecturas', 'Lecturas', 'table_rows')}
+          >
+            <span className="material-icons">table_rows</span>
+            <span>Lecturas</span>
+          </a>)}
+          {permisos.historial_pagos &&(<a 
+            href="#ViewPagos" 
+            className={`menu-item ${activeMenuItem === 'ViewPagos' ? 'active' : ''}`} 
+            onClick={() => handleMenuClick('ViewPagos', 'ViewPagos', 'request_quote')}
+          >
+            <span className="material-icons">request_quote</span>
+            <span>View Pagos</span>
+          </a>)}
         </nav>
+
         <div className="community">
           <h4>Reportes</h4>
           <a 
@@ -179,7 +209,7 @@ const Dashboard = () => {
             onClick={() => handleMenuClick('Historial Acciones', 'Historial Acciones', 'timeline')}
           >
             <span className="material-icons">timeline</span>
-            <span>Historial Acciones</span>
+            <span>Historial Usuarios</span>
           </a>
           <a 
             href="#historial-lecturas" 
@@ -190,6 +220,7 @@ const Dashboard = () => {
             <span>Historial Lecturas</span>
           </a>
         </div>
+
       </aside>
       <main className="main-content">
         <div className="top-bar">
@@ -204,9 +235,12 @@ const Dashboard = () => {
             <span className="top-bar-button material-icons" onClick={toggleTheme}>
               {theme === 'light' ? 'dark_mode' : 'light_mode'}
             </span>
-            <span onClick={() => handleMenuClick('Configuracion', 'Configuracion', 'settings')} className="top-bar-button material-icons" >
-              settings
+            <span onClick={() => handleMenuClick('Perfil', 'Perfil', 'manage_accounts')} className="top-bar-button material-icons" >
+              manage_accounts
             </span>
+            {permisos.configuracion &&(<span onClick={() => handleMenuClick('Configuracion', 'Configuracion', 'settings')} className="top-bar-button material-icons" >
+              settings
+            </span>)}
             <span className="top-bar-button material-icons" onClick={logout}>
               logout
             </span>
@@ -221,11 +255,13 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaUsuarios' && <Usuarios setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaServicios' && <Servicios setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaLotes' && <Lotes setPlataformaVisible={setPlataformaVisible}/>}
-          
+          {plataformaVisible === 'plataformaLecturas' && <Lecturas setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaPerfil' && user?.usuario?.idempleado && (
             <Perfil idempleado={user.usuario.idempleado} setPlataformaVisible={setPlataformaVisible} />
           )}
-
+          {plataformaVisible === 'plataformaViewPagos' && <ViewPagos setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaInicio' && <Inicio setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaHistorialServicios' && <HistorialServicios setPlataformaVisible={setPlataformaVisible}/>}
         </section> 
       </main>
     </div>

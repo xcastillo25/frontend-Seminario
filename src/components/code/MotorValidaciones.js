@@ -122,40 +122,46 @@ const MotorValidaciones = {
 
     validarNIT: (event) => {
         const input = event.target;
-        const valor = input.value;
+        const valor = input.value.trim();
         let resultado = true; // Se asume que es válido hasta que se demuestre lo contrario
-
+    
+        // Permitir "CF" como una opción válida
+        if (valor.toUpperCase() === "CF") {
+            input.style.background = "#ffffff"; // Es válido, el fondo se mantiene blanco
+            return;
+        }
+    
         // Comprobación básica de formato (ej. 1234567-8 o 1234567-K)
         const formatoNIT = /^(\d+)-?([\dk])$/i;
         const match = formatoNIT.exec(valor);
-
+    
         if (!match) {
             // Si no coincide con el formato básico, no es válido
             resultado = false;
         } else {
             const numero = match[1];
-            const digitoVerificador =
-                match[2].toLowerCase() === "k" ? 10 : parseInt(match[2], 10);
+            const digitoVerificador = match[2].toLowerCase() === "k" ? 10 : parseInt(match[2], 10);
             let suma = 0;
-
+    
             // Cálculo del dígito verificador
             for (let i = 0; i < numero.length; i++) {
                 suma += parseInt(numero[i], 10) * (numero.length + 1 - i);
             }
-
+    
             const modulo = (11 - (suma % 11)) % 11;
-
+    
             if (modulo !== digitoVerificador) {
                 resultado = false;
             }
         }
-
+    
         if (!resultado) {
-            input.style.background = "#F6B2B2";
+            input.style.background = "#F6B2B2"; // Resalta el error en rojo claro
         } else {
-            input.style.background = "#ffffff";
+            input.style.background = "#ffffff"; // Es válido, el fondo se mantiene blanco
         }
-    },
+    }
+    ,
 
     validaSoloNumerosCompleto: (event) => {
         const input = event.target;
@@ -181,7 +187,7 @@ const MotorValidaciones = {
         const valor = input.value;
         let resultado = true;
 
-        const formatoLetras = /^[a-zA-ZñÑ\s]+$/;
+        const formatoLetras = /^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s'’]+$/;
         const match = formatoLetras.exec(valor);
 
         if(!match) {
@@ -201,7 +207,7 @@ const MotorValidaciones = {
         const valor = input.value;
         let resultado = true;
 
-        const formato = /^[a-zA-Z0-9ñÑ]+$/;
+        const formato = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’]+$/;
         const match = formato.exec(valor);
 
         if(!match) {
@@ -220,27 +226,56 @@ const MotorValidaciones = {
         const codigoCaracter = event.which ? event.which : event.keyCode;
         const caracter = String.fromCharCode(codigoCaracter);
     
-        // Permitir solo números, guion y la letra K o k
-        const caracteresValidos = /^[0-9kK-]$/;
+        // Permitir solo números, guion, la letra K/k y CF/cf
+        const caracteresValidos = /^[0-9kKcCfF-]$/;
     
         if (!caracteresValidos.test(caracter)) {
-          event.preventDefault(); // Prevenir la entrada de caracteres no válidos
+            event.preventDefault(); // Prevenir la entrada de caracteres no válidos
         }
-      },
+    }
+    ,
 
 
       validarNumerosYLetrasKeyPress: (event) => {
         const codigoCaracter = event.which ? event.which : event.keyCode;
         const caracter = String.fromCharCode(codigoCaracter);
     
-        const caracteresValidos = /^[a-zA-Z0-9ñÑ]+$/;
+        const caracteresValidos = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’]+$/;
     
         if (!caracteresValidos.test(caracter)) {    
           event.preventDefault(); 
         }
       },
 
-      
+      validaLotesKeyPress: (event) => {
+        const codigoCaracter = event.which ? event.which : event.keyCode;
+        const caracter = String.fromCharCode(codigoCaracter);
+    
+        const caracteresValidos = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’-]+$/;
+    
+        if (!caracteresValidos.test(caracter)) {    
+          event.preventDefault(); 
+        }
+      },
+
+      validaLotesCompleto: (event) => {
+        const input = event.target;
+        const valor = input.value;
+        let resultado = true;
+
+        const formato = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’-]+$/;
+        const match = formato.exec(valor);
+
+        if(!match) {
+            resultado = false;
+        }
+
+        if (!resultado) {
+            input.style.background = "#F6B2B2";
+        } else {
+            input.style.background = "#ffffff";
+        }
+    },
 
 
 
@@ -250,8 +285,38 @@ const MotorValidaciones = {
         const caracter = String.fromCharCode(codigoCaracter);
 
         // Permite solo letras (mayúsculas y minúsculas) y espacios
-        if (!/^[a-zA-ZñÑ\s]+$/.test(caracter)) {
+        if (!/^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s'’]+$/.test(caracter)) {
             event.preventDefault();
+        }
+    },
+
+
+    // Validación para que se ingresen nombres de usuario validos
+    validaNombreUsuario: (event) => {
+        const codigoCaracter = event.which ? event.which : event.keyCode;
+        const caracter = String.fromCharCode(codigoCaracter);
+
+        if (!/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’._-]+$/.test(caracter)) {
+            event.preventDefault();
+        }
+    },
+
+    validaNombreUsuarioCompleto: (event) => {
+        const input = event.target;
+        const valor = input.value;
+        let resultado = true;
+
+        const formatoLetras = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’._-]+$/;
+        const match = formatoLetras.exec(valor);
+
+        if(!match) {
+            resultado = false;
+        }
+
+        if (!resultado) {
+            input.style.background = "#F6B2B2";
+        } else {
+            input.style.background = "#ffffff";
         }
     },
 

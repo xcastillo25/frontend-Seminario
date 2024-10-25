@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../design/Usuarios.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
+import MotorValidaciones from './MotorValidaciones';
 
 const Usuarios = () => {
     const [usuarios, setUsuarios] = useState([]);
@@ -20,9 +21,18 @@ const Usuarios = () => {
     const [resetingToggle, setResetingToggle] = useState(false);
     const [roles, setRoles] = useState([]);
 
+    //ReferenciasValidaciones
+    const usuarioRef = useRef(null);
+
     useEffect(() => {
         fetchUsuarios();
         fetchRoles();
+
+        MotorValidaciones.agregarEvento(usuarioRef.current, 'keypress', MotorValidaciones.validaNombreUsuario);
+        if (usuarioRef.current) {
+            MotorValidaciones.agregarEvento(usuarioRef.current, 'blur', MotorValidaciones.validaNombreUsuarioCompleto);
+        }
+
     }, []);
 
     const fetchRoles = async () => {
@@ -165,7 +175,52 @@ const Usuarios = () => {
             setResetingToggle(false); // Oculta el estado de carga
         }
     };
-    
+
+    const getPaginationRange = (currentPage, totalPages) => {
+        const totalNumbersToShow = 3; // Mostrar 3 páginas en el centro (incluyendo la actual)
+        const totalButtons = 5; // Total de botones de paginación (páginas + ...)
+        let pages = [];
+
+        if (totalPages <= totalButtons) {
+            // Mostrar todas las páginas si el total es menor o igual al número permitido de botones
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Mostrar siempre la primera página
+            pages.push(1);
+
+            // Si la página actual es mayor que 4, mostrar el '...'
+            if (currentPage > totalNumbersToShow) {
+                pages.push('...');
+            }
+
+            // Definir el rango de páginas centrales usando `totalNumbersToShow`
+            let startPage = Math.max(2, currentPage - Math.floor(totalNumbersToShow / 2)); // Comenzar antes de la actual
+            let endPage = Math.min(totalPages - 1, currentPage + Math.floor(totalNumbersToShow / 2)); // Terminar después de la actual
+
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+
+            // Si estamos a más de `totalNumbersToShow` páginas del final, mostrar el '...'
+            if (endPage < totalPages - 1) {
+                pages.push('...');
+            }
+
+            // Mostrar siempre la última página
+            if (endPage < totalPages) {
+                pages.push(totalPages);
+            }
+        }
+
+        return pages;
+    };
+
+
+
+
+    const paginationRange = getPaginationRange(currentPage, Math.ceil(filteredUsuarios.length / rowsPerPage));
 
     return (
         <main className="usuarios-container">
@@ -184,6 +239,7 @@ const Usuarios = () => {
                             value={selectedUsuario ? selectedUsuario.usuario : ''}
                             onChange={handleInputChange}
                             disabled={!selectedUsuario}  // Deshabilitado si no hay usuario seleccionado
+                            ref={usuarioRef}
                         />
                     </div>
                     <div className="row">
@@ -206,7 +262,7 @@ const Usuarios = () => {
                     <div className="row">
                         <label className="usuarios-label">Nombre:</label>
                         <input
-                            className="usuarios-input"
+                            className="usuarios-input lock"
                             type="text"
                             placeholder="Nombre del empleado"
                             name="nombre"
@@ -218,7 +274,7 @@ const Usuarios = () => {
                     <div className="row">
                         <label className="usuarios-label">Apellidos:</label>
                         <input
-                            className="usuarios-input"
+                            className="usuarios-input lock"
                             type="text"
                             placeholder="Apellidos del empleado"
                             name="apellidos"
@@ -320,11 +376,24 @@ const Usuarios = () => {
                     <div className="pagination">
                         <button onClick={() => paginate(1)} disabled={currentPage === 1}>Inicio</button>
                         <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
-                        {Array.from({ length: Math.ceil(filteredUsuarios.length / rowsPerPage) }, (_, index) => (
+                        {paginationRange.map((page, index) =>
+                        page === '...' ? (
+                            <span key={index} className="pagination-dots">...</span>
+                        ) : (
+                            <button
+                                key={index}
+                                onClick={() => paginate(page)}
+                                className={currentPage === page ? 'active' : ''}
+                            >
+                                {page}
+                            </button>
+                        )
+                    )}
+                        {/* {Array.from({ length: Math.ceil(filteredUsuarios.length / rowsPerPage) }, (_, index) => (
                             <button key={index + 1} onClick={() => paginate(index + 1)} className={currentPage === index + 1 ? 'active' : ''}>
                                 {index + 1}
                             </button>
-                        ))}
+                        ))} */}
                         <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(filteredUsuarios.length / rowsPerPage)}>Siguiente</button>
                         <button onClick={() => paginate(Math.ceil(filteredUsuarios.length / rowsPerPage))} disabled={currentPage === Math.ceil(filteredUsuarios.length / rowsPerPage)}>Último</button>
                         <select className="rows-per-page" value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} disabled={loadingSave || loadingToggle}>

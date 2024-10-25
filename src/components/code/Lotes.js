@@ -6,10 +6,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
 import MotorValidaciones from './MotorValidaciones';
-import { ValidaLetrasAlmacenar, ValidaLetrasyNumerosAlmacenar } from './ValidacionesAlmacenar';
+import { ValidaLetrasAlmacenar, ValidaLotesAlmacenar } from './ValidacionesAlmacenar';
 
 
-const Clientes = () => {
+const Lotes = () => {
     const [lotes, setLotes] = useState([]);
     const [selectedLote, setSelectedLote] = useState(null);
     const [editing, setEditing] = useState(false);
@@ -21,6 +21,7 @@ const Clientes = () => {
     const [loteToDelete, setLoteToDelete] = useState(null);
     const [loadingSave, setLoadingSave] = useState(false);
     const [loadingToggle, setLoadingToggle] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     //ReferenciasValidaciones
     const manzanaRef = useRef(null);
@@ -29,7 +30,7 @@ const Clientes = () => {
     useEffect(() => {
         //Validaciones
         MotorValidaciones.agregarEvento(manzanaRef.current, 'keypress', MotorValidaciones.validaSoloLetras);
-        MotorValidaciones.agregarEvento(loteRef.current, 'keypress', MotorValidaciones.validarNumerosYLetrasKeyPress);
+        MotorValidaciones.agregarEvento(loteRef.current, 'keypress', MotorValidaciones.validaLotesKeyPress);
 
 
         if (manzanaRef.current) {
@@ -37,7 +38,7 @@ const Clientes = () => {
         }
 
         if (loteRef.current) {
-            MotorValidaciones.agregarEvento(loteRef.current, 'blur', MotorValidaciones.validaLetrasYNumerosCompleto);
+            MotorValidaciones.agregarEvento(loteRef.current, 'blur', MotorValidaciones.validaLotesCompleto);
         }
 
         fetchLotes();
@@ -63,7 +64,7 @@ const Clientes = () => {
 
         setSelectedLote({
             ...selectedLote,
-            [name]: name === 'manzana' || name === 'lote'? value.toUpperCase() : value,
+            [name]: name === 'manzana' || name === 'lote' ? value.toUpperCase() : value,
         });
         setEditing(true);
     };
@@ -80,7 +81,7 @@ const Clientes = () => {
             return false;
         }
 
-        const resValidaLetrasyNumerosAlmacenar = ValidaLetrasyNumerosAlmacenar(selectedLote.lote, "Lote");
+        const resValidaLetrasyNumerosAlmacenar = ValidaLotesAlmacenar(selectedLote.lote, "Lote");
         if (!resValidaLetrasyNumerosAlmacenar.valido) {
             toast.error(resValidaLetrasyNumerosAlmacenar.mensaje);
             return false;
@@ -115,17 +116,22 @@ const Clientes = () => {
     };
 
     const confirmDelete = async () => {
-        setLoadingSave(true);
+        setDeleting(true);
         try {
             await axios.delete(`${API_URL}/lote/${loteToDelete}`);
             toast.success('Lote eliminado');
             fetchLotes();
             clearForm();
         } catch (error) {
-            handleError(error, 'Error al eliminar el lote.');
+            if (error.response && error.response.status === 409) {
+                // Si el servidor responde con un conflicto (status 409), significa que hay relaciones de claves foráneas
+                toast.error('No se puede eliminar el lote porque tiene registros relacionados.');
+            } else {
+                handleError(error, 'No se puede eliminar este Lote.');
+            }
         } finally {
             setShowModal(false);
-            setLoadingSave(false);
+            setDeleting(false);
         }
     };
 
@@ -170,6 +176,51 @@ const Clientes = () => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    const getPaginationRange = (currentPage, totalPages) => {
+        const totalNumbersToShow = 3; // Mostrar 3 páginas en el centro (incluyendo la actual)
+        const totalButtons = 5; // Total de botones de paginación (páginas + ...)
+        let pages = [];
+
+        if (totalPages <= totalButtons) {
+            // Mostrar todas las páginas si el total es menor o igual al número permitido de botones
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Mostrar siempre la primera página
+            pages.push(1);
+
+            // Si la página actual es mayor que 4, mostrar el '...'
+            if (currentPage > totalNumbersToShow) {
+                pages.push('...');
+            }
+
+            // Definir el rango de páginas centrales usando `totalNumbersToShow`
+            let startPage = Math.max(2, currentPage - Math.floor(totalNumbersToShow / 2)); // Comenzar antes de la actual
+            let endPage = Math.min(totalPages - 1, currentPage + Math.floor(totalNumbersToShow / 2)); // Terminar después de la actual
+
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+
+            // Si estamos a más de `totalNumbersToShow` páginas del final, mostrar el '...'
+            if (endPage < totalPages - 1) {
+                pages.push('...');
+            }
+
+            // Mostrar siempre la última página
+            if (endPage < totalPages) {
+                pages.push(totalPages);
+            }
+        }
+
+        return pages;
+    };
+
+
+
+
+    const paginationRange = getPaginationRange(currentPage, Math.ceil(filteredLotes.length / rowsPerPage));
     return (
         <main className="lotes-container">
             <ToastContainer />
@@ -280,13 +331,24 @@ const Clientes = () => {
                     <div className="pagination">
                         <button onClick={() => paginate(1)} disabled={currentPage === 1}>Inicio</button>
                         <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>Anterior</button>
-                        {Array.from({ length: Math.ceil(filteredLotes.length / rowsPerPage) }, (_, index) => (
-                            <button key={index + 1} onClick={() => paginate(index + 1)}>
-                                {index + 1}
-                            </button>
-                        ))}
+
+                        {paginationRange.map((page, index) =>
+                            page === '...' ? (
+                                <span key={index} className="pagination-dots">...</span>
+                            ) : (
+                                <button
+                                    key={index}
+                                    onClick={() => paginate(page)}
+                                    className={currentPage === page ? 'active' : ''}
+                                >
+                                    {page}
+                                </button>
+                            )
+                        )}
+
                         <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === Math.ceil(filteredLotes.length / rowsPerPage)}>Siguiente</button>
                         <button onClick={() => paginate(Math.ceil(filteredLotes.length / rowsPerPage))} disabled={currentPage === Math.ceil(filteredLotes.length / rowsPerPage)}>Último</button>
+
                         <select className="rows-per-page" value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))} disabled={loadingSave || loadingToggle}>
                             <option value="5">5</option>
                             <option value="10">10</option>
@@ -304,7 +366,13 @@ const Clientes = () => {
                         <span className="material-icons modal-icon">warning</span>
                         <h3>¿Estás seguro que deseas eliminar este registro?</h3>
                         <div className="modal-buttons">
-                            <button onClick={confirmDelete} className="confirm-button" disabled={loadingSave}>Eliminar</button>
+                            <button
+                                onClick={confirmDelete}
+                                className="confirm-button"
+                                disabled={deleting}  // Deshabilitar el botón mientras se está eliminando
+                            >
+                                {deleting ? 'Eliminando...' : 'Eliminar'}
+                            </button>
                             <button onClick={cancelDelete} className="cancel-button" disabled={loadingSave}>Cancelar</button>
                         </div>
                     </div>
@@ -314,4 +382,4 @@ const Clientes = () => {
     );
 };
 
-export default Clientes;
+export default Lotes;

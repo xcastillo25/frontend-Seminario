@@ -338,26 +338,30 @@ const Configuracion = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentConfiguraciones.map((configuracion) => (
-                                <tr key={configuracion.idconfiguracion} onClick={() => handleSelectConfiguracion(configuracion)}>
-                                    <td>{configuracion.servicio}</td>
-                                    <td>{configuracion.empresa}</td>
-                                    <td>{configuracion.direccion}</td>
-                                    <td>{configuracion.cuota}</td>
-                                    <td>{configuracion.mora}</td>
-                                    <td>{configuracion.exceso}</td>
-                                    <td>
-                                        <span className={`status ${configuracion.activo ? 'active' : 'inactive'}`}>
-                                            {configuracion.activo ? 'Activo' : 'Inactivo'}
-                                        </span>
-                                    </td>
-                                    <td className="configuracion-actions">
-                                        <button className="eliminar-icon-button" onClick={(e) => { e.stopPropagation(); handleDeleteClick(configuracion.idconfiguracion); }} disabled={loadingSave || loadingToggle}>
-                                            <span className="material-icons eliminar-icon">delete</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {currentConfiguraciones.map((configuracion) => {
+                                const porcentajeMora = `${(configuracion.porcentaje_mora * 100).toFixed(0)}%`;
+                                const porcentajeExceso = `${(configuracion.porcentaje_exceso * 100).toFixed(0)}%`;
+                                return (
+                                    <tr key={configuracion.idconfiguracion} onClick={() => handleSelectConfiguracion(configuracion)}>
+                                        <td>{configuracion.servicio}</td>
+                                        <td>{configuracion.empresa}</td>
+                                        <td>{configuracion.direccion}</td>
+                                        <td>{configuracion.cuota}</td>
+                                        <td>{porcentajeMora}</td>
+                                        <td>{porcentajeExceso}</td>
+                                        <td>
+                                            <span className={`status ${configuracion.activo ? 'active' : 'inactive'}`}>
+                                                {configuracion.activo ? 'Activo' : 'Inactivo'}
+                                            </span>
+                                        </td>
+                                        <td className="configuracion-actions">
+                                            <button className="eliminar-icon-button" onClick={(e) => { e.stopPropagation(); handleDeleteClick(configuracion.idconfiguracion); }} disabled={loadingSave || loadingToggle}>
+                                                <span className="material-icons eliminar-icon">delete</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                     <div className="pagination">
@@ -378,6 +382,7 @@ const Configuracion = () => {
                         </select>
                     </div>
                 </div>
+
             </section>
 
             {/* Modal de confirmación */}

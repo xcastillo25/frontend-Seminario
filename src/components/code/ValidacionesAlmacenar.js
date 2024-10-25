@@ -94,7 +94,7 @@ export function ValidaLetrasAlmacenar(valor, campo){
         valido = false;
     }
 
-    const campoRegex = /^[a-zA-ZñÑ\s]+$/;
+    const campoRegex = /^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s'’]+$/;
     if (!campoRegex.test(valor)) {
         mensaje += `${campo} con formato inválido.`;
         valido = false;
@@ -112,7 +112,7 @@ export function ValidaLetrasyNumerosAlmacenar(valor, campo){
         valido = false;
     }
 
-    const campoRegex = /^[a-zA-Z0-9ñÑ]+$/;
+    const campoRegex = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’]+$/;
     if (!campoRegex.test(valor)) {
         mensaje += `${campo} con formato inválido.`;
         valido = false;
@@ -121,6 +121,23 @@ export function ValidaLetrasyNumerosAlmacenar(valor, campo){
     return { valido, mensaje };
 }
 
+export function ValidaLotesAlmacenar(valor, campo){
+    let mensaje = "";
+    let valido = true;
+
+    if (!valor) {
+        mensaje += `Campo ${campo} Vacío`;
+        valido = false;
+    }
+
+    const campoRegex = /^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚüÜ'’-]+$/;
+    if (!campoRegex.test(valor)) {
+        mensaje += `${campo} con formato inválido.`;
+        valido = false;
+    }
+
+    return { valido, mensaje };
+}
 
 export function validaNIT(valor) {
     let mensaje = "";
@@ -131,7 +148,12 @@ export function validaNIT(valor) {
         valido = false;
     }
 
-    const nitRegExp = /^\d{7,8}-[\dkK]$/;
+    // Permitir "CF" como un valor válido
+    if (valor.toUpperCase() === "CF") {
+        return { valido: true, mensaje: "" }; // Si es "CF", se considera válido
+    }
+
+    const nitRegExp = /^(\d+)-?([\dk])$/i;
     if (!nitRegExp.test(valor)) {
         mensaje += "NIT con formato inválido. ";
         valido = false;

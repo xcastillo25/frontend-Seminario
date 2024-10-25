@@ -47,6 +47,52 @@ const Roles = () => {
         setEditing(true);
     };
 
+    const handleInputChange2 = (e) => {
+        const valor = e.target.checked ? true : false
+        setSelectedRol({
+            ...selectedRol,
+            [e.target.name]: valor,
+            todos: valor?false:false
+        });
+        setEditing(true);
+    };
+
+    const handleInputChange3 = (e) => {
+        const valor = e.target.checked ? true : false
+        if(valor){
+            setSelectedRol({
+                ...selectedRol,
+                clientes: true,
+                empleados: true,
+                lotes: true,
+                servicios: true,
+                roles: true,
+                usuarios: true,
+                pagos: true,
+                lecturas: true,
+                configuracion: true,
+                historial_pagos: true,
+                todos:true 
+            })
+        }else{
+            setSelectedRol({
+                ...selectedRol,
+                clientes: false,
+                empleados: false,
+                lotes: false,
+                servicios: false,
+                roles: false,
+                usuarios: false,
+                pagos: false,
+                lecturas: false,
+                configuracion: false,
+                historial_pagos: false,
+                todos: false 
+            })
+        }
+        setEditing(true);
+    };
+
     const validateForm = () => {
         if (!selectedRol || !selectedRol.rol) {
             toast.error('El campo "Rol" es obligatorio.');
@@ -137,7 +183,7 @@ const Roles = () => {
             <ToastContainer />
             <section className="roles-section">
                 <h1 className="roles-title">Gestión de Roles</h1>
-                <div className="roles-data">
+                <div className="roles-data" style={{gridTemplateColumns:'1fr 2fr'}}>
                     <div className="row">
                         <label className="roles-label">Rol:</label>
                         <input
@@ -148,6 +194,62 @@ const Roles = () => {
                             value={selectedRol ? selectedRol.rol : ''}
                             onChange={handleInputChange}
                         />
+                    </div>
+                    <div className="row-checkbox">
+                        <label>Permisos:</label>
+                        <div className="check">
+                            <div className="rows">
+                                <input type="checkbox" id='todos' name="todos"  onChange={handleInputChange3}
+                            checked={selectedRol?selectedRol.todos:false} />
+                                <label for="todos">Todos</label>
+                            </div>
+                            <div className="rows">
+                                <input type="checkbox" id='opcion1' name="clientes"  onChange={handleInputChange2} checked={selectedRol?selectedRol.clientes:false}/>
+                                <label for="opcion1">Clientes</label>
+                            </div>
+
+                            <div className="rows">
+                                <input type="checkbox" id="opcion2" name="empleados" onChange={handleInputChange2} checked={selectedRol?selectedRol.empleados:false}/>
+                                <label for="opcion2">Empleados</label>
+                            </div>
+
+                            <div className="rows">
+                                <input type="checkbox" id="opcion3" name="lotes" onChange={handleInputChange2} checked={selectedRol?selectedRol.lotes:false}/>
+                                <label for="opcion3">Lotes</label>
+                            </div>
+
+                            <div className="rows">
+                                <input type="checkbox" id="opcion4" name="servicios" onChange={handleInputChange2} checked={selectedRol?selectedRol.servicios:false}/>
+                                <label for="opcion4">Servicios</label>
+                            </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion5" name="roles" onChange={handleInputChange2} checked={selectedRol?selectedRol.roles:false}/>
+                                <label for="opcion5">Roles</label>
+                            </div>
+
+                            <div className="rows">
+                                <input type="checkbox" id="opcion6" name="usuarios" onChange={handleInputChange2} checked={selectedRol?selectedRol.usuarios:false}/>
+                                <label for="opcion6">Usuarios</label> 
+                            </div>
+
+                            <div className="rows">
+                                <input type="checkbox" id="opcion7" name="pagos" onChange={handleInputChange2} checked={selectedRol?selectedRol.pagos:false}/>
+                                <label for="opcion7">Pagos</label>
+                            </div>
+
+                            <div className="rows">
+                                <input type="checkbox" id="opcion8" name="lecturas" onChange={handleInputChange2} checked={selectedRol?selectedRol.lecturas:false}/>
+                                <label for="opcion8">Lecturas</label>
+                            </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion9" name="configuracion" onChange={handleInputChange2} checked={selectedRol?selectedRol.configuracion:false}/>
+                                <label for="opcion9">Configuración</label>
+                            </div>
+                            <div className="rows">
+                                <input type="checkbox" id="opcion10" name="historial_pagos" onChange={handleInputChange2} checked={selectedRol?selectedRol.historial_pagos:false}/>
+                                <label for="opcion10">Historial de pagos</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="roles-data-buttons">

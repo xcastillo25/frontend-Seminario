@@ -101,6 +101,9 @@ input:-webkit-autofill {
 
 .empleados-data-table {
   width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  overflow-x: auto;
   border-collapse: collapse;
   margin-top: 20px;
 }
@@ -112,6 +115,9 @@ input:-webkit-autofill {
   text-align: left;
   color: var(--text-color);
   text-align: center;
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .empleados-table th {
@@ -181,6 +187,13 @@ input:-webkit-autofill {
   margin-top: 1rem;
 }
 
+.pagination-dots {
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
+  font-weight: bold;
+}
+
 .pagination button {
   background-color: var(--button-green);
   color: white;
@@ -200,6 +213,21 @@ input:-webkit-autofill {
   background-color: grey;
   cursor: not-allowed;
 }
+
+/* Estilo para el botón activo */
+.pagination button.active {
+  background-color: var(--button-hover-green); /* Color del botón seleccionado */
+  color: white;
+}
+
+.pagination select {
+  border: 1px solid var(--input-border);
+  font-size: 1.1rem;
+  padding: 0.5rem;
+  border-radius: 5px;
+  background-color: white;
+}
+
 
 /* Modal de confirmación */
 .usuario-modal {
