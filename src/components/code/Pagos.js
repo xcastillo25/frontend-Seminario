@@ -1088,44 +1088,63 @@ const Pagos = () => {
         setLecturas(updatedLecturas); // Actualizamos el estado sin sobrescribir otros campos
     };
 
+    const getMonthName = (monthNumber) => {
+        const months = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+        return months[monthNumber - 1]; // Restar 1 porque los meses en el array son 0-indexados
+    };
+    
     const showEfectuarPagoParcialClick = () => {
-        // Validar si el totalPago es 0
         if (totalPago === 0) {
-            toast.error('No se ha ingresado ninguna cantidad para pagar.'); // Muestra un mensaje de error
-            return; // Salir de la función si el total es 0
+            toast.error('No se ha ingresado ninguna cantidad para pagar.');
+            return;
         }
     
-        // Validación: Verificar que si se ha ingresado una cantidad en cuota, también se haya ingresado en mora (si la mora es mayor a 0)
-        for (const lectura of lecturas) {
+        // Variables de control para verificar si las filas anteriores están completamente cubiertas
+        let cuotasCompletas = true;
+        let moraCompleta = true;
+    
+        for (let i = 0; i < lecturas.length; i++) {
+            const lectura = lecturas[i];
             const cuotaPago = parseFloat(getPagoForLectura(lectura.idlectura, 'cuotaPago')) || 0;
             const moraActual = parseFloat(lectura.monto_mora) || 0;
             const moraPago = parseFloat(getPagoForLectura(lectura.idlectura, 'moraPago')) || 0;
     
-            // Si se ingresó un valor en cuota y la mora actual es mayor a 0, verificar que también haya un valor en mora
-            if (cuotaPago > 0 && moraActual > 0) {
-                // Verificar que el monto ingresado en mora sea igual al monto_mora original
-                if (moraPago === 0) {
-                    toast.error(`Debe ingresar un monto en el campo de mora para la lectura de ${lectura.año} ${lectura.mes}.`);
-                    return; // Salir de la función si no se ingresó un valor en mora
-                } else if (moraPago !== moraActual) {
-                    toast.error(`El monto ingresado en mora para ${lectura.año} ${lectura.mes} debe ser igual a Q.${moraActual.toFixed(2)}.`);
-                    return; // Salir de la función si el valor ingresado en mora no es igual al monto_mora original
+            // Validar que las cuotas y moras de las filas anteriores estén completamente cubiertas
+            if (!cuotasCompletas || !moraCompleta) {
+                // Si una fila previa no está completamente pagada, no permitir pagos en filas más recientes
+                if (cuotaPago > 0 || moraPago > 0) {
+                    toast.error(`Debe completar los pagos de ${lecturas[i - 1].año} ${lecturas[i - 1].mes} antes de continuar.`);
+                    return;
                 }
             }
+    
+            // Validar si la cuota tiene un pago pero no se ha cubierto la mora de la misma fila
+            if (cuotaPago > 0 && moraActual > 0) {
+                if (moraPago === 0) {
+                    toast.error(`Debe ingresar un monto en el campo de mora para ${lectura.año} ${lectura.mes}.`);
+                    return;
+                } else if (moraPago !== moraActual) {
+                    toast.error(`El monto ingresado en mora para ${lectura.año} ${lectura.mes} debe ser igual a Q.${moraActual.toFixed(2)}.`);
+                    return;
+                }
+            }
+    
+            // Actualizar las banderas para cuotas y moras completas
+            cuotasCompletas = cuotaPago === lectura.cuota; // Se completa si la cuota está totalmente cubierta
+            moraCompleta = moraPago === moraActual; // Se completa si la mora está completamente cubierta
         }
     
-        // Establecer el concepto del pago parcial antes de cerrar el primer modal
-        const conceptoGenerado = generateConceptoPagoParcial(); // Usar la función que ya tienes para generar el concepto
+        // Si pasa todas las validaciones, proceder con el pago
+        const conceptoGenerado = generateConceptoPagoParcial();
         setConceptoPago(conceptoGenerado);
-    
-        // Abrir el segundo modal para efectuar el pago, asegurando que los valores de total y concepto estén disponibles
-        setTotalToPay(totalPago); // Establecer el total a pagar parcial
+        setTotalToPay(totalPago);
         setShowModalPagoParcial(true);
     };
     
     
-       
-      
     return (
         <main>
             <ToastContainer />

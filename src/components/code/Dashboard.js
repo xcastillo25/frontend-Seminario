@@ -15,6 +15,7 @@ import Perfil from './Perfil';
 import ViewPagos from './ViewPagos';
 import Inicio from './Inicio';
 import HistorialServicios from './HistorialServicios';
+import HistorialLecturas from './HistorialLecturas';
 import { useAuth } from './ContextAuth';
 
 const Dashboard = () => {
@@ -93,6 +94,8 @@ const Dashboard = () => {
       mostrarPlataforma('plataformaInicio');
     }else if (menuItem === 'Historial Servicios') {
       mostrarPlataforma('plataformaHistorialServicios');
+    }else if (menuItem === 'Historial Lecturas') {
+      mostrarPlataforma('plataformaHistorialLecturas');
     }
   };
 
@@ -209,7 +212,7 @@ const Dashboard = () => {
             onClick={() => handleMenuClick('Historial Acciones', 'Historial Acciones', 'timeline')}
           >
             <span className="material-icons">timeline</span>
-            <span>Historial Usuarios</span>
+            <span>Historial Lotes</span>
           </a>
           <a 
             href="#historial-lecturas" 
@@ -262,6 +265,7 @@ const Dashboard = () => {
           {plataformaVisible === 'plataformaViewPagos' && <ViewPagos setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaInicio' && <Inicio setPlataformaVisible={setPlataformaVisible}/>}
           {plataformaVisible === 'plataformaHistorialServicios' && <HistorialServicios setPlataformaVisible={setPlataformaVisible}/>}
+          {plataformaVisible === 'plataformaHistorialLecturas' && <HistorialLecturas setPlataformaVisible={setPlataformaVisible}/>}
         </section> 
       </main>
     </div>
