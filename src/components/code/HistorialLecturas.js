@@ -36,6 +36,7 @@ const HistorialLecturas = () => {
     const [discount, setDiscount] = useState(0);
     const [showModalPagoParcial, setShowModalPagoParcial] = useState(false);
     const [chartData, setChartData] = useState(null);
+    const [showGraph, setShowGraph] = useState(false);
 
     useEffect(() => {
         fetchServicios();
@@ -116,8 +117,11 @@ const HistorialLecturas = () => {
         if (filtered) {
             setFilteredServicio(filtered);
             await fetchLecturas(filtered.idservicio);
+            setShowGraph(true)
         } else {
             setFilteredServicio(null);
+            setShowGraph(false);
+            setChartData(null);
         }
     };
     
@@ -358,28 +362,30 @@ const HistorialLecturas = () => {
                     )}
                 </div>
                 
-                <div>
-                    <h1>Historial de Lecturas</h1>
-                    {chartData ? (
-                        <Bar
-                            data={chartData}
-                            options={{
-                                responsive: true,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        title: {
-                                            display: true,
-                                            text: 'Valor',
+                {showGraph && ( 
+                    <div className="historial-lecturas-grafico">
+                        <h1>Historial de Lecturas</h1>
+                        {chartData ? (
+                            <Bar
+                                data={chartData}
+                                options={{
+                                    responsive: true,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            title: {
+                                                display: true,
+                                                text: 'Valor',
+                                            },
                                         },
                                     },
-                                },
-                            }}
-                        />
-                    ) : (
-                        <p>Cargando datos de la gráfica...</p>
-                    )}
-                </div>
+                                }}
+                            />
+                        ) : (
+                            <p>Cargando datos de la gráfica...</p>
+                        )}
+                    </div>
+                )}
             </section>
         </main>
     );
