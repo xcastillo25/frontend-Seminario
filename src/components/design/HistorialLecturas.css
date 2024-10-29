@@ -37,6 +37,12 @@ input:-webkit-autofill {
   .historial-lecturas-servicio{
     width: 10rem;
   }
+
+  .historial-lecturas-grafico{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   
   .historial-lecturas-busqueda {
     display: flex;
