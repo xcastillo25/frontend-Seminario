@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../design/HistorialLecturas.css';
+import '../design/Consumos.css';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { API_URL } from '../../config/config';
+import Logo from '../../assets/logo.png'
 
-const HistorialLecturas = () => {
+const Consumos = () => {
     const [servicios, setServicios] = useState([]);
     const [filteredServicios, setFilteredServicios] = useState([]);
     const [filteredServicio, setFilteredServicio] = useState(null);
     const [lecturas, setLecturas] = useState([]);
     const [selectedServicio, setSelectedServicio] = useState({});
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterColumn, setFilterColumn] = useState('lotes.ubicacion');
+    const [filterColumn, setFilterColumn] = useState('clientes.cui');
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [showModal, setShowModal] = useState(false);
@@ -36,6 +37,7 @@ const HistorialLecturas = () => {
     const [discount, setDiscount] = useState(0);
     const [showModalPagoParcial, setShowModalPagoParcial] = useState(false);
     const [chartData, setChartData] = useState(null);
+    const [showGraph, setShowGraph] = useState(false);
 
     useEffect(() => {
         fetchServicios();
@@ -116,8 +118,11 @@ const HistorialLecturas = () => {
         if (filtered) {
             setFilteredServicio(filtered);
             await fetchLecturas(filtered.idservicio);
+            setShowGraph(true)
         } else {
             setFilteredServicio(null);
+            setShowGraph(false);
+            setChartData(null);
         }
     };
     
@@ -177,6 +182,7 @@ const HistorialLecturas = () => {
         setFilteredServicio(null);
     
         await filterServicio();
+        setShowGraph(true);
     };
     
     const handleError = (error, defaultMessage) => {
@@ -189,6 +195,8 @@ const HistorialLecturas = () => {
     const handleReset = () => {
         setFilteredServicio(null);
         setSearchTerm('');
+        setShowGraph(false);
+        setChartData(null);
     };
 
     const handleConceptoPagoChange = () => {
@@ -239,18 +247,15 @@ const HistorialLecturas = () => {
             return a.mes - b.mes; // Luego por mes
         });
     
-        // Tomamos las últimas 12 lecturas (en caso de que haya más de 12) y las mantenemos en orden ascendente
-        const last12Lecturas = sortedLecturas.slice(-12);
+        // Tomamos las últimas 12 lecturas (o menos si hay menos de 12)
+        const last12Lecturas = sortedLecturas.slice(-6);
     
-        // Variables para almacenar los valores de mora, exceso y diferencia de lecturas
+        // Calculamos la diferencia de lecturas para representar el consumo mensual
         let lecturaInicial = parseFloat(last12Lecturas[0]?.servicios?.lectura_inicial || 0);
-        const moraValues = [];
-        const excesoValues = [];
         const lecturaDifferences = [];
     
         last12Lecturas.forEach((lectura, index) => {
             const lecturaActual = parseFloat(lectura.lectura || 0);
-    
             if (index === 0) {
                 // Para la primera lectura, usamos lectura_inicial para calcular la diferencia
                 lecturaDifferences.push(lecturaActual - lecturaInicial);
@@ -258,10 +263,6 @@ const HistorialLecturas = () => {
                 const lecturaAnterior = parseFloat(last12Lecturas[index - 1].lectura || 0);
                 lecturaDifferences.push(lecturaActual - lecturaAnterior);
             }
-    
-            // Agregamos los valores de mora y exceso
-            moraValues.push(parseFloat(lectura.monto_mora || 0));
-            excesoValues.push(parseFloat(lectura.monto_exceso || 0));
         });
     
         // Configuramos las etiquetas de la gráfica en formato "Mes Año"
@@ -272,44 +273,37 @@ const HistorialLecturas = () => {
         
         const labels = last12Lecturas.map((lectura) => `${mesesNombres[lectura.mes - 1]} ${lectura.año}`);
     
-        // Configuramos los datos para la gráfica
+        // Configuramos los datos para la gráfica solo con los consumos
         setChartData({
             labels: labels,
             datasets: [
                 {
                     label: 'Consumo',
                     data: lecturaDifferences,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                },
-                {
-                    label: 'Mora',
-                    data: moraValues,
-                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                },
-                {
-                    label: 'Exceso',
-                    data: excesoValues,
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                },
+                    backgroundColor: 'rgba(0, 61, 46, 0.6)', // Color corregido en RGBA
+                }
             ],
         });
+        
     };
     
-
     return (
         <main>
             <ToastContainer />
-            <section className="historial-lecturas-section">
-                <h1 className="historial-lecturas-title">Gestión de Lecturas</h1>
-                <div className="historial-lecturas-busqueda">
+            <section className="consumos-section">
+                <div className="consumos-encabezado">
+                    <div>
+                        <h1 className="consumos-title">Bienvenido al Sistema de Gestión del Servicio de Agua</h1>
+                        <h1 className="consumos-title">Paseo Las Lomas, Salamá, Baja Verapaz</h1>
+                    </div>
+                    <div>
+                        <img src={Logo} alt="null" className="consumos-logo"/>
+                    </div>
+                </div>
+                <div className="consumos-busqueda">
                     <label>Buscar:</label>
                     <select value={filterColumn} onChange={handleFilterChange}>
-                        <option value="lotes.ubicacion">Lote</option>
-                        <option value="clientes.nombre">Nombre</option>
-                        <option value="clientes.apellidos">Apellidos</option>
                         <option value="clientes.cui">CUI</option>
-                        <option value="clientes.nit">NIT</option>
-                        <option value="clientes.telefono">Teléfono</option>
                     </select>
                     <input 
                         type="text"
@@ -321,7 +315,7 @@ const HistorialLecturas = () => {
                     <button onClick={handleReset}>Nuevo</button>
                 </div>
                 
-                <div className="historial-lecturas-resultados">
+                <div className="consumos-resultados">
                     {filteredServicio ? (
                         <div className="resultado-item">
                             <div className="row">
@@ -352,37 +346,50 @@ const HistorialLecturas = () => {
                                 <label>Cuota:</label>
                                 <h3>Q.{filteredServicio.configuracion.cuota}</h3>
                             </div>
+                            <div className="row"> 
+                                <label>Deuda Actual:</label>
+                                <h3>Q.400</h3>
+                            </div>
                         </div>
                     ) : (
                         <p>No se ha seleccionado ningún servicio.</p>
                     )}
                 </div>
                 
-                <div>
-                    <h1>Historial de Lecturas</h1>
-                    {chartData ? (
-                        <Bar
-                            data={chartData}
-                            options={{
-                                responsive: true,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        title: {
-                                            display: true,
-                                            text: 'Valor',
+                {showGraph && ( // Solo muestra el gráfico si showGraph es true
+                    <div className="consumos-grafico">
+                        <h1>Últimas 6 lecturas</h1>
+                        {chartData ? (
+                            <Bar
+                                data={chartData}
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            title: {
+                                                display: true,
+                                                text: 'Valor',
+                                            },
                                         },
                                     },
-                                },
-                            }}
-                        />
-                    ) : (
-                        <p>Cargando datos de la gráfica...</p>
-                    )}
-                </div>
+                                    plugins: {
+                                        chartAreaBackground: {
+                                            backgroundColor: 'white' // Fondo blanco
+                                        }
+                                    }
+                                }}
+                            />
+                        ) : (
+                            <p>Cargando datos de la gráfica...</p>
+                        )}
+                    </div>
+                )}
+
             </section>
         </main>
     );
 };
 
-export default HistorialLecturas;
+export default Consumos;
