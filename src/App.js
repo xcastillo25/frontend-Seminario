@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './components/code/ContextAuth.js';
 
 import Dashboard from './components/code/Dashboard';
 import Login from './components/code/Login';
+import Consumos from './components/code/Consumos';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -14,7 +15,7 @@ function ProtectedRoute({ children }) {
   }
 
   // Si el usuario no está autenticado, redirigir al login
-  return isAuthenticated ? children : <Navigate to="/session" replace />;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
         <div className="App">
           <Routes>
             {/* Ruta raíz redirige a la sesión */}
-            <Route path="/" element={<Navigate to="/session" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             
             {/* Ruta protegida */}
             <Route path="/home" element={
@@ -34,7 +35,8 @@ function App() {
             } />
             
             {/* Ruta pública */}
-            <Route path="/session" element={<Login />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/consumos" element={<Consumos />} />
           </Routes>
         </div>
       </Router>
