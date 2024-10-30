@@ -56,7 +56,6 @@ const HistorialServicios = () => {
     { label: 'Diciembre', value: 12 },
   ];
 
-  // Efecto para obtener los datos del API al montar el componente
   useEffect(() => {
     const fetchData = async () => {
       setLoadingStatus('loading');
