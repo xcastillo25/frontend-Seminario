@@ -38,6 +38,8 @@ const Consumos = () => {
     const [showModalPagoParcial, setShowModalPagoParcial] = useState(false);
     const [chartData, setChartData] = useState(null);
     const [showGraph, setShowGraph] = useState(false);
+    const [lecturasSinPago, setLecturasSinPago] = useState([]);
+    const [loadingLecturasSinPago, setLoadingLecturasSinPago] = useState(false);
 
     useEffect(() => {
         fetchServicios();
@@ -102,7 +104,19 @@ const Consumos = () => {
         } finally {
             setLoadingLecturas(false);
         }
-    };    
+    };
+
+    const fetchLecturasSinPago = async (idservicio) => {
+        try {
+            setLoadingLecturasSinPago(true);
+            const response = await axios.get(`${API_URL}/lecturas-idservicio/${idservicio}`);
+            setLecturasSinPago(response.data.lecturas || []);  // Aseguramos que lecturas sea siempre un array
+        } catch (error) {
+            handleError(error, 'Error al cargar lecturas');
+        } finally {
+            setLoadingLecturas(false);
+        }
+    };
 
     const filterServicio = async () => {
         const filtered = servicios.find(servicio => {
