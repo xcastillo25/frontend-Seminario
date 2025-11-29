@@ -140,8 +140,6 @@ const Pagos = () => {
         }
     };
     
-    
-
     const getPagoForLectura = (idlectura, field) => {
         const pago = pagos.find((p) => p.idlectura === idlectura); // Buscamos el pago correspondiente
         return pago ? pago[field] || '' : ''; // Si existe el pago, devolvemos el valor del campo
